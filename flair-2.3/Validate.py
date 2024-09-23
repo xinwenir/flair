@@ -276,6 +276,7 @@ class Validate:
 		( "GEOBEGIN"  , _GEOBEGIN_layout4 ),
 		( "VOXELS"    , _VOXELS_layout4   ),
 		( "&RPP"      , _RPP_layout4      ),
+		( "&TET"      , _TET_layout4      ), 
 		( "&BOX"      , _BOX_layout4      ),
 		( "&SPH"      , _SPH_layout4      ),
 		( "R&CC"      , _RCC_layout4      ),

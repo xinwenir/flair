@@ -173,6 +173,8 @@ class Mcnp:
 
 			if   tag == "RPP":
 				self._importRPP(card, body)
+			elif tag == "TET":#-----------------------------zxw20240827---For TET, added by zxw
+				self._importTET(card, body)	
 			elif tag == "BOX":
 				self._importBOX(card, body)
 			elif tag == "SPH":
@@ -439,7 +441,39 @@ class Mcnp:
 
 			# cutting plane
 			self._addSurf(body,'-',"P %s %.16g"%(vec(N), XC.dot(N)))
+	#----------------------------------------zxw20240816---------For TET, added by zxw
+	def _importTET(self, card, body):
+		V0 = card.bodyP1()
+		V1 = card.bodyP2()
+		V2 = card.bodyPn(3)
+		V3 = card.bodyPn(4)
+		u = V0 - V1
+		v = V2 - V1
+		w = V3 - V1
+		P = V1
+		if self.macroBodies:
+			self._addSurf(body,'-',"TET %s %s %s %s" \
+				% (V0, V1, V2, V3))
+		else:
+			# Correct the order
+			if (u.cross(v)).dot(w)<0:
+				u, v = v, u		# inverse X with Y
 
+			uC = P + u
+			vC = P + v
+			wC = P + w
+
+			# normal of the plane
+			N  = (vC-uC).cross(wC-uC)
+			N.norm()
+
+			# first 3 planes will be
+			self._addSurf(body,'+',"P %s %.16g"%(vec(u), P.dot(u)), str(card))
+			self._addSurf(body,'+',"P %s %.16g"%(vec(v), P.dot(v)))
+			self._addSurf(body,'+',"P %s %.16g"%(vec(w), P.dot(w)))
+
+			# cutting plane
+			self._addSurf(body,'-',"P %s %.16g"%(vec(N), uC.dot(N)))
 	#-----------------------------------------------------------------------
 	def _importPlane(self, card, body, axis):
 		if axis in ('X', 'Y', 'Z'):
@@ -1096,7 +1130,13 @@ class Mcnp:
 			              arg[3], arg[4], arg[5],
 			              arg[6], arg[7], arg[8],
 			              arg[9], arg[10], arg[11]]
-
+		#----------------------------------------------------zxw20240827-----For TET, added by zxw	
+		elif surface=="TET":
+			tag  = surface
+			what = [name, arg[0], arg[1], arg[2],
+			              arg[3], arg[4], arg[5],
+			              arg[6], arg[7], arg[8],
+			              arg[9], arg[10], arg[11]]
 		elif surface=="RPP":
 			tag  = surface
 			what = [name, arg[0], arg[1], arg[2],

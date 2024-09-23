@@ -3578,6 +3578,28 @@ what     C   coefficient;
 assert   w(1)!=0.0 or w(2)!=0.0 or w(3)!=0.0 or w(4)!=0.0 or w(5)!=0.0 or w(6)!=0.0
 meaning  Quadratic equation;
 
+name     TET
+# ------------------------
+group    Geometry
+type     simple
+disable  ifendif
+
+range    r r r r r r r r r r r r c8
+defaults - - - - - - - - - - - - -
+what     V1x of the first vertex;
+what     V1y of the first vertex;
+what     V1z of the first vertex;
+what     V2x of the second vertex;
+what     V2y of the second vertex;
+what     V2z of the second vertex;
+what     V3x of the third vertex;
+what     V3y of the third vertex;
+what     V3z of the third vertex;
+what     V4x of the fourth vertex;
+what     V4y of the fourth vertex;
+what     V4z of the fourth vertex;
+what     body name;
+meaning  Right Angle Wedge;
 
 name     WED
 # ------------------------

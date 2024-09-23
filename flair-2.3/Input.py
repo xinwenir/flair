@@ -2704,6 +2704,13 @@ class Card:
 			return bmath.Vector(	self.numWhat(1),
 						self.numWhat(3),
 						self.numWhat(5))
+		#-------------------------------------------------------------------------------
+		#ZXW---20240830---------For TET, added by zxw
+		elif   self.tag == "TET":     
+			return bmath.Vector(	self.numWhat(1),
+						self.numWhat(2),
+						self.numWhat(3))
+		#-------------------------------------------------------------------------------
 		elif self.tag == "PLA":
 			return bmath.Vector(	self.numWhat(4),
 						self.numWhat(5),
@@ -2736,6 +2743,10 @@ class Card:
 			return bmath.Vector(	self.numWhat(4),
 						self.numWhat(5),
 						self.numWhat(6))
+		elif self.tag == "TET": #ZXW20240830--------------For TET, added by zxw
+			return bmath.Vector(	self.numWhat(4),
+						self.numWhat(5),
+						self.numWhat(6))
 		else:
 			return None
 
@@ -2745,6 +2756,10 @@ class Card:
 	def bodyPn(self, n):
 		if   self.tag == "ARB":
 			i = 3*n-2
+			return bmath.Vector(	self.numWhat(i),
+						self.numWhat(i+1),
+						self.numWhat(i+2))
+		elif self.tag == "TET": #ZXW20240830--------------For TET, added by zxw
 			return bmath.Vector(	self.numWhat(i),
 						self.numWhat(i+1),
 						self.numWhat(i+2))
@@ -4920,7 +4935,10 @@ class Input:
 
 		elif tag in ("RPP","BOX"):
 			self._transformBox(card, matrix)
-
+		#--------------------------------------------------zxw20240827------------For TET, added by zxw
+		elif tag in ("TET"):
+			self._transformTET(card, matrix)
+		#--------------------------------------------------
 		elif tag=="REC":
 			self._transformREC(card, matrix)
 
@@ -5056,6 +5074,25 @@ class Input:
 		card.setWhat(11, self._format(Z[1]))
 		card.setWhat(12, self._format(Z[2]))
 
+	#-------------------------------------------ZXW20240827-----For TET, added by zxw
+	def _transformTET(self, card, matrix):
+		point1 = matrix * card.bodyP1()
+		point2 = matrix * card.bodyP2()
+		point3 = matrix * card.bodyPn(3)
+		point4 = matrix * card.bodyPn(4)
+		card.setWhat( 1, self._format(point1[0]))
+		card.setWhat( 2, self._format(point1[1]))
+		card.setWhat( 3, self._format(point1[2]))
+		card.setWhat( 4, self._format(point2[0]))
+		card.setWhat( 5, self._format(point2[1]))
+		card.setWhat( 6, self._format(point2[2]))
+		card.setWhat( 7, self._format(point3[0]))
+		card.setWhat( 8, self._format(point3[1]))
+		card.setWhat( 9, self._format(point3[2]))
+		card.setWhat(10, self._format(point4[0]))
+		card.setWhat(11, self._format(point4[1]))
+		card.setWhat(12, self._format(point4[2]))
+	#-----------------------------------------------------------------------
 	# ----------------------------------------------------------------------
 	def _transformREC(self, card, matrix):
 		point = matrix * card.bodyP()

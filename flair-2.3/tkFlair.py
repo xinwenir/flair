@@ -914,7 +914,7 @@ def bodiesMenu(menu, callback):
 		_addCommand("RAW")
 	else:
 		menu.add_command(label="",state=DISABLED)
-		menu.add_command(label="",state=DISABLED)
+		_addCommand("TET", 0) #-----------------------zxw20240822----For TET, added by zxw
 
 	menu.add_command(label="",state=DISABLED)
 	_addCommand("ELL", 1)	# L

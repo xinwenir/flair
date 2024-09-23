@@ -126,7 +126,21 @@ def newBody(tag, xyz, size, matrix):
 		what.extend( size*u)
 		what.extend( size*v)
 		what.extend(-size*w)
-
+	#-------------------------zxw20240827--For TET, added by zxw	
+	elif tag == "TET":
+		what.append(size*u[0])
+		what.append(size*u[1])
+		what.append(size*u[2])
+		what.append(xyz[0])
+		what.append(xyz[1])
+		what.append(xyz[2])
+		what.append(size*v[0])
+		what.append(size*v[1])
+		what.append(size*v[2])
+		what.append(-size*w[0])
+		what.append(-size*w[1])
+		what.append(-size*w[2])
+		
 	elif tag in ("WED", "RAW"):
 		what.extend(list(xyz))
 		what.extend( size*u)

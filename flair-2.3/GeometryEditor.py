@@ -223,6 +223,26 @@ _ELL_prop = [	("F1x",   1),
 		("@Rmajor",-4),
 		("@Rminor",-5)]
 
+#--------------------------------------------------------For TET, added by zxw
+#ZXW-20240816-right-angled tetrahedron
+_TET_prop = [	
+		("V1x",   1),
+		("V1y",   2),
+		("V1z",   3),
+		("V2x",   4),
+		("V2y",   5),
+		("V2z",   6),
+		("V3x",   7),
+		("V3y",   8),
+		("V3z",   9),
+		("V4x",  10),
+		("V4y",  11),
+		("V4z",  12)]
+		# ("@Dx",  -1),
+		# ("@Dy",  -2),
+		# ("@Dz",  -3)]
+#---------------------------------------------------------
+
 _WED_prop = [	("x",     1),
 		("y",     2),
 		("z",     3),
@@ -364,7 +384,8 @@ _BODIES = {	"ARB": _ARB_prop,
 		"TRX": _TRXYZ_prop,
 		"TRY": _TRXYZ_prop,
 		"TRZ": _TRXYZ_prop,
-		"VOXELS" : _VOXEL_prop }
+		"VOXELS" : _VOXEL_prop,
+		"TET": _TET_prop }
 
 _POINT_prop = [ ("option",	4),
 		("anchor",	5),
@@ -786,6 +807,11 @@ class BodyProperties(Properties):
 					if c.tag == "RPP":
 						undoinfo.append(
 							self.flair.setWhatUndo(c, 2, val+c.numWhat(1)))
+					# elif c.tag == "TET": #zxw20240830 -------------For TET, added by zxw
+					# 	V = c.bodyP()
+					# 	undoinfo.append(self.flair.setWhatUndo(c, 1, V[0]))
+					# 	undoinfo.append(self.flair.setWhatUndo(c, 2, V[1]))
+					# 	undoinfo.append(self.flair.setWhatUndo(c, 3, V[2]))	
 					else:
 						if c.tag in ("BOX", "WED", "RAW"):
 							V = c.bodyX()
@@ -820,6 +846,11 @@ class BodyProperties(Properties):
 						undoinfo.append(
 							self.flair.setWhatUndo(
 								c, 4, val+c.numWhat(3)))
+					# elif c.tag == "TET": #zxw20240830------------For TET, added by zxw
+					# 	V = c.bodyPn(3)
+					# 	undoinfo.append(self.flair.setWhatUndo(c, 7, V[0]))
+					# 	undoinfo.append(self.flair.setWhatUndo(c, 8, V[1]))
+					# 	undoinfo.append(self.flair.setWhatUndo(c, 9, V[2]))		
 					else:
 						if c.tag in ("BOX", "WED", "RAW"):
 							V = c.bodyY()
@@ -854,6 +885,11 @@ class BodyProperties(Properties):
 						undoinfo.append(
 							self.flair.setWhatUndo(
 								c, 6, val+c.numWhat(5)))
+					# elif c.tag == "TET": #zxw20240830-------For TET, added by zxw
+					# 	V = c.bodyPn(4)
+					# 	undoinfo.append(self.flair.setWhatUndo(c, 10, V[0]))
+					# 	undoinfo.append(self.flair.setWhatUndo(c, 11, V[1]))
+					# 	undoinfo.append(self.flair.setWhatUndo(c, 12, V[2]))
 					else:
 						if c.tag in ("BOX", "WED", "RAW"):
 							V = c.bodyZ()
@@ -2673,6 +2709,20 @@ class GeometryEditor(FlairRibbon.FlairPage):
 				state=DISABLED,
 				anchor=W,
 				command=self.regionVolume,
+				background=Ribbon._BACKGROUND)
+		if Input._developer: b["state"] = NORMAL
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=EW)
+		tkExtra.Balloon.set(b, "Calculate volume of selected regions")
+
+		# ---ZXW20240816-----------------------For TET added by zxw
+		col,row=1,1
+		b = Ribbon.LabelButton(group.frame,
+				image=tkFlair.icons["TET"],
+				text="Volume",
+				compound=LEFT,
+				state=DISABLED,
+				anchor=W,
+				command=self.regionVolume, 
 				background=Ribbon._BACKGROUND)
 		if Input._developer: b["state"] = NORMAL
 		b.grid(row=row, column=col, padx=0, pady=0, sticky=EW)

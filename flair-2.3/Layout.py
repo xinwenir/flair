@@ -855,6 +855,24 @@ _ELL_layout4 = [
 		("L:",		7),
 		_None2,
 		_None2 ]
+#-------------------------------- TET ------------------zxw20240827--For TET, added by zxw
+_TET_layout4 = [
+	(None,			0),
+		("V1x:",	1),
+		("V1y:",	2),
+		("V1z:",	3),
+	_None2,
+		("V2x:",	4),
+		("V2y:",	5),
+		("V2z:",	6),
+	_None2,
+		("V3x:",	7),
+		("V3y:",	8),
+		("V3z:",	9),
+	_None2,
+		("V4x:",	10),
+		("V4y:",	11),
+		("V4z:",	12) ]
 
 #-------------------------------- WED ------------------------------------------
 _WED_layout4 = [
@@ -4972,6 +4990,7 @@ def init():
 		( "GEOBEGIN"  , _GEOBEGIN_layout4 ),
 		( "VOXELS"    , _VOXELS_layout4   ),
 		( "&RPP"      , _RPP_layout4      ),
+		( "&TET"      , _TET_layout4      ), #ZXW20240830-----For TET, added by zxw
 		( "&BOX"      , _BOX_layout4      ),
 		( "&SPH"      , _SPH_layout4      ),
 		( "R&CC"      , _RCC_layout4      ),
