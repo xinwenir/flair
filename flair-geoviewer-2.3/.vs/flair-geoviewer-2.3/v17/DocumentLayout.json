@@ -38,8 +38,7 @@
               "RelativeToolTip": "geometry\\gbody.h",
               "ViewState": "AQIAAA0CAAAAAAAAAAAgwBgCAAApAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2024-09-23T02:49:23.277Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-09-23T02:49:23.277Z"
             },
             {
               "$type": "Document",
@@ -49,7 +48,7 @@
               "RelativeDocumentMoniker": "geometry\\gbody.cc",
               "ToolTip": "D:\\xinwenir\\PostDoctor\\Nuclear_Science\\FLUKA\\flair\\flair\\flair-geoviewer-2.3\\geometry\\gbody.cc",
               "RelativeToolTip": "geometry\\gbody.cc",
-              "ViewState": "AQIAAGYKAAAAAAAAAAAgwGgKAAAQAAAA",
+              "ViewState": "AQIAAHwGAAAAAAAAAAAgwIsGAAA4AAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2024-09-23T02:41:13.234Z",
               "EditorCaption": ""
@@ -64,8 +63,7 @@
               "RelativeToolTip": "gzone.cc",
               "ViewState": "AQIAAAAAAAAAAAAAAADwvw4AAAA8AAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2024-09-23T02:40:08.086Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-09-23T02:40:08.086Z"
             },
             {
               "$type": "Document",
@@ -77,8 +75,7 @@
               "RelativeToolTip": "geometryobject.cc",
               "ViewState": "AQIAAHwCAAAAAAAAAADwv38CAAAgAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2024-09-23T02:32:17.457Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-09-23T02:32:17.457Z"
             }
           ]
         }
