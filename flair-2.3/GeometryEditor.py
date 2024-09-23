@@ -224,7 +224,7 @@ _ELL_prop = [	("F1x",   1),
 		("@Rminor",-5)]
 
 #--------------------------------------------------------For TET, added by zxw
-#ZXW-20240816-right-angled tetrahedron
+#ZXW-20240816-right-angled rahedron
 _TET_prop = [	
 		("V1x",   1),
 		("V1y",   2),

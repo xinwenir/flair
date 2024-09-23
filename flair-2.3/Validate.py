@@ -280,7 +280,7 @@ class Validate:
 		( "&BOX"      , _BOX_layout4      ),
 		( "&SPH"      , _SPH_layout4      ),
 		( "R&CC"      , _RCC_layout4      ),
-		( "R&EC"      , _REC_layout4      ),
+		( "R&EC"      , _REC_layout4      ),	
 		( "&TRC"      , _TRC_layout4      ),
 		( "&TRX"      , _TRXYZ_layout4    ),
 		( "&TRY"      , _TRXYZ_layout4    ),

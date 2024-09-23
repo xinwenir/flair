@@ -278,7 +278,7 @@ _ADD_SEQUENCE = {	# use a list as a sequence since python 2.4 doesn't have tuple
 	"XEC"    : [  1, 2 ],
 	"YEC"    : [  1, 2 ],
 	"ZEC"    : [  1, 2 ],
-	"TET"    : [  11,  12], #zxw20240822---------# only position????? --For TET, added by zxw
+	"TET"    : [  1,   ], #zxw20240822---------# only position????? --For TET, added by zxw
 	"ARB"    : [  11,  12]  #zxw20240822---------# only position????? --For ARB, added by zxw
 }
 
