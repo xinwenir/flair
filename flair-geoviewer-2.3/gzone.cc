@@ -389,7 +389,7 @@ BBox GZone::bbox() const
 	if (!rpn()) {
 #if 1
 		// Check if expression contains only planes!
-		// FIXME should accept RPP, BOX, WED, RAW, ARB also
+		// FIXME should accept RPP, BOX, WED, RAW, ARB, TET also
 		bool onlyPlanes = true;
 		for (int i=0; i<size(); i++) {
 			GBody const* gbody = expr[i];

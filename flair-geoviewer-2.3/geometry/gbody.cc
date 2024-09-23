@@ -77,6 +77,7 @@ const char *GBody::_typeStr[] = {
 
 	"RPP", "BOX",
 	"WED", "RAW",
+	"TET", //For TET, added by zxw
 
 	"SPH", "ELL",
 
@@ -908,6 +909,7 @@ GBody* GBody::newBody(const char *name, const char *type)
 		else if (!strcmp(type, "ARB")) return new GARBBody(name);
 		else if (!strcmp(type, "WED") ||
 			 !strcmp(type, "RAW")) return new GWEDBody(name);
+		else if (!strcmp(type, "TET")) return new GTETBody(name); //For TET,added by zxw
 		else if (!strcmp(type, "XYP")) return new GPLABody(name, XYPbody);
 		else if (!strcmp(type, "XZP")) return new GPLABody(name, XZPbody);
 		else if (!strcmp(type, "YZP")) return new GPLABody(name, YZPbody);
@@ -949,6 +951,7 @@ GBody* GBody::newBody(const char *name, const BodyType type)
 			case ARBbody: return new GARBBody(name);
 			case WEDbody:
 			case RAWbody: return new GWEDBody(name);
+			case TETbody: return new GTETBody(name); //For TET, added by zxw
 			case XYPbody: return new GPLABody(name, type);
 			case XZPbody: return new GPLABody(name, type);
 			case YZPbody: return new GPLABody(name, type);
@@ -1670,7 +1673,7 @@ Location GPLABody::_locationWrt(const GBody *body) const
 	} else
 	if (body->type() == BOXbody || body->type() == RPPbody ||
 	    body->type() == WEDbody || body->type() == RAWbody ||
-	    body->type() == ARBbody) {
+	    body->type() == ARBbody || body->type() == TETbody { //For TET, added by zxw
 		// FIXME normally this check could be done for every object
 		// assuming a safe sagita distance
 		double n = sqrt(Sqr(Q(0).Cx) + Sqr(Q(0).Cy) + Sqr(Q(0).Cz));
@@ -2565,6 +2568,196 @@ OBBox* GWEDBody::updateOBB(bool in) const
 
 	return bb;
 } // obbox
+
+/* ---------------------------- GTETBody ------------------------------- */ //For TET, added by zxw
+void GTETBody::setWhat(double* what, char* err)
+{
+	fixWhat(what, nWhat(), SMALL);
+
+	mesh.allocateVertices(4);
+
+	// add vertices
+	P.set(what[3], what[4], what[5]); // P.set(what[0], what[1], what[2]);
+
+	P1.set(what[0], what[1], what[2]);
+	P2.set(what[6], what[7], what[8]);
+	P3.set(what[9], what[10], what[11]);
+
+	Vector u, v, w;
+	u = P1 - P;
+	v = P2 - P;
+	w = P3 - P;
+
+	X.set(u.x, u.y, u.z);
+	Y.set(v.x, v.y, v.z);
+	Z.set(w.x, w.y, w.z);
+
+	// normalize vectors
+	xlen = X.normalize();
+	ylen = Y.normalize();
+	zlen = Z.normalize();
+
+	for (int i = 0; i < 4; i++)
+		mesh.vertex(i) = Point(what[i * 3], what[i * 3 + 1], what[i * 3 + 2]);
+
+	// checkOrthogonal(err); 
+} // setWhat
+
+/* --- getWhat --- */
+int GTETBody::getWhat(double* what) const
+{
+	int w = 0;
+	for (int i = 0; i < 4; i++)
+	{
+		what[w++] = mesh.vertex(i).x;
+		what[w++] = mesh.vertex(i).y;
+		what[w++] = mesh.vertex(i).z;
+	}
+	return 12;
+} // getWhat
+
+/** move body item to location
+ * @param item	item to move as returned by closest
+ * @param r	position vector
+ * @param w	vertical axis of the viewport
+ */
+void GTETBody::move(int item, const Point& r, const Vector& w)
+{
+	Point dR = r - P;
+	for (int i = 0; i < mesh.nvertices(); i++)
+		mesh.vertex(i) += dR;
+
+	GBody::move(item, r, w);
+} // move
+/** rotate body around an axis and current body position
+ * @param angle	to rotate
+ * @param axis	to rotate
+ */
+void GTETBody::rotate(const double angle, const Vector& axis)
+{
+	GBody::rotate(angle, axis);
+	Matrix4 rot; // duplicate rot matrix with the GBody::rotate
+	rot.rotate(angle, axis);
+	for (int i = 1; i < 4; i++)
+	{
+		Vector v = mesh.vertex(i) - P;
+		//		mesh.vertex(i) = rot.multVector(v) + P;
+		mesh.vertex(i) = rot * v + P;
+	}
+} // rotate
+
+/** create Quads */
+void GTETBody::createQuads()
+{
+	Point V[4];
+	if (mesh.isEmpty())
+	{
+		mesh.allocateVertices(4);
+		return;
+	}
+	else
+	{
+		for (int j = 0; j < 4; j++)
+		{
+			V[j] = mesh.vertex(j);
+		}
+	}
+	// create quads
+	Vector N1 = (V[0] - V[1]) ^ (V[2] - V[1]);
+	Vector N2 = (V[3] - V[1]) ^ (V[2] - V[1]);
+	Vector N3 = (V[0] - V[1]) ^ (V[3] - V[1]);
+	Vector N4 = (V[3] - V[2]) ^ (V[0] - V[2]);
+
+	N1.normalize();
+	N2.normalize();
+	N3.normalize();
+	N4.normalize();
+
+	// 4 planes will be
+	//        Cx     Cy     Cz      C
+	// addQuad(N1.x, N1.y, N1.z, -N1 * V[1]);
+	// addQuad(-N2.x, -N2.y, -N2.z, N2 * V[1]);
+	// addQuad(-N3.x, -N3.y, -N3.z, N3 * V[1]);
+	// addQuad(-N4.x, -N4.y, -N4.z, N4 * V[2]);
+	addQuad(-N1.x, -N1.y, -N1.z, N1 * V[1]);
+	addQuad(N2.x, N2.y, N2.z, -N2 * V[1]);
+	addQuad(N3.x, N3.y, N3.z, -N3 * V[1]);
+	addQuad(N4.x, N4.y, N4.z, -N4 * V[2]);
+} // createQuads
+
+/* createMesh */
+void GTETBody::createMesh()
+{
+	// if (mesh.nedges())
+	// 	return;
+	Point V[4];
+	for (int j = 0; j < 4; j++)
+	{
+		V[j] = mesh.vertex(j);
+	}
+
+	mesh.add(0, 1, 2, true, true, true);
+	mesh.add(0, 2, 3, true, true, true);
+	mesh.add(0, 3, 1, true, true, true);
+	mesh.add(1, 3, 2, true, true, true);
+
+	mesh.calcBbox();
+	mesh.process();
+	assert(mesh.isClosed());
+	assert(mesh.isOrientable());
+#if _DEBUG > 2
+	cout << endl;
+	cout << "TET Mesh ";
+	cout << "isClosed=" << mesh.isClosed();
+	cout << "isOrientable=" << mesh.isOrientable() << endl;
+	cout << "TET volume=" << mesh.volume() << endl;
+#endif
+} // createMesh
+
+/** @return bounding box of body */
+BBox GTETBody::_bbox() const
+{
+	BBox bb;
+	Point V[4];
+	for (int j = 0; j < 4; j++)
+	{
+		V[j] = mesh.vertex(j);
+	}
+	Point p;
+	p = V[1];
+
+	bb.add(V[0].x - p.x, V[0].y - p.y, V[0].z - p.z);
+	bb.add(V[2].x - p.x, V[2].y - p.y, V[2].z - p.z);
+	bb.add(V[3].x - p.x, V[3].y - p.y, V[3].z - p.z);
+
+	return bb;
+} // bbox
+
+/** @return oriented bounding box of body */
+OBBox* GTETBody::updateOBB(bool in) const
+{
+	OBBox* bb = new OBBox();
+	bb->P = GBody::position();
+	Point V[4];
+	if (mesh.isEmpty())
+	{
+		bb->infinite();
+		return bb;
+	}
+	else
+	{
+		if (mesh.nvertices())
+		{
+			// use the vertices as a guess
+			for (int i = 0; i < mesh.nvertices(); i++)
+				bb->add(mesh.vertex(i));
+		}
+		else
+			bb->infinite();
+	}
+	return bb;
+} // obbox
+/*---------------------------------------------------------------------------*/ // zxw20240926
 
 /**
  * @param x,y	position

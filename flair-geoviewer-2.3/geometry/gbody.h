@@ -77,6 +77,7 @@ enum BodyType {
 	BOXbody,
 	WEDbody,
 	RAWbody,
+	TETbody, //For TET, added by zxw
 
 	SPHbody,
 	ELLbody,
@@ -145,6 +146,7 @@ public:
 
 protected:
 	Point	P, Po;		// position, outer position
+	Point P1, P2, P3;	// position1, position2, position3, position4--ZXW20240827--For TET, added by zxw
 	Vector	X, Y, Z;	// unit vectors along main axes
 	double	xlen, ylen, zlen;// dimensions of X Y Z or radius
 
@@ -153,6 +155,7 @@ protected:
 mutable OBBox	*_cached_obbox[2];
 
 	Point	SP, SPo;	// Save variables
+	Point SP1, SP2, SP3, SP4; // Save variables-------------------------ZXW20240827--For TET, added by zxw
 	Vector	SX, SY, SZ;	// to be restored later
 	double	sxlen, sylen, szlen;
 	int	sshow;		// show saved flag
@@ -523,6 +526,26 @@ public:
 	// bounding box
 	virtual	OBBox*	updateOBB(bool in = false) const;
 }; // GWEDBody
+
+/* --- GTETBody --- */ //-----------------zxw20240826 ---For TET, added by zxw
+class GTETBody : public GBody
+{
+public:
+	GTETBody(const char* aname) : GBody(aname, TETbody) {}
+
+	virtual void setWhat(double* what, char* err);
+	virtual int getWhat(double* what) const;
+	virtual int nWhat() const { return 12; }
+	virtual int nodes() const { return 4; }
+	virtual void move(int item, const Point& r, const Vector& w);
+	virtual void createQuads();
+	virtual void createMesh();
+	virtual void rotate(const double angle, const Vector& axis);
+	// bounding box
+	virtual BBox _bbox() const;  
+	virtual OBBox* updateOBB(bool in = false) const;
+}; // GTETBody
+/*--------------------------------------------------------------*/
 
 /* --- GARBBody --- */
 class GARBBody : public GBody {

@@ -456,6 +456,7 @@ static PyObject* Geometry_destroy(GeometryObject*self)
 	PRINT_SIZE(GTorusBody);
 	PRINT_SIZE(GVoxel);
 	PRINT_SIZE(GWEDBody);
+	PRINT_SIZE(GTETBody);//For TET, added by zxw
 	PRINT_SIZE(GZone);
 	PRINT_SIZE(Geometry);
 	PRINT_SIZE(GeometryEngine);
@@ -572,6 +573,7 @@ static PyObject *Geometry_addBody(GeometryObject *self, PyObject *args)
 
 	// Create body
 	GBody *body = self->geometry->addBody(name, type);
+	cout << "addBody--" << "+name:" << name << "+type:" << type << endl; //For TET, added by zxw
 	if (body)
 		return PyInt_FromLong(body->id());
 	else {
@@ -589,6 +591,7 @@ static PyObject *Geometry_addMaterial(GeometryObject *self, PyObject *args)
 
 	if (!PyArg_ParseTuple(args, "s", &name)) return NULL;
 	material = self->geometry->addMaterial(name);
+	cout << "addMaterial:" << name << endl; //For TET, added by zxw
 	return PyInt_FromLong(material->id());
 } /* Geometry_addMaterial */
 
@@ -642,6 +645,7 @@ static PyObject *Geometry_addRegion(GeometryObject *self, PyObject *args)
 
 	if (!PyArg_ParseTuple(args, "s", &name)) return NULL;
 	region = self->geometry->addRegion(name);
+	cout << "addRegion:" << name << endl; //For TET, added by zxw
 	return PyInt_FromLong(region->id());
 } /* Geometry_addRegion */
 
