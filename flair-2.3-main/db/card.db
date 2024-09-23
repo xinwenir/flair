@@ -1,0 +1,5224 @@
+## $Id: card.db,v 1.106 2011/10/05 09:47:20 bnv Exp $
+##
+## ------ dec'05 15-07:53
+##    empty lines plus # comment lines
+##
+##    FLUKA really has many option cards more than just those 84
+##    named ones they are logical combinations created by
+##    what/SDUM - assume only those for now some cards come with
+##    continuation lines and a few are special in other ways cards
+##    can be used on top of each other, special use of 0 for a set
+##    of cards (x) we have a list of defaults and then there's a
+##    GLOBAL to change over all card behavior
+##
+##    we want: group, range and defaults (units) as technical
+##    information at first concise purpose of card - end of string
+##    indicated by ; NEEDS TO BE LAST LINE PER OPTION CARD for
+##    simple parser
+##
+##    [s]lu - logical input/output unit
+##    mi    - material index
+##    ri    - region index
+##    pi    - particle index
+##    bi    - binning index
+##    di    - detector index
+##    vi    - preprocessor variable index
+##    ti    - transformation index (ROT-DEFI)
+##
+##    with i as step, PN (particle name), MN (material name), RN
+##    (region name) these all have names associated, BE AWARE of
+##    new optional names in input
+##
+##    - == not used   x == should not be used / no default
+##    f == simple flag   s == sign prefix
+##    i i() r r() l l()
+##    i = integer
+##    l = long integer
+##    r = float
+##    c8 c10 & &1 &2 &3 empty
+##
+## ------ jan'06 06-11:58
+##    changed API
+##    added short comments and in principle we now know if we
+##    ignore a what extra - NEEDS TO BE ON ONE SINGLE LINE,
+##    even though that's ugly
+##
+##    jun'06 20-09:34
+##    make use of unused [] in extra to have multiple fields
+##    within one record no more need to be on a single line
+##
+## ------ jul'06 28-17:34
+##    changes introduced by Vasilis/Alfredo
+##    re-ordering of groups (sometime more than 1 for an option)
+##    added real geometry types
+##
+##    aug'06 24-07:45
+##    adapted changes plus pushed Geometry type into extra reading
+##    section modify our API - we permit 2 cards equivalent for
+##    scoring options without further changes introduce two more
+##    types:
+##            extra - TITLE/OPEN/COMMENT/GEOBEGIN
+##            many  - PLOTGEOM plus all Geometry thingies
+##
+##    need to react to   w4 w5 w6 beam and 2pi/4pi
+
+name     ACCURACY
+# ------------------------
+group    obsolete
+type     extra
+disable  comment
+
+range    - - - - - - -
+defaults - - - - - - -
+what     nix 7;
+
+meaning  not supported anymore;
+
+
+name     ASSIGNMAT
+# ------------------------
+group    media
+type     simple
+disable  comment
+
+range    mi ri ri i(x>=0) i(x<0,x<=9) mi -
+defaults 1 2 w2 1 0 w1 -
+what     material ID/name;
+what     region ID/name;
+what     upper bound of the region indices;
+what     step length;
+what     [reset] [ignore] [1:magnetic field on,
+          2:electric field on, 3:magnetic+electric,
+          4:magnetic in prompt, 5:electric in prompt, 6:magnetic+electric in prompt,
+          7:magnetic in decay, 8:electric in decay, 9:magnetic+electric in decay];
+what     possible alternate material for radioactive decay product transport;
+what     nix;
+
+meaning  assign material to physical region of space and/or declare region to
+         contain a magnetic field;
+
+
+name     AUXSCORE
+# ------------------------
+group    scoring
+type     simple
+disable  comment
+
+range    USRBDX:USRBIN:EVENTBIN:USRTRACK:USRCOLL:USRYIELD pi i(x==-1,x==0,x==1) di di i(x>=0) EAP74:ERT74:EWT74:EAPMP:ERTMP:EWTMP:AMB74:AMBGS:-
+defaults USRBIN ALL-PART - 1 - 1 -
+what     binning/estimator type;
+what     particle type;
+what     flag for considering the possible parent for delta ray rather than the delta itself;
+what     starting binning/estimator index;
+what     end binning/estimator index;
+what     step in assigning indices;
+what     dose conversion coefficient;
+
+meaning  associate scoring estimators with auxiliary particle distributions and
+         dose equivalent conversion factors;
+
+
+name     BAMJET
+# ------------------------
+group    developers
+type     simple
+disable  comment
+
+range    r r r r r r c8
+defaults 0 0 0 0 0 0 -
+what     nix 7;
+
+meaning  defines the parameters of the chain hadronization algorithm;
+
+
+name     BEAM
+# ------------------------
+group    primary
+type     simple
+disable  comment
+
+range    r r r(x<=0,0<x<6.283,x>6.283) r r r pi
+defaults 200 0 0 0 w4 1 PROTON
+what     [average beam momentum (GeV/c)]
+         [average beam kinetic energy (GeV)];
+what     [magnitude, beam momentum spread (GeV/c), Gaussian distribution]
+         [beam momentum spread (GeV/c), flat distribution];
+what     [divergence (mrad), magnitude is FWHM of Gaussian distribution in angle]
+         [divergence (mrad), width of flat distribution in angle]
+         [isotropic distribution in angle];
+what     width in x (cm);
+what     width in y (cm);
+what     weight and a flag for w4/w5;
+what     FLUKA particle name;
+#assert   if(w(6)<0) w(5)>w(6)	<<< Needs conditional assert
+
+meaning  define beam characteristics, properties of primary particle;
+
+
+
+name     BEAMAXES
+# ------------------------
+group    primary
+type     simple
+disable  comment
+
+range    r(abs(x)<=1) r(abs(x)<=1) r(abs(x)<=1) r(abs(x)<=1) r(abs(x)<=1) r(abs(x)<=1) -
+defaults - - - - - - -
+what     direction cos  beam x - frame x;
+what     direction cos  beam x - frame y;
+what     direction cos  beam x - frame z;
+what     direction cos  beam z - frame x;
+what     direction cos  beam z - frame y;
+what     direction cos  beam z - frame z;
+what     nix;
+
+assert   abs((w(1)**2+w(2)**2+w(3)**2)-1.0)<1E-10
+assert   abs((w(4)**2+w(5)**2+w(6)**2)-1.0)<1E-10
+
+meaning  different beam reference system 'not aligned to Z axis';
+
+
+
+name     BEAMPOS
+# ------------------------
+group    primary
+type     simple
+disable  comment
+
+range    r r r r(abs(x)<=1) r(abs(x)<=1) - POSITIVE:NEGATIVE:-
+defaults 0 0 0 0 0 - POSITIVE
+what     x coordinate;
+what     y coordinate;
+what     z coordinate;
+what     direction cos of beam with x axis;
+what     direction cos of beam with y axis;
+what     nix;
+what     z-direction or extended source;
+
+range    r(x>=0) r(x>=0) - - - - SPHE-VOL
+defaults 0 1 - - - - POSITIVE
+what     radius of inner shell;
+what     radius of outer shell;
+what     nix 4;
+what     z-direction or extended source;
+assert   w(2)>w(1)
+
+range    r(x>=0) r(x>=0) r(x>=0) r(x>=0) - - CYLI-VOL
+defaults 0 1 0 1 - - POSITIVE
+what     radius of inner shell;
+what     radius of outer shell;
+what     inner cylinder height;
+what     outer cylinder height;
+what     nix 2;
+what     z-direction or extended source;
+assert   w(2)>w(1)
+assert   w(4)>w(3)
+
+range    r(x>=0) r(x>=0) r(x>=0) r(x>=0) r(x>=0) r(x>=0) CART-VOL
+defaults 0 1 0 1 0 1 POSITIVE
+what     inner box X-side length;
+what     outer box X-side length;
+what     inner box Y-side length;
+what     outer box Y-side length;
+what     inner box Z-side length;
+what     outer box Z-side length;
+what     z-direction or extended source;
+assert   w(2)>w(1)
+assert   w(4)>w(3)
+assert   w(6)>w(5)
+
+range    r(x>=0) - - - - - FLOOD
+defaults 1/sqrt(pi) - - - - - POSITIVE
+what     sphere radius;
+what     nix 5;
+what     z-direction or extended source;
+
+meaning  beam origin and direction or spatially extended sources;
+
+
+
+name     BIASING
+# ------------------------
+##                          problem with 1st defaults sdum: NOPRINT and NOUSER
+##                          problem with 2nd defaults w3: if<0 means all particles
+group    biasing
+type     multi-range what(1)
+disable  comment
+
+range    f(x==0,x==1,x==2,x==3) r(x>=0) r(.0001<=x<=100000.) ri ri i(x>=0) PRINT:NOPRINT:USER:NOUSER:RRPRONLY:-
+defaults - 1 1 2 w4 1 -
+what     (all particles, hadrons and muons, electrons positrons and photons, low energy neutrons);
+what     Russian Roulette or splitting factor of secondaries in a collision;
+what     region importance;
+what     region ID/name;
+what     upper bound of region;
+what     step assigning regions;
+what     print flag and/or request call to user routine usimbs.f;
+
+range    f(x<0) r(x>=0,x<0) pi pi i(x>=0) - -:PRIMARY:NOPRIMAR
+defaults - 1 1 w3 1 - PRIMARY
+what     region importances shall be modified by particle-dependent factor;
+what     modifying parameter M;
+what     particle ID/name;
+what     upper bound of particle;
+what     step length;
+what     nix;
+what     importance biasing is applied only to secondaries or to primaries also;
+
+meaning  bias multiplicity of secondaries (only for hadron or muon/photon
+         photonuclear interactions) per region OR set importance sampling
+         'Russian Roulette' at boundary crossing per region and per particle;
+
+
+
+name     BME
+# ------------------------
+group    physics
+type     defunct
+disable  comment
+
+range    - - - - - - not-used
+defaults - - - - - - -
+what     nix 7;
+
+meaning  low energy ion interactions - NOT IMPLEMENTED YET;
+
+
+
+name     COMMENT
+# ------------------------
+group    obsolete
+type     extra
+disable  comment
+
+range    - - - - - - -
+defaults - - - - - - -
+what     nix 7;
+
+meaning  not supported anymore;
+
+
+
+name     COMPOUND
+# ------------------------
+group    media
+type     simple
+disable  comment
+
+#range    r mi r mi r mi mi
+range    r mi r mi r mi mi r mi r mi r mi r mi r mi r mi r mi r mi r mi r mi r mi r mi r mi r mi r mi r mi r mi r mi r mi r mi r mi r mi r mi r mi r mi r mi r mi r mi r mi r mi r mi r mi r mi r mi r mi r mi r mi r mi r mi r mi r mi r mi r mi r mi r mi r mi r mi r mi r mi r mi r mi r mi r mi r mi r mi r mi r mi r mi r mi r mi r mi r mi r mi r mi r mi r mi r mi r mi r mi r mi r mi r mi r mi r mi r mi r mi r mi r mi
+defaults - - - - - - -
+what     depending on sign of w1 and w2, relative atomic content, mass or volume fraction;
+what     material ID/name;
+what     depending on sign of w1 and w2, relative atomic content, mass or volume fraction;
+what     material ID/name;
+what     depending on sign of w1 and w2, relative atomic content, mass or volume fraction;
+what     material ID/name;
+what     name of compound (assigned by MATERIAL option);
+
+meaning  define compound, alloy or mixture, made of several materials, or even a
+         mixture of different isotope - multiple successive cards with same SDUM can be
+         used (up to 25 continuation cards per compound);
+
+
+
+name     CORRFACT
+# ------------------------
+group    media
+type     simple
+disable  comment
+
+range    r(x<0,x==0,x>0) r(x<0,x==0,x>0) - ri ri i(x>=0) -
+defaults 1 1 - 2 w4 1 -
+what     [reset] [ignore] [density scaling factor for charged particle ionisation processes];
+what     [reset] [ignore] [density scaling factor for all other processes];
+what     nix;
+what     region ID/name;
+what     upper bound of region;
+what     step assigning regions;
+what     nix;
+
+assert   2./3<abs(w(1))*w(2)<3./2.
+
+meaning  alter material density for dE/dx and nuclear processes per region;
+
+
+
+name     DCYSCORE
+# ------------------------
+group    scoring
+type     simple
+disable  comment
+
+range    i(x>=-1) - - di di i(x>=0) EVENTBIN:RESNUCLE:USRBDX:USRBIN:USRCOLL:USRTRACK:USRYIELD
+defaults 0 - - 1 w4 1 -
+what     cooling time index associated with detector(s) given by what(4)-what(6) of estimator type defined by SDUM;
+what     nix 2;
+what     detector name/ID;
+what     upper bound of the detector name/ID indices;
+what     step length;
+what     kind of estimator;
+
+meaning  associate selected scoring detectors of given estimator type with
+         user-defined decay times;
+
+
+
+name     DCYTIMES
+# ------------------------
+group    transport
+type     simple
+disable  comment
+
+range    r r r r r r -
+defaults 0 0 0 0 0 0 -
+what     cooling time (in s) after the irradiation end to be associated to a scoring detector;
+what     cooling time (in s) after the irradiation end to be associated to a scoring detector;
+what     cooling time (in s) after the irradiation end to be associated to a scoring detector;
+what     cooling time (in s) after the irradiation end to be associated to a scoring detector;
+what     cooling time (in s) after the irradiation end to be associated to a scoring detector;
+what     cooling time (in s) after the irradiation end to be associated to a scoring detector;
+what     nix;
+
+meaning  define decay times (s) after irradiations at which selected quantities (for
+         instance residual dose) are scored;
+
+
+
+name     DEFAULTS
+# ------------------------
+group    general
+type     simple
+disable  comment
+
+range    - - - - - - CALORIME:DAMAGE:EET/TRAN:EM-CASCA:ICARUS:HADROTHE:NEUTRONS:NEW-DEFA:PRECISIO:SHIELDIN
+defaults - - - - - - NEW-DEFA
+what     nix 6;
+what     select a set of base default values according to a (coarse) project cathogory;
+
+meaning  set FLUKA defaults suitable for specific problems - standard defaults are
+         those described under NEW-DEFAults;
+
+
+
+name     DELTARAY
+# ------------------------
+group    transport
+type     defaults
+disable  comment
+
+range    r(x<0,x==0,x>0) r(x<0,x==0,x>0) r(x<0,0<=x<=1,x>1) mi mi i(x>=0) PRINT:NOPRINT
+defaults  .001 50 1.15 3 w4 1 NOPRINT   NEW-DEFA
+#defaults .0001 50 1.03 3 w4 1 NOPRINT   HADROTHE
+#defaults .0001 80 1.15 3 w4 1 NOPRINT   CALORIME
+#defaults .0001 80 1.04 3 w4 1 NOPRINT   ICARUS:PRECISIO
+#defaults   -1 50 1.15 3 w4 1 NOPRINT   EET/TRAN:EM-CASCA:NEUTRONS:SHIELDIN
+what     [reset] [ignore] [kinetic energy threshold (GeV) for delta ray production];
+what     [reset] [ignore] [number of logarithmic intervals for dp/dx momentum loss tabulation];
+what     [reset] [ignored] [logarithmic width of dp/dx momentum loss tabulation intervals];
+what     material ID/name;
+what     upper bound of material indices;
+what     step length;
+what     request print-out;
+
+meaning  activate delta ray production by muons and charged hadrons and/or control
+         the accuracy of the dp/dx tabulations;
+
+
+
+name     DETECT
+# ------------------------
+group    scoring
+type     multi-range sdum
+disable  comment
+
+range    i(x>=0) r(x>=0) r(x>=0) r(x>=0) f(x>0,x<0) sri c10  i(x==0) sri sri sri sri sri  i(x==0) sri sri sri sri sri
+defaults - 0 - 1.E-9 -1 - -
+what     select <=0 for detector;
+what     minimum total energy to be scored in the detector regions (lower limit);
+what     maximum total energy to be scored in the detector regions (upper limit);
+what     cut-off energy for the signal (threshold);
+what     detector regions are considered in coincidence (>0) or anti-coincidence tith trigger regions;
+what     first region of the detector (>0) or the trigger (<0);
+what     detector name unless &;
+assert   w(2)<w(3)
+
+#range    i(x>0) sri sri sri sri sri c10 i(x>0) sri sri sri sri sri
+#defaults - - - - - - &
+#extra    nix 7;
+
+meaning  score energy deposition per event 'detector', providing coincidence and/or
+         anti-coincidence capabilities like an experimental trigger;
+
+
+
+name     DISCARD
+# ------------------------
+group    transport
+type     simple
+disable  comment
+
+range    spi spi spi spi spi spi -
+defaults - - - - - - -
+what     particle name/ID of particle to be discarded (>0) or specifically enabled (<0) for transport;
+what     particle name/ID of particle to be discarded (>0) or specifically enabled (<0) for transport;
+what     particle name/ID of particle to be discarded (>0) or specifically enabled (<0) for transport;
+what     particle name/ID of particle to be discarded (>0) or specifically enabled (<0) for transport;
+what     particle name/ID of particle to be discarded (>0) or specifically enabled (<0) for transport;
+what     particle name/ID of particle to be discarded (>0) or specifically enabled (<0) for transport;
+what     nix;
+
+meaning  enable/suppress transport of particle types;
+
+
+
+name     DPM-PARA
+# ------------------------
+group    developers
+type     simple
+disable  comment
+
+range    r r r r r r c8
+defaults 0 0 0 0 0 0 -
+what     nix 7;
+
+meaning  defines the parameters of the Dual Parton Model as implemented
+         in FLUKA (for developers only);
+
+
+
+name     DPMJET
+# ------------------------
+group    physics
+type     simple
+disable  comment
+
+range    f(0<=x<=1) lu f(0<=x<=4) - - - -
+defaults 0 19 0 - - - -
+what     request old pre-processed Glauber parameter input format;
+what     select alternate logical output unit;
+what     select level of output verbosity for DPMJET;
+what     nix 4;
+
+meaning  message level and IO parameter setting for DPMJET - only for development work;
+
+
+
+name     ELCFIELD
+# ------------------------
+group    transport
+type     defunct
+disable  comment
+
+range    r(0<=x<=180) r(x>=0) r(x>=0) r r r -
+defaults 20 0.01 0.1 0 0 0 -
+what     largest angle [deg] a particle is allowed to travel in a single step;
+what     min. accuracy accepted in determining a boundary intersection;
+what     min. step [cm];
+what     Ex component of the electric field [kV/cm];
+what     Ey component of the electric field [kV/cm];
+what     Ez component of the electric field [kV/cm];
+
+meaning  define homogeneous electric field - not yet implemented;
+
+
+
+name     EMF
+# ------------------------
+group    transport
+type     defaults
+disable  comment
+
+range    - - - - - - EMF-ON:EMF-OFF:-
+defaults - - - - - - EMF-ON   NEW-DEFA:CALORIME:EM-CASCA:HADROTHE:ICARUS:PRECISIO
+#defaults - - - - - - EMF-OFF  EET/TRAN:NEUTRONS:SHIELDIN
+what     nix 6;
+what     active detailed treatment of electromagnetic interactions;
+
+meaning  activate Electro-Magnetic FLUKA: transport of electrons, positrons
+         and photons;
+
+
+name     EMF-BIAS
+# ------------------------
+group    biasing
+type     multi-range sdum
+disable  comment
+
+range    i(x<0,x==0,x>0) r(x<0,x==0,x>0) r(x<0,x==0,x>0) ri ri i(x>=0) LPBEMF:-
+defaults - -1 -1 2 w4 1 LPBEMF
+what     [reset] [ignore] [bit pattern to select combination of leading particle biasing, ignore, reset];
+what     [reset to infinity] [ignore] [e+/e- >0=kinetic, <0=total-energy threshold below which leading particle biasing is applied];
+what     [reset to infinity] [ignore] [photon energy threshold below which leading particle biasing is applied];
+what     region ID/name;
+what     upper bound of region;
+what     step assigning regions;
+what     request leading particle biasing - LPB;
+
+range    r(0<x<1,x==0,x<0,x>=1) r(0<x<1,x==0,x<0,x>=1) i(x>=0) mi mi i(x>=0) LAMBEMF:LAMBCOMP:LAMBBREM:LBRREMF:LBRRCOMP:LBRRBREM
+defaults - - 1 3 w4 1 -
+what     [reset] [ignore] [reduce e+/e- interaction mean free path (bremsstrahlung only if LAMBBREM), ignore, reset];
+what     [reset] [ignore] [reduce photon interaction mean free path (Compton scattering only if LAMBCOMP), ignore, reset];
+what     particle generation up to which the biasing is applied;
+what     material ID/name;
+what     upper bound of material indices;
+what     step length;
+what     -not-yet-implemented;
+
+meaning  set electron and photon biasing parameters, including leading particle
+         biasing per region or mean free path biasing per material;
+
+
+
+name     EMFCUT
+# ------------------------
+group    transport
+type     multi-range sdum
+disable  comment
+
+range    r(x<=-1.0E-6,x==0,x>=0.51e-3) r(x==0,x>=0.100E-6) f(x>=0,x<=1) mi mi i(x>=0) PROD-CUT
+defaults 0 0 - 3 w4 1 -
+what     [<0: energy threshold for e-/e+ production expressed as kinetic energy]
+         [0: ignore]
+         [>0: energy threshold for e-/e+ production expressed as total energy];
+what     [0: ignored] [>0: energy threshold for photon production in GeV];
+what     FUDGEM parameter for transport cut-offs takes into account the
+         contribution of atomic electrons to multiple scattering;
+what     material ID/name;
+what     upper bound of material indices;
+what     step length;
+what     request production thresholds to be applied;
+
+range    r(x<0,x==0,x>0) r(x<0,x==0,x>0) r(x<0,x==0,x>0) mi mi i(x>=0) ELPO-THR
+defaults 0 0 0 3 w4 1 -
+what     [reset] [ignore] [kinetic energy threshold in GeV for e+/e- bremsstrahlung];
+what     [reset] [ignore] [kinetic energy threshold in GeV for Bhabha/Moller scattering];
+what     [reset] [ignore] [kinetic energy threshold in GeV for e+/e- photonuclear interactions];
+what     material ID/name;
+what     upper bound of material indices;
+what     step length;
+what     request thresholds for bremsstrahlung/Bhabha or Moller scattering/photonuclear interactions;
+
+range    r(x<0,x==0,x>0) - - mi mi i(x>=0) ANNH-THR
+defaults 0 - - 3 w4 1 -
+what     [reset] [ignore] [kinetic energy threshold in GeV for e+ annihilation];
+what     nix 2;
+what     material ID/name;
+what     upper bound of material indices;
+what     step length;
+what     request threshold for e+ annihilation;
+
+range    r(x<0,x==0,x>0) r(x<0,x==0,x>0) r(x<0,x==0,x>0) mi mi i(x>=0) PHOT-THR
+defaults 0 0 0 3 w4 1 -
+what     [reset] [ignore] [energy threshold in GeV for Compton scattering];
+what     [reset] [ignore] [energy threshold in GeV for photoelectric effect];
+what     [reset] [ignore] [energy threshold in GeV for gamma pair production];
+what     material ID/name;
+what     upper bound of material indices;
+what     step length;
+what     request threshold for Compton scattering/photoelectric effect/gamma pair production;
+
+range    r(x<0,x==0,x>0) r(x<0,x==0,x>0) - mi mi i(x>=0) PHO2-THR
+defaults 0 0 - 3 w4 1 -
+what     [reset] [ignore] [energy threshold in GeV for Rayleigh scattering];
+what     [reset] [ignore] [energy threshold in GeV for photonuclear interactions];
+what     nix;
+what     material ID/name;
+what     upper bound of material indices;
+what     step length;
+what     request threshold for Rayleigh scattering/photonuclear interactions;
+
+range    r(x<=-1.0E-6,x==0,x>=0.51e-3) r(x==0,x>=0.100E-6) i(x==0) ri ri i(x>=0) -
+defaults 0 0 -1 2 w4 1 -
+what     [<0: e-/e+ transport cut-off in GeV expressed as kinetic energy] [0: ignored]
+         [>0: e-/e+ cut-off (GeV) expressed as total energy];
+what     [ignored] photon transport energy cut-off (GeV)];
+what     leading particle biasing settings. DEPRECATED use EMF-BIAS;
+what     region ID/name;
+what     upper bound of region indices;
+what     step length;
+what     request biasing for e-/e+/g -- DEPRECATED, use EMF-BIAS;
+
+meaning  sets energy thresholds for e-/e+/g production and/or transport cut-offs
+         in different materials (plus deprecated biasing capability);
+
+
+
+name     EMFFIX
+# ------------------------
+group    transport
+type     simple
+disable  comment
+
+range    mi r(x>=0) mi r(x>=0) mi r(x>=0) PRINT:NOPRINT
+defaults - .2 - .2 - .2 NOPRINT
+what     material name/ID;
+what     maximum fraction of the total energy to be lost in one step, default 30%;
+what     material name/ID;
+what     maximum fraction of the total energy to be lost in one step, default 30%;
+what     material name/ID;
+what     maximum fraction of the total energy to be lost in one step, default 30%;
+what     request printout into logfile;
+
+meaning  set size of electron steps corresponding to fixed fraction of total energy
+         per material (EMF);
+
+
+
+name     EMFFLUO
+# ------------------------
+group    physics
+type     defaults
+disable  comment
+
+range    r(x<0,x==0,x>0) mi mi i(x>=0) - - -
+#defaults 1 3 w2 1 - - -   CALORIME:EM-CASCA:ICARUS:PRECISIO
+defaults -1 3 w2 1 - - -   EET/TRAN:HADROTHE:NEUTRONS:NEW-DEFA:SHIELDIN
+what     [set fluorescence off] [ignored] [set fluorescence on];
+what     material ID/name;
+what     upper bound of material indices;
+what     step length;
+what     nix 3;
+
+meaning  activate detailed treatment of photoelectric interactions and subsequent
+         atomic de-excitation with production of fluorescence X-rays and rough
+         treatment of Auger electrons;
+
+
+
+name     EMFRAY
+# ------------------------
+group    physics
+type     defaults
+disable  comment
+
+range    f(x<0,x>=0,x<=6) ri ri i(x>=0) - - -
+defaults 3 2 w2 1 - - -   NEW-DEFA:HADROTHE
+#defaults 1 2 w2 1 - - -   CALORIME:EM-CASCA:ICARUS:PRECISIO
+#defaults 0 2 w2 1 - - -   EET/TRAN:NEUTRONS:SHIELDIN
+what     [no Rayleigh scattering and no binding corrections for Compton effect] [ignore]
+         [Rayleigh scattering and Compton binding corrections are activated]
+         [only Rayleigh scattering activated] [only Compton binding corrections are activated];
+what     region ID/name;
+what     upper bound of region;
+what     step assigning regions;
+what     nix 3;
+
+meaning  activate Rayleigh (coherent) scattering and Compton binding corrections
+         per region (EMF);
+
+
+
+name     EVENTBIN
+# ------------------------
+group    scoring
+type     multi-range what(1)
+disable  comment
+
+range    f(x==1,x==11,x==-1,x==-11) spi slu r(x>0.0) r r c10   r(x>=0.0) r r i(x>=1) i(x>=0) i(x>=1)
+defaults - ENERGY 11 - - - -   0 0 0 50 1 50
+what     code number to select space points where to record information - here r/phi or R/Phi/Z, no symmetry;
+what     type(particle) of information recorded - depends also on what(1);
+what     logical unit for output (neg. for binary file);
+what     R max;
+what     Y coordinate of the binning axis (=0 in case of R/Phi/Z);
+what     Z max;
+what     name for binning;
+what     R min;
+what     X coordinate of the binning axis (=0 in case of R/Phi/Z);
+what     Z min;
+what     number of R bins;
+what     number of Phi bins (=1 to request R/Z binning);
+what     number of bins in Z;
+
+range    f(x==2,x==12,x==-2,x==-12) spi slu ri ri ri c10   ri ri ri i(x>=1) i(x>=0) i(x>=0)
+defaults - ENERGY 11 - - - -   w4 w5 w6 1 1 1
+what     code number to select space points where to record information - here per region;
+what     type(particle) of information recorded - depends also on what(1);
+what     logical unit for output (neg. for binary file);
+what     last region of 1st region set;
+what     last region of 2nd region set;
+what     last region of 3rd region set;
+what     name for binning;
+what     first region of 1st region set;
+what     first region of 2nd region set;
+what     first region of 3rd region set;
+what     step increment for going from the first to the last region of 1st set;
+what     step increment for going from the first to the last region of 2nd set;
+what     step increment for going from the first to the last region of 3rd set;
+
+range    f(x==3,x==13,x==-3,x==-13) spi slu r r r c10   r(x>=0) r r i(x>=1) i(x>=1) i(x>=1)
+defaults - ENERGY 11 - - - -   0 0 0 30 30 10
+what     code number to select space points where to record information - here cartesian, with symmetry +/- X;
+what     type(particle) of information recorded - depends also on what(1);
+what     logical unit for output (neg. for binary file);
+what     X max;
+what     Y max;
+what     Z max;
+what     name for binning;
+what     X min >=0;
+what     Y min;
+what     Z min;
+what     number of bins in X;
+what     number of bins in Y;
+what     number of bins in Z;
+
+range    f(x==4,x==14,x==-4,x==-14) spi slu r r r c10   r r(x>=0) r i(x>=1) i(x>=1) i(x>=1)
+defaults - ENERGY 11 - - - -   0 0 0 30 30 10
+what     code number to select space points where to record information - here cartesian, with symmetry +/- Y;
+what     type(particle) of information recorded - depends also on what(1);
+what     logical unit for output (neg. for binary file);
+what     X max;
+what     Y max;
+what     Z max;
+what     name for binning;
+what     X min;
+what     Y min >=0;
+what     Z min;
+what     number of bins in X;
+what     number of bins in Y;
+what     number of bins in Z;
+
+range    f(x==5,x==15,x==-5,x==-15) spi slu r r r c10   r r r(x>=0) i(x>=1) i(x>=1) i(x>=1)
+defaults - ENERGY 11 - - - -   0 0 0 30 30 10
+what     code number to select space points where to record information - here cartesian, with symmetry +/- Z;
+what     type(particle) of information recorded - depends also on what(1);
+what     logical unit for output (neg. for binary file);
+what     X max;
+what     Y max;
+what     Z max;
+what     name for binning;
+what     X min;
+what     Y min;
+what     Z min >=0;
+what     number of bins in X;
+what     number of bins in Y;
+what     number of bins in Z;
+
+range    f(x==6,x==16,x==-6,x==-16) spi slu r r r c10   r(x>=0) r(x>=0) r(x>=0) i(x>=1) i(x>=1) i(x>=1)
+defaults - ENERGY 11 - - - -   0 0 0 30 30 10
+what     code number to select space points where to record information - here cartesian,
+           with symmetry around the origin (i.e. |x|, |y| and |z| are used for scoring);
+what     type(particle) of information recorded - depends also on what(1);
+what     logical unit for output (neg. for binary file);
+what     X max;
+what     Y max;
+what     Z max;
+what     name for binning;
+what     X min >=0;
+what     Y min >=0;
+what     Z min >=0;
+what     number of bins in X;
+what     number of bins in Y;
+what     number of bins in Z;
+
+range    f(x==7,x==17,x==-7,x==-17) spi slu r r r c10   r r r i(x>=1) i(x>=1) i(x>=1)
+defaults - ENERGY 11 - - - -   0 0 0 50 1 50
+what     code number to select space points where to record information - here r/phi or R/Phi/Z, with symmetry +/- Z;
+what     type(particle) of information recorded - depends also on what(1);
+what     logical unit for output (neg. for binary file);
+what     R max;
+what     Y coordinate of the binning axis (=0 in case of R/Phi/Z);
+what     Z max;
+what     name for binning;
+what     R min;
+what     X coordinate of the binning axis (=0 in case of R/Phi/Z);
+what     Z min >=0;
+what     number of R bins;
+what     number of Phi bins (=1 to request R/Z binning);
+what     number of bins in Z;
+
+range    f(x==8,x==18,x==-8,x==-18) spi slu - - r c10   - - r i(x>=1) i(x>=1) i(x>=1)
+defaults - ENERGY 11 - - - -   0 0 0 30 30 10
+what     code number to select space points where to record information - here special 3D user binning;
+what     type(particle) of information recorded - depends also on what(1);
+what     logical unit for output (neg. for binary file);
+what     upper limit of the 1st user-defined variable;
+what     upper limit of the 2nd user-defined variable;
+what     upper limit of the 3rd user-defined variable;
+what     name for binning;
+what     lower limit of the 1st user-defined variable;
+what     lower limit of the 2nd user-defined variable;
+what     lower limit of the 3rd user-defined variable;
+what     step increment for 1st user variable;
+what     step increment for 2nd user variable;
+what     step increment for 3rd user variable;
+
+# We leave this as last check since x>-0.5 will match any positive value
+range    f(x==0,x==10,x>-0.5,x==-10) pi slu r r r c10   r r r i(x>=1) i(x>=1) i(x>=1)
+defaults - ENERGY 11 - - - -   0 0 0 30 30 10
+what     code number to select space points where to record information - here Cartesian, no symmetry;
+what     type(particle) of information recorded - depends also on what(1);
+what     logical unit for output (neg. for binary file);
+what     X max;
+what     Y max;
+what     Z max;
+what     name for binning;
+what     X min;
+what     Y min;
+what     Z min;
+what     number of bins in X;
+what     number of bins in Y;
+what     number of bins in Z;
+
+
+meaning  superimpose binning structure on geometry and print scored quantities after
+         each event - for calorimetry only;
+
+
+
+name     EVENTDAT
+# ------------------------
+group    scoring
+type     simple
+disable  comment
+
+range    slu - - - - - c10
+defaults 11 - - - - - -
+
+what     output unit;
+what     nix 5;
+what     output file name;
+
+meaning  print scored star production and/or energy deposition per region and total
+         energy balance after each event - for calorimetry only;
+
+
+
+name     EVENTYPE
+# ------------------------
+group    developers
+type     defaults
+disable  comment
+
+range    x x r(x<=-1,-1<x<1,x==1,x==2,3<=x<=6) x x x EVAP:DPMJET
+defaults - - 1 - - - EVAP   CALORIME:EET/TRAN:ICARUS:NEW-DEFA:PRECISIO:SHIELDIN
+#defaults - - -1 - - - EVAP  EM-CASCA:HADROTHE:NEUTRONS
+what     nix 2;
+what     [reset, no ion transport at all] [ignore]
+         [approximated transport of ions and recoils (dE/dx only)]
+         [heavy recoils and ions are transported with dE and multiple scattering with(out) nuclear interactions
+               (SDUM==DMPJET)];
+what     nix 3;
+what     select heavy ion generators (selects w3=2);
+
+meaning  define hadronic particle production model to be used;
+
+
+
+
+name     EVXTEST
+# ------------------------
+group    developers
+type     defunct
+disable  comment
+
+range    i(x>0) pi r(x>0) mi i i PRINT:-
+defaults - - - - - - -
+what     nix 7;
+
+meaning  hadron-nucleus collisions without transport, INTERNAL DEVELOPMENT VERSION;
+
+
+
+name     EXTRAWEIGHT
+# ------------------------
+group    replaced
+type     extra
+disable  comment
+
+range    - - - - - - -
+defaults - - - - - - -
+what     nix 7;
+
+meaning  replaced by USERWEIGHT card;
+
+
+
+name     EXPTRANS
+# ------------------------
+group    transport
+type     defunct
+disable  comment
+
+range    - - - - - - -
+defaults - - - - - - -
+what     nix 7;
+
+meaning  request exponential transformation 'path stretching' - not implemented yet;
+
+
+
+name     FIXED
+# ------------------------
+group    general
+type     simple
+disable  comment
+
+range    - - - - - - -
+defaults - - - - - - -
+what     nix 7;
+
+meaning  activates fixed-format input BELOW this card;
+
+
+
+name     FLUKAFIX
+# ------------------------ (x)
+group    transport
+type     defaults
+disable  comment
+
+range    r(0<x<.2) x x  mi mi i(x>=0) -
+#defaults .02 .15 .012 3 w4 1 -  ICARUS
+#defaults .05 .15 .012 3 w4 1 -  HADROTHE:PRECISIO
+#defaults .08 .15 .012 3 w4 1 -  CALORIME
+defaults .1 .15 .012 3 w4 1 -  NEW-DEFA:EET/TRAN:EM-CASCA:NEUTRONS:SHIELDIN
+what     fraction of the kinetic energy to be lost in a step - cannot be > 0.2;
+what     nix 2;
+what     material ID/name;
+what     upper bound of material indices;
+what     step length;
+what     nix;
+
+meaning  set size of step for muons and charged hadrons to fixed fraction of kinetic
+         energy per material;
+
+
+
+name     FREE
+# ------------------------
+group    general
+type     simple
+disable  comment
+
+range    - - - - - - -
+defaults - - - - - - -
+what     nix 7;
+
+meaning  activates free-format input BELOW this card;
+
+
+
+name     GEOBEGIN
+# ------------------------
+group    geometry
+type     extra
+disable  ifendif
+
+range    r r lu lu i - COMBINAT:COMBNAME:FLUGG
+defaults 0 - 5 11 - - COMBINAT
+what     request printing of tracking errors;
+what     accuracy parameter;
+what     logical unit for geometry input;
+what     logical unit for geometry output;
+what     parenthesis optimisation level;
+what     lines to be skipped;
+what     type of combinatorial geometry used;
+what     title of geometry;
+
+meaning  start of geometry description;
+
+
+
+name     GEOEND
+# ------------------------
+group    geometry
+type     multi-range sdum
+disable  comment
+
+range    r r r r r r DEBUG i(x>0) i(x>0) i(x>0) - - -
+defaults - - - - - - DEBUG
+what     X_max of the geometry region to be debugged;
+what     Y_max of the geometry region to be debugged;
+what     Z_max of the geometry region to be debugged;
+what     X_min of the geometry region to be debugged;
+what     Y_min of the geometry region to be debugged;
+what     Z_min of the geometry region to be debugged;
+what     DEBUG to activate the debugger, otherwise must be left blank;
+what     Number of mesh intervals in the x-direction between X_min and X_max;
+what     Number of mesh intervals in the x-direction between Y_min and Y_max;
+what     Number of mesh intervals in the x-direction between Z_min and Z_max;
+
+range    - - - - - - -
+defaults 20 20 20 - - - &
+what     nix 6;
+what     DEBUG to activate the debugger, otherwise must be left blank;
+
+meaning  end of geometry description, may request geometry debugging;
+
+
+
+name     GLOBAL
+# ------------------------
+group    general
+type     simple
+disable  comment
+
+range    i(0<=x<=20000) r i(-2<=x<=1) f(x<0,x==0,x==1,x==2,x==3,x==4) f(x<0,x==0,x>0) - -
+defaults 1000 0 0 0 0 - -
+what     maximum number of regions;
+what     "how analogue" is this run;
+what     use of the DNEAR variable;
+what     [reset] [ignore] [use of both names and numbers where relevant is activated]
+         [requests free-format for all commands only]
+         [requests numerical format input for all commands];
+what     [reset] [ignore] [request free format in the geometry input];
+what     nix 2;
+
+meaning  make global declaration of some parameters that must be defined before
+         array memory allocation - select input format;
+
+
+
+name     GCR-SPE
+# ------------------------
+group    primary
+type     simple
+disable  comment
+
+range    - - - - - - NO-NORM
+defaults - - - - - - -
+what     nix 7;
+
+range    - - - - - - NORMALIZ
+defaults - - - - - - -
+what     nix 7;
+
+range    r(x>=0) r r r r i(x<=0,1900<=x<=2015) DIPCOORD
+defaults 0 - - - - 2010 -
+what     Dipole center position radius (km);
+what     Dipole centre position  latitude Theta (deg);
+what     Dipole centre position  longitude Phi (deg) ;
+what     Geomagnetic north pole  latitude Theta (deg);
+what     Geomagnetic north pole  longitude Phi (deg);
+what     Date in years AD (meaningful for the IGRF11 field;
+what     Coordinates;
+
+range    i(x>=0) - - r(x>=0) r(x>=0) - x
+defaults 0 - - - - - -
+what     Dipole field and number of athomspheric shells;
+what     nix;
+what     nix;
+what     Earth or Planet radius;
+what     Earth or Plane equatorial magnetic field;
+what     nix;
+what     name of the date file of the form <ddmmmyy>.sur;
+
+meaning  Initialises Galactic Cosmic Ray calculations;
+
+
+
+name     HI-PROPE
+# ------------------------
+group    primary
+type     simple
+disable  comment
+
+range    i(1<x<105) i(1<x<247) x - - - -
+defaults 6 12 0 - - - -
+what     atomic number of ion;
+what     mass number of ion;
+what     excitation energy, not-yet-implemented;
+what     nix 4;
+
+meaning  specify properties of a heavy ion primary (beam);
+
+
+
+name     IONFLUCT
+# ------------------------
+group    physics
+type     defaults
+disable  comment
+
+range    i(x<=-1,x==0,x>=1) i(x<=-1,x==0,x>=1) i(x<=0,x==1,x==2,x==3,x==4) mi mi i(x>=0) -
+
+defaults 1 1 1 3 w4 1 -   NEW-DEFA:CALORIME:HADROTHE:ICARUS:PRECISIO
+#defaults 1 -1 1 3 w4 1 -   EET/TRANS
+#defaults -1 1 1 3 w4 1 -   EM-CASCA
+#defaults -1 -1 1 3 w4 1 -   NEUTRONS:SHIELDIN
+what     [restricted energy loss fluctuations (for hadrons and muons) switched off] [ignore]
+         [restricted energy loss fluctuations (for hadrons and muons) switched on];
+what     [restricted energy loss fluctuations (for electrons and positrons) switched off] [ignore]
+         [restricted energy loss fluctuations (for electrons and positrons) switched on];
+what     [reset] [ignore] [accuracy parameter for the ionisation fluctuation algorithm, accept 1-4];
+what     material ID/name;
+what     upper bound of material indices;
+what     step length;
+what     nix;
+
+meaning  calculates ionisation energy losses of charged hadrons, muons, and e+/e-
+         with ionisation fluctuations;
+
+
+
+name     IONTRANS
+# ------------------------
+group    transport
+type     defaults
+disable  comment
+
+#range    i(x>=-6,x<=1) - - - - - -
+range    pi - - - - - -
+
+defaults 0 - - - - - -
+what     select type of transport full or approximate for ions;
+what     nix 6;
+
+meaning  Determines the transport of ions (A > 1), allowing to limit it to subsets of light ions (A < 5) and to choose between approximate and full transport (including nuclear interactions);
+
+
+name     IRRPROFI
+# ------------------------
+group    transport
+type     simple
+disable  comment
+
+range    r(x<0,x==0,x>0) r(x<0,x>=0) r(x<0,x==0,x>0) r(x<0,x>=0) r(x<0,x==0,x>0) r(x<0,x>=0) -
+defaults 0 0 0 0 0 0 -
+what     [delete last defined interval] [ignore] [length of a newly defined irradiation interval in s];
+what     beam intensity for irradiation interval defined by previous what;
+what     [delete last defined interval] [ignore] [length of a newly defined irradiation interval in s];
+what     beam intensity for irradiation interval defined by previous what;
+what     [delete last defined interval] [ignore] [length of a newly defined irradiation interval in s];
+what     beam intensity for irradiation interval defined by previous what;
+what     nix;
+
+meaning  define irradiation profile for radioactive decay calculations;
+
+
+
+name     LAM-BIAS
+# ------------------------
+# trouble: GDECAY/empty what(3) is a range i() and mi  --- FIXME ---
+#          64/46 ?
+#          deal with this one later, extra stuff
+#          add comments per options  --- FIXME ---
+#          ignore is also missing as of yet
+group    biasing
+type     multi-range sdum
+disable  comment
+
+range    r(abs(x)<=1) r(abs(x)<=1) r(abs(x)<=1) r(x<0,x==0,x>0) (x==0,x==1,x==100,x==101) r(0<=x<=1) DCY-DIRE
+defaults 0 0 1 .25 0 0 -
+what    U (x-direction cosine) of decay direction biasing;
+what    V (y-direction cosine) of decay direction biasing;
+what    W (z-direction cosine) of decay direction biasing;
+what    lambda for decay direction biasing. The degree of biasing decreases with increasing lambda;
+what    [point like][cylindrical like][exponential][1+x^2] where x=1-cos(theta);
+what    probability of the background (isotropic) contribution;
+what    bias the decay secondary product direction;
+
+range    i(x<0,x==0,x>0) - - pi pi i(x>=0) DCDRBIAS
+defaults - - - 1 w4 1 -
+what    decay direction biasing is activated;
+what    nix 2;
+what    lower bound of particle to apply biasing;
+what    upper bound of particle to apply biasing;
+what    step length in assigning;
+what    activate decay direction biasing;
+
+range    i(x<0,x==0,x>0) - - - - - N1HSCBS
+defaults - - - 1 w4 1 -
+what    activate scattering direction biasing for low energy neutrons on 1-H;
+what    nix 5;
+what    scattering direction biasing for low energy neutrons on 1-H;
+
+range    r(x<0,x==0,x>0) r(-1<x<0,x==0,0<x<1,abs(x)>=1) mi pi pi i(x>=0) GDECAY
+defaults - - 0 1 w4 1 -
+what    mean decay length in lab frame. <0.0 At decay point RR will determine its survival. >0.0 always survives with lower weight;
+what    biasing factor for hadronic inelastic interactions [-1..1]. <0.0 RR will determine its survival. >0.0 always survives with lower weight;
+what    material name;
+what    lower bound of particle to apply biasing;
+what    upper bound of particle to apply biasing;
+what    step length in assigning;
+what    selects decay length biasing;
+
+range    r(-1<x<0,x==0,0<x<1,abs(x)>=1) r(-1<x<0,x==0,0<x<1,abs(x)>=1) mi pi pi i(x>=0) DECPRI:DECALL:INEPRI:INEALL
+defaults - - - 1 w4 1 -
+what    mean life in its REST frame. <0.0 At decay point RR will determine its survival. >0.0 always survives with lower weight;
+what    biasing factor for hadronic inelastic interactions [-1..1]. <0.0 RR will determine its survival. >0.0 always survives with lower weight;
+what    material name;
+what    lower bound of particle to apply biasing;
+what    upper bound of particle to apply biasing;
+what    step length in assigning;
+what    decay biasing;
+
+range    r(-1<x<0,x==0,0<x<1,abs(x)>=1) r(-1<x<0,x==0,0<x<1,abs(x)>=1) mi pi pi i(x>=0) -
+defaults - - 0 1 w4 1 -
+what    mean life in its REST frame. <0.0 At decay point RR will determine its survival. >0.0 always survives with lower weight;
+what    biasing factor for hadronic inelastic interactions [-1..1]. <0.0 RR will determine its survival. >0.0 always survives with lower weight;
+what    material name;
+what    lower bound of particle to apply biasing;
+what    upper bound of particle to apply biasing;
+what    step length in assigning;
+what    selects inelastic interaction biasing;
+
+
+meaning  bias the decay length of unstable particles or the inelastic nuclear
+         interaction length of hadrons, photons and muons or the direction of
+         decay secondaries;
+
+
+
+
+name     LOW-BIAS
+# ------------------------
+# trouble: NEW-DEFA != defaults not given here  ---FIXME ---
+#          will change, alfredo apr'06 06-15:00
+group    biasing
+type     defaults
+disable  comment
+
+range    i(x>=0) i(x>=0) r(0<x<=1) ri ri i(x>=0) -
+#defaults 0 73 .85 2 w4 1 -  CALORIME:ICARUS:NEUTRONS:PRECISIO
+defaults 0 230 .95 2 w4 1 -  NEW-DEFA:HADROTHE:EET/TRANS:SHIELDIN
+#defaults 0  .85 2 w4 1 -  EM-CASCA
+
+what     group cutoff limit;
+what     group limit for non-analogue absorption;
+what     non-analogue SURVIVAL probability;
+what     region ID/name;
+what     upper bound of the region indices;
+what     step length;
+what     nix;
+
+meaning  requests non-analogue absorption and/or an energy cut-off during
+         low energy neutron transport on a region by region basis;
+
+
+name     LOW-DOWN
+# ------------------------
+group    biasing
+type     simple
+disable  comment
+
+range    i(x>=0) r(x>=0) - ri ri i(x>=0) -
+defaults 0 1.5 - ri ri i -
+what     group limit for biased down-scattering probability;
+what     biasing factor for down-scattering from group IG-1 into group IG;
+what     nix;
+what     region ID/name;
+what     upper bound of the region indices;
+what     step length;
+what     nix;
+
+meaning  bias down-scattering probability during low energy neutron transport
+         on a region basis;
+
+
+name     LOW-MAT
+# ------------------------
+group    media
+type     simple
+disable  comment
+
+range    mi i(x>=0) i i(x>=0) x x mi
+defaults - 0 0 0 - - -
+what     FLUKA material number/name;
+what     first numerical identifier of the corresponding low-energy neutron material, not used if 0;
+what     second numerical identifier of the corresponding low-energy neutron material, not used if 0;
+what     third numerical identifier of the corresponding low-energy neutron material, not used if 0;
+what     compound material if > 0 --- not available yet;
+what     atomic or molecular density, for example in atoms/(10^-24 cm3 --- not available yet;
+what     name of the low-energy neutron material, default: same name as the FLUKA material;
+
+meaning  set correspondence between FLUKA material and low-energy neutron
+         cross-section;
+
+
+
+name     LOW-NEUT
+# ------------------------
+group    transport
+type     simple
+disable  comment
+
+range    r(x==0,x==72,x==260) r(x>=0) r(x==0,x==.0196,x==0.020) i(x>=0,x<=4) i(0<=x) i -
+defaults 260 42 .02   0 1 -11 -
+what     number of neutron groups in the cross-section set used - ENEA standard neutron library has 72. New library has 260;
+what     number of gamma groups - ENEA neutron library has 22. New library has 42;
+what     maximum energy of the low-energy cross-section neutron library - ENEA neutron library 0.0196 GeV. New library 0.020 GeV;
+what     print flag;
+what     number of neutron groups to be considered thermal ones - ENEA neutron library has 1;
+what     pointwise treatment and fission multiplicity;
+what     nix;
+
+meaning  activate low-energy neutron transport;
+
+name [LOW-PWXS]
+# ------------------------
+group=        media transport 
+type=         simple
+disable=      comment
+range.0=      c8 i i i mi mi i
+defaults.0=   - - 0 296 3 w4 1 
+extra.0.1=    [isotope code]
+              [=1 : all isotopes]
+extra.0.2=    grid type
+extra.0.3=    temperature
+extra.0.4=    from material
+extra.0.5=    to material
+extra.0.6=    step
+meaning=      activate pointwise cross-sections 
+
+
+
+name     MATERIAL
+# ------------------------
+group    media
+type     simple
+disable  comment
+
+range    i(x>=0) r(x>=0) r(x>=0) i(x==0,x>2) mi i(x>=0) c8
+defaults - - - - 0 0 12
+what     atomic number Z if not compound;
+what     atomic weight A if not compound;
+what     density in g/cm^3;
+what     material ID;
+what     alternate material ID for ionization processes;
+what     mass number of the material for specific isotop (0=natural composition);
+what     material name;
+
+meaning  define single-element material or (coupled to a COMPOUND card) a compound;
+
+
+
+name     MAT-PROP
+# ------------------------
+group    media
+type     multi-range sdum
+disable  comment
+
+range    r(x<0,x==0,x>0) i(x<0,x==0,x>0) r(x<0,x==0,x>0) mi mi i(x>=0) LOWNTEMP
+defaults 1 0 0 3 w4 1 -
+what     [reset] [ignore] [temperature ratio T_actual/T_xsec with respect to the nominal one, ie for table];
+what     [reset] [ignore] [number of thermal groups to which the temperature ratio has to be applied];
+what     [reset] [ignore] [Nominal temperature in K of the indicated FLUKA materials];
+what     material ID/name;
+what     upper bound of material indices;
+what     step length;
+sdum     selection tag;
+
+range    i(x<0,x==0,x>0) - - mi mi i(x>=0) USERDIRE
+defaults -1 - - 3 w4 1 -
+what     [reset] [ignore] [call user routine USRMED at run time every time a particle is going to be
+                           transported in the selected materials - spot depositions ARE anyway performed];
+what     nix 2;
+what     material ID/name;
+what     upper bound of material indices;
+what     step length;
+sdum     selection tag;
+
+range    r(x<0,x==0,x>0) - - mi mi i(x>=0) DPA-ENER
+defaults 30 - - 3 w4 1 -
+what     [reset] [ignore] [Damage energy (eV) for the given materials];
+what     nix 2;
+what     material ID/name;
+what     upper bound of material indices;
+what     step length;
+sdum     selection tag;
+
+range    r(x<0,x==0,x>0) r(x<0,x==0,x>0) r(x<0,x==0,x>0) mi mi i(x>=0) -
+defaults 0 1 -1 3 w4 1 -
+what     [reset] [ignore] [gas pressure in atmospheres];
+what     [reset] [ignore] [factor which multiplies density of materials when calculating density effect parameters];
+what     [default value of average ionisation potential obtained from the systematics of Ziegler (Zie77)
+                               or Sternheimer, Berger and Seltzer] [ignore]
+         [average ionisation potential to be used for dE/dx (eV)];
+what     material ID/name;
+what     upper bound of material indices;
+what     step length;
+sdum     selection tag;
+
+meaning  provides extra information about materials;
+
+
+
+name     MCSTHRES
+# ------------------------
+# trouble: NEW-DEFA != defaults not given here  ---FIXME ---
+#          didn't call alfredo BUT ...
+group    transport
+type     defaults
+disable  comment
+
+range    r(x<0,x>=0) r(x<0,x>=0) - - - - -
+
+#defaults 1 1 - - - - -   CALORIME:HADROTHE:ICARUS:PRECISIO
+#defaults -.01 -.02 - - - - -   EET/TRAN
+defaults -.02 -.02 - - - - -   NEW-DEFA:SHIELDIN
+#defaults -.02 -1 - - - - -   NEUTRONS:EM-CASCA
+
+what     detailed multiple Coulomb scattering for primary charged hadrons and muons down to the minimum energy allowed by Moli`ere theory;
+what     detailed multiple Coulomb scattering for secondary charged hadrons and muons down to the minimum energy allowed by Moli`ere theory;
+what     nix 5;
+
+meaning  define some of the accuracy requirements for Multiple Coulomb Scattering
+         (MCS) of heavy charged particles (hadrons and muons);
+
+
+
+name     MGNFIELD
+# ------------------------
+group    transport
+type     simple
+disable  comment
+
+range    r(0<=x<=180) r(x>=0) r(x>=0) r r r -
+defaults 57 .05 .1 0 0 0 -
+what     largest angle in degrees that a charged particle is allowed to travel in a single step;
+what     upper limit for error of boundary iteration in cm;
+what     minimum step length if step is forced to be smaller because of angle with WHAT 1;
+what     Bx components of magnetic field - if Bxyz=0 call user routine;
+what     By components of magnetic field - if Bxyz=0 call user routine;
+what     Bz components of magnetic field - if Bxyz=0 call user routine;
+what     nix;
+
+meaning  set tracking conditions for transport in magnetic field and/or define
+         homogeneous magnetic field;
+
+
+
+name     MULSOPT
+# ------------------------
+# trouble: default for sdum 2 fold!?  --- FIXME ---
+group    transport
+type     multi-range sdum
+disable  comment
+
+range    i(x<=-1,x==0,x>0) i(x<0,x==0,x==-3,abs(x)==1,abs(x)==2,x>=3) i(x<0,x==0,abs(x)==1,abs(x)==2,x>=3) mi mi i(x>=0) FANO-ON:FANO-OFF:MLSH-ON:MLSH-OFF:-
+defaults -1 0 0 3 w4 1 -
+what     [reset] [ignore]
+         [control step optimisation for multiple Coulomb scattering and number of possible single scatterings on material basis;
+what     spin-relativistic corrections for hadrons and muons;
+what     spin-relativistic corrections for e+/e-;
+what     material ID/name;
+what     upper bound of material indices;
+what     step length;
+sdum     selection tag;
+
+range     r(x<0,0<=x<.2,x>=.2) i(x==0,x==1,x==2,x==3,x==4) r(x<0,0<=x<.2,x>=.2) f(x<0,x==0,x>0) f(x<0,x==0,x>0) f(x<0,x==0,x>0) GLOBAL:GLOBEMF:GLOBHAD
+defaults  1 1 20 0 -1 1 -
+what     [reset] [ignore]
+         [control minimum MCS step size used by boundary approach algorithm for e-/e+ and charged heavy particles];
+what     [reset] [ignore]
+         [index of step stretching factor tabulation to be used by e-/e+ transport algorithm when approaching a boundary];
+what     [reset] [ignore] [control optimal step to be used by optimisation];
+what     [reset] [ignore] [single scattering option activated at boundaries or for too short steps];
+what     [reset] [ignore] [single scattering option activated for energies too small for Moli`ere theory to apply];
+what     [reset] [ignore] [number of single scatterings to be performed when crossing a boundary];
+sdum     selection tag;
+
+meaning  set tracking conditions for multiple Coulomb scattering MCS for both
+         FLUKA and EMF particles - optionally activate single scattering;
+
+
+
+name     MUPHOTON
+# ------------------------
+group    physics
+type     simple
+disable  comment
+
+range    f(x==-1,x==0,x==1,x==2) x x mi mi i(x>=0) -
+defaults 0 .25 .75 3 w4 1 -
+what     [reset] [ignore] [switch on full simulation of muon nuclear interactions and production of secondary hadrons]
+         [muon nuclear interactions are simulated but no secondary hadrons are produced - the energy lost by the
+              muon is deposited at the point of interaction];
+what     nix 2;
+#what     ratio of longitudinal to transverse virtual photon cross-section - code development only, do not change;
+#what     fraction of rho-like interactions - code development only, do not change;
+what     material ID/name;
+what     upper bound of material indices;
+what     step length;
+what     nix;
+
+meaning  control muon photonuclear interactions;
+
+
+
+name     MYRQMD
+# ------------------------
+group    physics
+type     defunct
+disable  comment
+
+range    - - - - - - not-used
+defaults - - - - - - -
+what     nix 7;
+
+meaning  not yet implemented. prepared for new QMD generator;
+
+
+
+name     OPEN
+# ------------------------
+# trouble: needs extra treatment, at least for defaults  --- FIXME ---
+group    general
+type     extra
+disable  ifendif
+
+range    slu - - - - - NEW:OLD:UNKNOWN:READONLY:SCRATCH
+defaults - - - - - - NEW
+what     logical Fortran IO unit number 0<x<100;
+what     nix 5;
+what     flag to indicate file access type;
+
+meaning  define input/output files to be connected at run-time;
+
+
+
+name     OPT-PROD
+# ------------------------
+group    physics
+type     multi-range sdum
+disable  comment
+
+range    - - - mi mi i(x>=0) CERE-OFF
+defaults - - - 3 w4 1 -
+what     nix 3;
+what     material ID/name;
+what     upper bound of material indices;
+what     step length;
+sdum     selection tag;
+
+range    - - - mi mi i(x>=0) TRD-OFF
+defaults - - - 3 w4 1 -
+what     nix 3;
+what     material ID/name;
+what     upper bound of material indices;
+what     step length;
+sdum     selection tag;
+
+range    - - - mi mi i(x>=0) SCIN-OFF
+defaults - - - 3 w4 1 -
+what     nix 3;
+what     material ID/name;
+what     upper bound of material indices;
+what     step length;
+sdum     selection tag;
+
+range    r(x>=0) r(x>=0) - mi mi i(x>=0) CERENKOV
+defaults 2.07E-9 4.96E-9 - 3 w4 1 -
+what     minimum Cherenkov photon emission energy in GeV;
+what     maximum Cherenkov photon emission energy in GeV;
+what     nix;
+what     material ID/name;
+what     upper bound of material indices;
+what     step length;
+sdum     selection tag;
+assert   w(1)<w(2)
+
+range    r(x>=0) r(x>=0) - mi mi i(x>=0) CEREN-WV
+defaults 2.50E-5 6.00E-5 - 3 w4 1 -
+what     minimum Cherenkov photon emission wavelength in cm;
+what     maximum Cherenkov photon emission wavelength in cm;
+what     nix;
+what     material ID/name;
+what     upper bound of material indices;
+what     step length;
+sdum     selection tag;
+assert   w(1)<w(2)
+
+range    r(x>=0) r(x>=0) - mi mi i(x>=0) CEREN-OM
+defaults 3.14E15 7.53E15 - 3 w4 1 -
+what     minimum Cherenkov photon angular frequency omega= 2pi x frequency in rad/s;
+what     maximum Cherenkov photon angular frequency omega= 2pi x frequency in rad/s;
+what     nix;
+what     material ID/name;
+what     upper bound of material indices;
+what     step length;
+sdum     selection tag;
+assert   w(1)<w(2)
+
+range    r(x>=0) r(x>=0) - mi mi i(x>=0) TR-RADIA
+defaults 3.14E15 7.53E15 - 3 w4 1 -
+what     minimum TRD photon emission energy;
+what     maximum TRD photon emission energy;
+what     nix;
+what     material ID/name;
+what     upper bound of material indices;
+what     step length;
+sdum     selection tag;
+assert   w(1)<w(2)
+
+range    r(x>0) r(x<=-100,-99<=x<=0,x>0) r(x>=0) mi mi i(x>=0) SCINTILL
+defaults - - - 3 w4 1 -
+what     i-th scintillation photon emission energy in GeV;
+what     fraction of deposited energy going into i-th scintillation photon emission;
+what     time constant of scintillation light in seconds;
+what     material ID/name;
+what     upper bound of material indices;
+what     step length;
+sdum     selection tag;
+
+range    r(x>0) r(x<=-100,-99<=x<=0,x>0) r(x>=0) mi mi i(x>=0) SCINT-WV
+defaults - - - 3 w4 1 -
+what     i-th scintillation photon emission wavelength in cm;
+what     fraction of deposited energy going into i-th scintillation photon emission;
+what     time constant of scintillation light in seconds;
+what     material ID/name;
+what     upper bound of material indices;
+what     step length;
+sdum     selection tag;
+
+range    r(x>0) r(x<=-100,-99<=x<=0,x>0) r(x>=0) mi mi i(x>=0) SCINT-OM
+defaults - - - 3 w4 1 -
+what     i-th scintillation photon emission angular frequency omega= 2pi x frequency in rad/s;
+what     fraction of deposited energy going into i-th scintillation photon emission;
+what     time constant of scintillation light in seconds;
+what     material ID/name;
+what     upper bound of material indices;
+what     step length;
+sdum     selection tag;
+
+meaning  requests and controls production of cherenkov, transition and
+         scintillation radiation in specified materials;
+
+
+
+name     OPT-PROP
+# ------------------------
+group    media
+type     multi-range sdum
+disable  comment
+
+range    r(x<0,x==0,x>0) r(x<0,x==0,x>0) r(x<0,x==0,x>0) mi mi i(x>=0) WV-LIMIT
+defaults 2.50E-5 5.89E-5 6.00E-5 3 w4 1 -
+what     [reset] [ignore] [minimum wavelength in cm for optical photon transport];
+what     [reset] [ignore] [central wavelength in cm for optical photon transport];
+what     [reset] [ignore] [maximum wavelength in cm for optical photon transport];
+what     material ID/name;
+what     upper bound of material indices;
+what     step length;
+sdum     selection tag;
+assert   w(1)<w(2)<w(3)
+
+range    r(x<0,x==0,x>0) r(x<0,x==0,x>0) r(x<0,x==0,x>0) mi mi i(x>=0) OM-LIMIT
+defaults 3.14E15 3.20E15 7.53E15 3 w4 1 -
+what     [reset] [ignore] [minimum angular frequency for optical photon transport omega= 2pi x frequency in rad/s];
+what     [reset] [ignore] [central angular frequency for optical photon transport omega= 2pi x frequency in rad/s];
+what     [reset] [ignore] [maximum angular frequency for optical photon transport omega= 2pi x frequency in rad/s];
+what     material ID/name;
+what     upper bound of material indices;
+what     step length;
+sdum     selection tag;
+assert   w(1)<w(2)<w(3)
+
+range    - - - mi mi i(x>=0) RESET
+defaults - - - 3 w4 1 -
+what     nix 3;
+what     material ID/name;
+what     upper bound of material indices;
+what     step length;
+sdum     selection tag;
+
+range    x x r(x>=0) mi mi i(x>=0) METAL
+defaults - - 0 3 w4 1 -
+what     1st optical property - not used at the moment;
+what     2nd optical property - not used at the moment;
+what     3rd optical property, 1-r where r is the reflectivity index at the central wavelength;
+what     material ID/name;
+what     upper bound of material indices;
+what     step length;
+sdum     selection tag;
+
+range    r(x<-99,x>=-99) r r r r - SENSITIV
+defaults - - - 0 1 - -
+what     [-99=force call to user routine queffc.f] [0th photon sensitivity parameter];
+what     Optical property n.1;
+what     Optical property n.2;
+what     Optical property n.3: (1-r), where r is the reflectivity index at the central wavelength;
+what     maximum optical photon sensitivity over the allowed range (must be consistent with the previous values -
+         it can be overestimated;
+sdum     selection tag;
+
+range    r(x<0,x==0,x>0) r(x<0,x==0,x>0) r(x<0,x==0,x>0) - - - WV-SENSI
+defaults 2.5e-5 5.89e-5 6e-5 - - - -
+what     [reset] [ignore] [minimum wavelength (in cm) for optical photon sensitivity];
+what     [reset] [ignore] [central wavelength (in cm) for optical photon sensitivity];
+what     [reset] [ignore] [maximum wavelength (in cm) for optical photon sensitivity];
+what     nix 3;
+sdum     selection tag;
+assert   w(1)<w(2)<w(3)
+
+range    r(x<0,x==0,x>0) r(x<0,x==0,x>0) r(x<0,x==0,x>0) - - - OM-SENSI
+defaults 3.14E15 3.20E15 7.53E15 - - - -
+what     [reset] [ignore] [minimum angular frequency for optical photon sensitivity];
+what     [reset] [ignore] [central angular frequency for optical photon sensitivity];
+what     [reset] [ignore] [maximum angular frequency for optical photon sensitivity];
+what     nix 3;
+sdum     selection tag;
+assert   w(1)<w(2)<w(3)
+
+range    r(x<0,x==0,x>0) ri ri r(x<0,x==0,x>0) ri ri SPEC-BDX
+defaults 0 - - 0 - - -
+what     [reset] [ignore] [special boundary treatment activated for a boundary, call to user routine ophbdx.f];
+what     first region name/ID of 1 boundary;
+what     second region name/ID of 1 boundary;
+what     [reset] [ignore] [special boundary treatment activated for another boundary, call to user routine ophbdx.f];
+what     first region name/ID of 2 boundary;
+what     second region name/ID of 2 boundary;
+sdum     selection tag;
+
+range    r(x<0,x==0,x>0) r(x<0,x==0,x>0) r(x<0,x==0,x>0) mi mi i(x>=0) -
+defaults 1 0 0 3 w4 1 -
+what     1st optical property, refraction index at the central wavelength;
+what     2nd optical property, absorption coefficient cm^-1 at the central wavelength;
+what     3rd optical property, diffusion coefficient cm^-1 at the central wavelength;
+what     material ID/name;
+what     upper bound of material indices;
+what     step length;
+sdum     selection tag;
+
+range    r(x<0,x==0,x>0) r(x<0,x==0,x>0) r(x<0,x==0,x>0) mi mi i(x>=0) &1:&2:&3
+defaults 0 0 0 3 w4 1 -
+what     further optical property;
+what     further optical property;
+what     further optical property;
+what     material ID/name;
+what     upper bound of material indices;
+what     step length;
+sdum     selection tag;
+
+meaning  define optical properties of specified materials;
+
+
+name     OUTLEVEL
+# ------------------------
+group    obsolete
+type     extra
+disable  comment
+
+range    - - - - - - -
+defaults - - - - - - -
+what     nix 7;
+
+meaning  not supported anymore;
+
+
+name     PAIRBREM
+# ------------------------
+group    physics
+type     simple
+disable  comment
+
+range    r(-3<=x<=3) r(x<0,x>=0) r(x<=0,x>0) mi mi i(x>=0) -
+defaults 3 -1 -1 3 w4 1 -
+what     (de-)activate pair production and/or bremsstrahlung;
+what     e+/e- kinetic energy threshold for explicit pair production (GeV) if >0;
+what     photon energy threshold for explicit bremsstrahlung production (GeV) if >0;
+what     material ID/name;
+what     upper bound of material indices;
+what     step length;
+what     nix;
+
+meaning  control simulation of pair production and bremsstrahlung by high-energy
+         muons and charged hadrons;
+
+
+
+name     PART-THRES
+# ------------------------
+group    transport
+type     defaults
+disable  comment
+
+range    r(x<=0,x>0) pi pi i(x>=0) r(x==0,x>=1) r(abs(x)!=1,x==1) -
+defaults 0.01   1 w2 1 - 0 -  NEW-DEFA:SHIELDIN
+#defaults 0.0001 1 w2 1 - 0 -  HADROTHE:ICARUS:PRECISIO
+#defaults 0.001*m/m_p 1 w2 1 - 0 -  CALORIME
+#defaults 0.05   1 w2 1 - 0 -  NEUTRONS:EET/TRAN:EM-CASCA
+what     transport cutoff depending on what5, as kinetic energy / momentum / gamma /eta=betq*gamma;
+what     particle ID/name;
+what     upper bound of particle;
+what     step length;
+what     see what1;
+what     if =1 restrict given cutoff to charged particles;
+what     nix;
+
+meaning  set different energy transport cut-offs for hadrons, muons and neutrinos;
+
+
+
+name     PHOTONUC
+# ------------------------
+group    physics
+type     simple
+disable  comment
+
+range    r(x<=-1,x==0,x<=1111) - - mi mi i(x>=0) MUMUPAIR:MUMUPRIM
+defaults 0 0 - 3 w4 1 -
+what     flag to switch on muon pair production by photons;
+what     interaction length biasing factor;
+what     nix;
+what     material ID/name;
+what     upper bound of material indices;
+what     step length;
+what     nix;
+
+range    r(x<=-1,x==0,x<=5555) - - mi mi i(x>=0) ELECTNUC
+defaults 0 - - 3 w4 1 -
+what     flag to switch on electronuclear interactions (default: no electronuclear interaction);
+what     nix;
+what     nix;
+what     material ID/name;
+what     upper bound of material indices;
+what     step length;
+what     nix;
+
+range    r(x<=-1,x==0,x==1,x==2,x==3,x==4,x==5,x>=10) - - mi mi i(x>=0) -
+defaults 0 - - 3 w4 1 -
+what     flag to switch on nuclear interactions of photons;
+what     nix 2;
+what     material ID/name;
+what     upper bound of material indices;
+what     step length;
+what     nix;
+
+meaning  activate gamma interactions with nuclei;
+
+
+
+name     PHYSICS
+# ------------------------
+group    physics
+type     multi-range sdum
+disable  comment
+
+range    f(x<=0,x==1) i - - - - CAPTPROB
+defaults - - - - - - -
+what     Capture probability:(<=1) proportional to the atomic number ("Z-law"), 2=Daniel law;
+what     Number of hydrogen components for the "sophisticated" H_n X_m approach;
+what     nix 4;
+sdum     selection tag;
+
+range    f(x==-1,x==0,x==1,x==2) - - - - - CHARMDEC
+defaults - - - - - - -
+what     [reset] [ignore] [request charmed hadron transport];
+what     nix 5;
+sdum     selection tag;
+
+range    f(x<0,x==0,x>0) f(x<0,x==0,x>0) i r r r COALESCE
+defaults - - - - - - -
+what     [reset] [ignore] [icl0 + icl1*1000 icl0=coalescence is activated, icl1=deuteron coalescence];
+what     perform coalescence checks on angular momentum;
+what     diff. stack number of particles to call the coalesce model;
+what     time between different pre-equilibrium cycles (ct unit);
+what     time/amu^1/3 (ct unit) between different pre-equilibrium cycles TotalTime = dsclcy + ddscly * A^1/3);
+what     multiplication factor for the above total time for cascade pre-equilibrium transitions;
+sdum     selection tag;
+
+range    r r r r r r COAPARAM
+defaults - - - - - - -
+what     nix 6;
+sdum     selection tag;
+
+range    f(x<=-1,x==0,x>0) r r r r r EVAPORAT
+defaults 2 - - - - - -
+what     [reset] [ignore] [old evaporation model, OBSOLETE]
+         [new evaporation model] [new evaporation model with heavy fragment evaporation (CPU expensive)];
+what     nix 5;
+sdum     selection tag;
+
+range    i(x<=-1,x==0,x==1,x==2,x==3,100<=x<200,200<=x<300) - - pi pi i(x>=0) DECAYS
+defaults 1 - - 1 w4 1 -
+what     [reset] [ignore] [maximum accuracy, polarisation accounted for in pi/K]
+         [maximum accuracy, polarisation not accounted for] [phase space like decays];
+what     nix 2;
+what     particle ID/name;
+what     upper bound of particle;
+what     step length;
+sdum     selection tag;
+
+range    r(x<=0,x>0) r(x<=0,x>0) r(x<=0,x>0) r(x<0,x>=0) r(x<0,x>=0) f(x<=-1,-1<x<=0,x>0) DPMTHRES
+defaults 20000 5 .125 0.5 10000 -1.0 -
+what     [ignore] [minimum DPMJET kinetic energy for hadrons (GeV)];
+what     [ignore] [minimum DPMJET kinetic energy for ions (GeV/n)];
+what     [ignore] [minimum RQMD kinetic energy for ions (GeV/n)];
+what     [reset] [smearing (+/- Delta E, GeV/n) for the RQMD-DPMJET switch energy];
+what     [reset] [smearing (+/- Delta E, GeV/n) for the FLUKA-DPMJET switch energy for hA interactions];
+what     [reset] [ignore] [flag for restricting DPMJET h-A interactions to primary  particles only];
+sdum     selection tag;
+
+range    f(x<=-1,x==0,x==1,x==2,x==3,x==4) f(x<=-1,x==0,x==1,x==2) f(x<=-1,x==0,x==1,x==2) f(x<=-1,x==0,x==1,x==2) - - EM-DISSO
+defaults 1 1 1 1 - - -
+what     [reset] [ignore] [no electromagnetic-dissociation] [projectile and target em-dissociation activated]
+         [projectile only em-dissociation activated] target only em-dissociation activated];
+what     [reset] [ignore] [muon+/- induced target em-dissociation on] [muon+/- induced target em-dissociation off];
+what     [reset] [ignore] [deuteron projectile em-dissociation on target em-dissociation on/off according to WHAT(1)]
+         [deuteron projectile em-dissociation off];
+what     [reset] [ignore] [em-dissociation cross section pre-tabulated] [no em-dissociation cross section pre-tabulation];
+what     nix 2;
+sdum     selection tag;
+
+range    f(x<0,x==0,x>0) r(x<=0,x>0) r(x<=0,x>0) i(0<=x<500) i(0<=x<500) i(x==0,x==1,x==2,x==3) IONSPLIT
+defaults -1 .1 5 2 500 0 IONSPLIT
+what     [reset] [ignore] [activate ion splitting into nucleons];
+what     [ignore] [minimum energy for ions (GeV/n) above which splitting into nucleons will be performed];
+what     [ignore] [maximum energy for ions (GeV/n) below which splitting into nucleons will be performed];
+what     [minimum A for which ion splitting must be performed (default 2)];
+what     [maximum A for which ion splitting must be performed (default 500)];
+what     [0: (default)sharp threshold for Ek/n > Emnspi= what(2)]
+         [1: probability according to 1-exp(-Ek/n/Emnspi)]
+         [2: split at the first nonelastic interaction if no model is available it requires full transport
+             selected for all ions concerned. what(2) and what(3) are still honored in trhe same way as for for "1",
+             however the minimum energy should be set compatible with ion xsec threshold rather than not];
+sdum     selection tag;
+assert   w(2)<w(3)
+assert   w(4)<=w(5)
+
+range    f(x<0,x==0,x>0) r(x<=0,x>0) - - - - IONBRPAI
+defaults 1 1 - - - - -
+what     [deactivate] [ignore] [activate heavy pair production];
+what     [deactivate] [ignore] [activate heavy bremsstrahlung];
+what     nix 4;
+sdum     selection tag;
+
+range    f(x<0,x==0,x>0) - - - - - LIMITS
+defaults x - - - - - -
+what     [deactivate] [ignore] [Maximum pp CMS momentum (GeV/c)];
+what     nix 5;
+sdum     selection tag;
+
+range    f(x<=0,x>0) f(x<=0,x>0) f(x<=0,x>0) f(x<=0,x>0) f(x<=0,x>0) f(x<=0,x>0) PEATHRES
+defaults - - - - - - -
+what     [ignored][maximum PEANUT kinetic energy for nucleons (GeV)];
+what     [ignored][maximum PEANUT kinetic energy for pions (GeV)];
+what     [ignored][maximum PEANUT kinetic energy for kaons (GeV)];
+what     [ignored][maximum PEANUT kinetic energy for kaonbars (GeV)];
+what     [ignored][maximum PEANUT kinetic energy for antinucleons (GeV)];
+what     [ignored][maximum PEANUT kinetic energy for (anti)hyperons (GeV)];
+
+range    f(x<=3) f(x<=3) f(x<=3) f(x<=3) - f(x<=1) NEUTRINO
+defaults 3 3 3 3 - 1 -
+what     [deactivate] [ignore] [quasielastic neutrino interactions];
+what     [deactivate] [ignore] [resonant neutrino interactions];
+what     [deactivate] [ignore] [deep inelastic neutrino interactions];
+what     [deactivate] [ignore] [charm production neutrino interactions];
+what     nix;
+what     [deactivate] [ignore] [performing (forced) interactions when there is a(n)
+               (anti)neutrino beam particle];
+sdum     selection tag;
+
+range    f(x<=0,x>0) f(x<=0,x>0) f(x<=0,x>0) f(x<=0,x>0) - - DEDX-SET
+defaults 1 1 1 1 - - -
+what     [deactivate] [ignore] [account nuclear stopping];
+what     [deactivate] [ignore] [use predefined compound material];
+what     [deactivate] [ignore] [account Barkas corrections];
+what     [deactivate] [ignore] [account Bloch corrections];
+what     nix 2;
+sdum     selection tag;
+
+range    f(x<=0,x>0) f(x<=0,x>0) f(x<=0,x>0) f(x<=0,x>0) f(x<=0,x>0) f f(x<=0,x>0) QMDTHRES
+defaults 0 0 0 0 - 0.025 -
+what     [ignore] [minimum my-QMD kinetic energy for ions (GeV/n)];
+what     [ignore] [minimum BME kinetic energy for ions (GeV/n)];
+what     [ignore] [smearing (+/- DeltaE, GeV/n) for the my-QMD-RQMD switch energy];
+what     [ignore] [smearing (+/- DeltaE, GeV/n) for the BME-my-QMD switch energy];
+what     [ignore] [maximum kinetic energy for ion complete fusion (GeV/n)];
+what     [ignore] [smearing (+/- DeltaE, GeV/n) for the BME-RQMD switch energy];
+sdum     selection tag;
+
+range    i(x==-1,x==0,x==1) i(x==-1,x==0,x==1) - - - - RQMDFLAG
+defaults 0 0 - - - - -
+what     [1=fast cascade] [0=ignore] [-1=QMD mode];
+what     [1=preequilibrium step activated][0=ignored][-1=no preequilibrium step];
+what     nix 4;
+sdum     selection tag;
+
+range    f(x<=-1,x==0,x>=1) r(x<0,x==0,x>0) f(x<=-1,x==0,x>=1) r(x<0,x==0,x>0) f(x<=-1,x==0,x>=1) r(x<0,x==0,x>0) INFLDCAY
+defaults 1 1.e-16 0 1.44e-6 0 1.44e-6 INFLDCAY
+what     [deactivate] [ignore] [activate in flight decay of excited states];
+what     [reset] [ignore] [set the minimum mean life for excited state in flight decays];
+what     [deactivate] [ignore] [activate in flight decay of isomers];
+what     [reset] [ignore] [set the minimum mean life for isomer in flight decays];
+what     [deactivate] [ignore] [activate in flight decay of isotopes];
+what     [reset] [ignore] [set the minimum mean life for isotope in flight decays];
+sdum     selection tag;
+
+range    f(x<0,x==0,x>0) - - - - - ISOMERS
+defaults 1 - - - - - -
+what     [deactivate] [ignore] [activate explicit isomer production];
+what     nix 5;
+sdum     selection tag;
+
+range    f(x<0,x==0,x>0) - - - - - QUASI-EL
+defaults 1 - - - - - -
+what     [deactivate] [ignore] [activate explicit quasi-elastic interactions];
+what     nix 5;
+sdum     selection tag;
+
+meaning  override standard FLUKA defaults for physics processes;
+
+
+
+name     PLOTGEOM
+# ------------------------
+group    geometry
+type     extra
+disable  ifendif
+
+range    f(x==0,abs(x)>0) f(x==0,abs(x)>0) - f(x<0,x==0,x>0) f(x==0,abs(x)>0) lu FORMAT:-  r r r r r r  r r r r r r  r r r r
+defaults 0 0 - 2000 0 5 -  - - - - - -  - - - - - -  - - - -
+what     nix 7;
+
+meaning  calls (PLOTGEOM) routines to produce scan slices of implemented
+         problem geometry;
+
+
+
+name     POLARIZA
+# ------------------------
+# trouble: don't understand what5/what6 combo --- FIXME ---
+group    primary
+type     simple
+disable  comment
+
+range    r(abs(x)<=1) r(abs(x)<=1) r(abs(x)<=1) f(x<1,x>=1) r(0<=x<=1) f(x<=0,x>=1) -
+defaults -2 -2 -2 0 1 0 -
+what     x-axis cosine of the beam polarisation vector - electric vector in case of photons;
+what     y-axis cosine of the beam polarisation vector - electric vector in case of photons;
+what     z-axis cosine of the beam polarisation vector - electric vector in case of photons;
+what     flag for relative direction of beam and polarisation;
+what     polarisation fraction, see also what6;
+what     flag to interpret what5;
+what     nix;
+
+assert   abs((w(1)**2+w(2)**2+w(3)**2)-1.0)<1E-10
+
+meaning  define polarisation of photon beam or source and activate transport
+         of polarised photons;
+
+
+
+name     RADDECAY
+# ------------------------
+# trouble: what2's defdault depends on what1 --- FIXME ---
+group    transport
+type     simple
+disable  comment
+
+range    f(x<0,x==0,x==1,x>1) f(x<0,x==0,x>0) i f(x<0,x==0,x>0) l(x<0,x==0,x>0) f(x<0,x==0,x>0) -
+defaults 0 -1 1 111111111 0001000010 On -
+what     [reset] [ignore] [radioactive decays activated for requested cooling times]
+         [radioactive decays activated in semi-analogue mode];
+what     [reset] [ignore] [activate patching isomer production, while waiting for a better production model;
+what     [reset] [ignore] [number of replicas of the decay of each individual residual];
+what     [reset] [ignore] [switch for applying various biasing features to prompt particles only, or from radioactive
+         decays, or both];
+what     [reset] [ignore] [factors to be applied to e+/e-/gamma transport energy cut-offs, respectively for prompt
+         and decay radiation];
+what     [reset] [ignore] [request generation of beta+/beta- spectra with Coulomb and screening corrections];
+what     nix;
+
+meaning  request simulation of radioactive decays and set corresponding biasing
+         and transport conditions;
+
+
+
+name     RANDOMIZE
+# ------------------------
+group    general
+type     simple
+disable  comment
+
+range    lu r - - - - -
+defaults 1 54217137 - - - - -
+what     logical file unit from which to read the seeds;
+what     any number < 9.E8;
+what     nix 5;
+
+meaning  set seed for the double-precision random number generator RM64;
+
+
+
+name     RESNUCLEI
+# ------------------------
+# trouble: default of what4 is function of selected A/Z --- FIXME ---
+group    scoring
+type     simple
+disable  comment
+
+range    f(x<=0,x==1,x==2,x==3) lu i(x==0,1<x<200) i(x==0,1<=x<200) ri r c10
+defaults 1 11 w5 1 1 1 -
+what     type of products to be scored;
+what     logical output unit;
+what     maximum atomic number Z of the residual nuclei distribution;
+what     Maximum M = N - Z - (NMZ)_min of the residual nuclei distribution;
+what     scoring region number;
+what     volume of the region in cm^3;
+what     any character string identifying the detector;
+
+meaning  scores residual nuclei produced in inelastic interactions on a region basis;
+
+
+
+name     ROT-DEFINI
+# ------------------------
+group    scoring geometry
+type     simple
+disable  comment
+
+range    f(x<=0,0<x<400,x>999) r(0<=x<=180) r(-180<=x<=180) r r r c10
+defaults 0 - - - - - -
+what     transformation index and rotation axis;
+what     polar angle in degrees;
+what     azimuthal angle in degrees;
+what     offset in x direction (cm);
+what     offset in y direction (cm);
+what     offset in z direction (cm);
+what     nix;
+
+meaning  define rotations and translations to be applied to binnings;
+
+
+
+name     ROTPRBIN
+# ------------------------
+group    scoring
+type     simple
+disable  comment
+
+range    r(x<=-1,-1<x<=0,x>0) ti - bi bi i(x>=0) -
+defaults -2 0 - 1 w4 1 -
+what     set run-time storage precision of binnings;
+what     associates rotation/translation matrix with a binning;
+what     nix;
+what     binning ID/name;
+what     not-yet-implemented;
+what     not-yet-implemented;
+what     nix;
+
+meaning  set amount of storage and storage precision for binnings and set also correspondence
+         between rotations/translations and binning;
+
+
+
+name     RQMD
+# ------------------------
+group    developers
+type     simple
+disable  comment
+
+range    - - - f lu lu -
+defaults - - - 0 0 0 -
+what     nix 3;
+what     flag to enable separate input;
+what     flag/unit for standard output from RQMD generator;
+what     unit for extra output from RQMD generator;
+what     nix;
+
+meaning  for development only - define extra input/output features;
+
+
+
+name     SCORE
+# ------------------------
+group    scoring
+type     simple
+disable  comment
+
+range    pi pi pi pi - - -
+defaults ALL-PART 0 0 0 - - -
+what     generalized particle ID to be scored;
+what     generalized particle ID to be scored;
+what     generalized particle ID to be scored;
+what     generalized particle ID to be scored;
+what     nix 3;
+
+meaning  define (generalised) particles producing stars to be scored and
+         request scoring of energy deposition in each region;
+
+
+
+name     SOURCE
+# ------------------------
+group    primary
+type     simple
+disable  comment
+
+range    x x x x x x c8 x x x x x x  x x x x x x
+defaults - - - - - - -  - - - - - -  - - - - - -
+what     nix 14;
+
+meaning  request call to user provided routine source.f;
+
+
+name     SPECSOUR
+# ------------------------
+group    primary
+type     simple
+disable  comment
+
+range    r r r r r r PPSOURCE:ppsource  r(x>=0.0) r(x>=0.0) r(x>=0.0) r pi i(x>=0)   i(x>=0) r r r r i(0<=x<=111) -
+defaults - - - - - -   -  - - - - - -   - - - - - -
+what    lab momentum x-component for hadrons of the first beam (GeV/c);
+what    lab momentum y-component for hadrons of the first beam (GeV/c);
+what    lab momentum z-component for hadrons of the first beam (GeV/c);
+what    lab momentum x-component for nuclei of the 2nd beam (GeV/c);
+what    lab momentum y-component for nuclei of the 2nd beam (GeV/c);
+what    lab momentum z-component for nuclei of the 2nd beam (GeV/c);
+
+what    type of special source;
+
+what    sigma_x (cm) for the Gaussian sampling of the interaction position;
+what    sigma_y (cm) for the Gaussian sampling of the interaction position;
+what    sigma_z (cm) for the Gaussian sampling of the interaction position;
+what    sampling limit, in sigma, applying along x, y, and z =< 0: ignored (no limit);
+what    particle id number (or corresponding name) of hadrons of the first beam;
+what    mass number of the nuclei of the second beam;
+
+what    atomic number of the nuclei of the second beam;
+what    sigma_th_C (rad) for the Gaussian sampling of the first particle  angle wrt the ideal momentum in the Crossing plane;
+what    sigma_th_0 (rad) for the Gaussian sampling of the first particle angle wrt the ideal momentum in the Orthogonal plane;
+what    sigma_th_C (rad) for the Gaussian sampling of the second particle  angle wrt the ideal momentum in the Crossing plane;
+what    sigma_th_0 (rad) for the Gaussian sampling of the second particle angle wrt the ideal momentum in the Orthogonal plane;
+what    flag for interactions to be sampled;
+assert  w(12)>=w(13)
+
+# ----
+range    r(x>0.) r(0.0<=x<=math.pi/2.0) r r(x>0.) r(0.0<=x<=math.pi/2.0) r CROSSASY:crossasy r(x>=0.0) r(x>=0.0) r(x>=0.0) r(x>=0.0) pi i(x>=0.0)   i(x>=0) r r r r i(0<=x<=111) -
+defaults - - - - - -   -  - - - - - -   - - - - - -
+what    lab momentum of hadrons of the first beam (GeV/c);
+what    polar angle (rad) between the momentum of hadrons of the first beam and the z direction;
+what    azimuthal angle (deg) defining the crossing plane;
+what    lab momentum of nuclei of the second beam (GeV/c);
+what    polar angle (rad) between the momentum of nuclei of the second beam and the z direction;
+what    type of special source;
+
+what    sigma_x (cm) for the Gaussian sampling of the interaction position;
+what    sigma_y (cm) for the Gaussian sampling of the interaction position;
+what    sigma_z (cm) for the Gaussian sampling of the interaction position;
+what    sampling limit, in sigma, applying along x, y, and z =< 0: ignored (no limit);
+what    particle id number (or corresponding name) of hadrons of the first beam;
+what    mass number of the nuclei of the second beam;
+
+what    atomic number of the nuclei of the second beam;
+what    sigma_th_C (rad) for the Gaussian sampling of the first particle  angle wrt the ideal momentum in the Crossing plane;
+what    sigma_th_0 (rad) for the Gaussian sampling of the first particle angle wrt the ideal momentum in the Orthogonal plane;
+what    sigma_th_C (rad) for the Gaussian sampling of the second particle  angle wrt the ideal momentum in the Crossing plane;
+what    sigma_th_0 (rad) for the Gaussian sampling of the second particle angle wrt the ideal momentum in the Orthogonal plane;
+what    flag for interactions to be sampled;
+assert  w(12)>=w(13)
+
+# ----
+range    r(x>=0.0) r(0.0<=x<=math.pi/2.0) r(-360<x<360) r r r CROSSSYM:crosssym r(x>=0.0) r(x>=0.0) r(x>=0.0) r(x>=0.0) pi r(x>=0.0) i(x>=0) r r r r i(0<=x<=111) -
+defaults - - - - - -   -  - - - - - -   - - - - - -
+what    lab momentum for nuclei of both beams (GeV/c);
+what    half crossing angle (rad);
+what    azimuthal angle (deg) defining the crossing plane;
+what    nix 3;
+what    type of special source;
+
+what    sigma_x (cm) for the Gaussian sampling of the interaction position;
+what    sigma_y (cm) for the Gaussian sampling of the interaction position;
+what    sigma_z (cm) for the Gaussian sampling of the interaction position;
+what    sampling limit, in sigma, applying along x, y, and z =< 0: ignored (no limit);
+what    particle id number (or corresponding name) of hadrons of the first beam;
+what    mass number of the nuclei of the second beam;
+what    atomic number of the nuclei of the second beam;
+
+what    sigma_th_C (rad) for the Gaussian sampling of the first particle  angle wrt the ideal momentum in the Crossing plane;
+what    sigma_th_0 (rad) for the Gaussian sampling of the first particle angle wrt the ideal momentum in the Orthogonal plane;
+what    sigma_th_C (rad) for the Gaussian sampling of the second particle  angle wrt the ideal momentum in the Crossing plane;
+what    sigma_th_0 (rad) for the Gaussian sampling of the second particle angle wrt the ideal momentum in the Orthogonal plane;
+what    flag for interactions to be sampled;
+
+range    r r r r r r GCR-IONF:GCR-SPEC:GCR-ALLF:SPE-SPEC:SPE-2003:SPE-2005 r r r r r r r r r r r r
+defaults - - - - - - -  - - - - - - - - - - - -
+what     nix 19;
+
+range    pi r r r(x>=0.0) r(-1.0<=x<=1.0) r(-1.0<=x<=1.0) SYNC-RAD:sync-rad:SYNC-RDN:sync-rdn r(x>=0.0) r r r r r
+defaults - - - - - - -  - - - - - -
+what     Particles emitting the radiation;
+what     Momentum (> 0, GeV/c) or kinetic energy (< 0, GeV) of particles emitting the radiation;
+what     Curvature radius (> 0, cm) or magnetic field (< 0, T);
+what     minimum photon energy for sampling (GeV);
+what     x-component of the magnetic field versor;
+what     y-component of the magnetic field versor;
+sdum     type of special source;
+what     length (cm) of the emission segment (arc);
+what     x-coordinate of the starting point of a possible second path of same length;
+what     y-coordinate of the starting point of the second path;
+what     z-coordinate of the starting point of the second path;
+what     x-component of the emitting particle direction versor at the beginning of the second path;
+what     y-component of the emitting particle direction versor at the beginning of the second path;
+
+range    i(x>0) - - - - - BEAMSPOT:beamspot:Beamspot:BeamSpot
+defaults 0 - - - - - -
+what     number of spots;
+what     nix 5;
+sdum     type of special source;
+
+range    lu i(x>0) ti ti - - BIN-SOUR:bin-sour:Bin-sour:Bin-Sour
+defaults - - - - - - -
+what     logical unit to read the usrbin file from. It should be opened with OPEN card;
+what     detector index in the usrbin file;
+what     rotation translation matrix to be applied before sampling;
+what     rotation translation matrix to be applied after sampling;
+what     nix 2;
+sdum     type of special source;
+
+meaning  special source definition;
+
+
+name     SPOTBEAM
+# ------------------------
+group    primary
+type     simple
+disable  comment
+range    pi r r r r i i
+defaults -  0 0 0 0 0 -
+what     [!=0 particle id (Paprop) or A + 1000 Z + 100000 m for heavy ion beams]
+         [=0 particle id as per BEAM card];
+what     [>0 beam laboratory momentum (GeV/c)]
+         [<0 |what(2)| beam laboratory kinetic energy/n (GeV/n)]
+         [=0 default, beam momentum as per BEAM card];
+what     [>=0 beam spot weight (number of particles)]
+         [<0 stops the code];
+what     [>0 momentum rectangular spread (GeV/c)]
+         [<0 |what(4)| momentum FWHM spread (GeV/c)]
+         [=0 default: no momentum spread];
+what     [>0 beam angular rectangular divergence (mrad)]
+         [<0 |what(5)| beam angular FWHM divergence (mrad)]
+         [=0 default: no angular divergence];
+what     [>0 (all) beam spot infos are printed on the output]
+         [<0 default, resets to default (no printout)]
+         [=0 ignored];
+sdum     beam spot number (free format)
+         default: n+1, where n is the number of the last previously defined spot;
+meaning  definition of multiple spot card;
+
+
+name     SPOTPOS
+# ------------------------
+group    primary
+type     simple
+disable  comment
+range    r r r r r r i
+defaults 0 0 0 0 0 0 0
+
+what     x-position of the beam spot;
+what     y-position of the beam spot;
+what     z-position of the beam spot;
+what     [>0 rectangular beam width in x-direction (cm)
+          or maximum beam radius (cm) depending on what(6)]
+         [<0 Gaussian beam FWHM width in x-direction (cm)]
+         [=0 default: no x width];
+what     [>0 rectangular beam width in y-direction (cm)
+           or minimum beam radius (cm) depending on what(6)]
+         [<0 Gaussian beam FWHM width in y-direction (cm)]
+         [=0 resets to default if no annular beam spot requested
+              (see what(6)), ignored otherwise
+           default: same as x-width if no annular beam spot
+           requested (see what(6)), no y width
+           otherwise];
+what     [>0 flag for a rectangular beam spot]
+         [<0 flag for an annular beam spot]
+         [=0 ignored default: rectangular beam spot];
+sdum     beam spot number (free format)
+         default: n, where n is the number of the last previously defined spot;
+
+meaning  Beam spot position and shape.
+         If no SPOTPOS card is issued for an otherwise (via SPOTBEAM)
+         defined beam spot, the spot position and position spread are
+         taken from the BEAM and BEAMPOS cards;
+
+
+name     SPOTDIR
+# ------------------------
+group    primary
+type     simple
+disable  comment
+range    r r r r r r i
+defaults 0 0 0 0 0 0 0
+
+what     x-cosine of the beam spot (0 is a valid value);
+what     y-cosine of the beam spot (0 is a valid value);
+what     z-cosine of the beam spot (0 is a valid value);
+what     x-cosine of the beam "x-axis" (0 is a valid value);
+what     y-cosine of the beam "x-axis" (0 is a valid value);
+what     z-cosine of the beam "x-axis" (0 is a valid value);
+sdum     beam spot number (free format)
+         default: n, where n is the number of the last previously defined spot;
+
+meaning  Set beam spot direction. If no SPOTDIR card is issued for an otherwise
+         (via SPOTBEAM) defined beam spot, the spot direction and axes are
+         taken from the BEAMPOS and BEAMAXES cards, assuming the beam along the
+         z-axis of the beam reference frame;
+
+
+name     START
+# ------------------------
+group    primary
+type     simple
+disable  comment
+
+range    i(x>=0) - i(x>=0) i(0<=x<=1) f(x==0,x>0) i(x>=0) -
+defaults 5000 - 80 0 0 0 -
+what     number of events requested;
+what     nix;
+what     time left for termination;
+what     core dump triggered on FLABRT;
+what     request printing of number used random numbers at beginning of each event;
+what     time reserved for an interactive run;
+what     nix;
+
+meaning  request a number of events and define termination conditions;
+
+
+
+name     STEPSIZE
+#o ------------------------
+group    transport
+type     simple
+disable  comment
+
+range    f(x<0,x>=0) r(x>=0) ri ri i(x>=0) - -
+defaults - - 2 w3 1 - -
+what     minimum step size in cm;
+what     maximum step size in cm (100000cm/10cm with/out magnetic field);
+what     region ID/name;
+what     upper bound of region;
+what     step assigning regions;
+what     nix 2;
+assert   w(1)<w(2)
+
+meaning  set minimum and maximum step size per region for transport of all charged
+         particles (hadrons, muons and electrons);
+
+
+
+name     STERNHEIME
+#o ------------------------
+group    media
+type     simple
+disable  comment
+
+range    r r r r r r mi
+defaults - - - - - - -
+what     Sternheimer -C (Cbar) parameter;
+what     Sternheimer X0 parameter;
+what     Sternheimer X1 parameter;
+what     Sternheimer a parameter;
+what     Sternheimer m parameter;
+what     Sternheimer delta0 parameter, only for single elements;
+what     index of the material to which Sternheimer parameters apply;
+
+meaning  permit input of Sternheimer density effect parameters;
+
+
+
+name     STOP
+# ------------------------
+group    general
+type     simple
+disable  comment
+
+range    - - - - - - -
+defaults - - - - - - -
+what     nix 7;
+
+meaning  stops the execution of the program if/when reached in input file;
+
+
+
+name     TCQUENCH
+# ------------------------
+group    scoring
+type     simple
+disable  comment
+
+range    r(x<0,x==0,x>0) r(x<0,x==0,x>0) r(x>=0) bi bi i(x>=0) -
+defaults 0 0 0 1 w4 1 -
+what     time cut-off for scoring in seconds, infinit by default;
+what     first Birks law coefficient in g/(MeV cm2);
+what     second Birks law coefficient in g/(MeV cm2);
+what     binning ID/name;
+what     not-yet-implemented;
+what     not-yet-implemented;
+what     nix;
+
+meaning  set time cut-offs and/or quenching factors when scoring with
+         USRBIN or EVENTBIN option;
+
+
+
+name     THRESHOLD
+# ------------------------
+group    transport
+type     simple
+disable  comment
+
+range    - - r(x>=0) r(x>=0) - r(x>=0) -
+defaults - - 0 0 - 0 -
+what     nix 2;
+what     threshold kinetic energy for hadron elastic scattering;
+what     threshold kinetic energy for hadron inelastic reactions;
+what     nix;
+what     threshold kinetic energy for star scoring;
+what     nix;
+
+meaning  define energy threshold for star density scoring and/or set
+         threshold for elastic and inelastic hadron reactions;
+
+
+
+name     TIME-CUT
+# ------------------------
+group    transport
+type     simple
+disable  comment
+
+range    r(x>=0) r(x>=0) - pi pi i(x>=0) -
+defaults 0 0 - 1 w4 1 -
+what     transport time cut-off in nsec;
+what     transport time cut-off delay in nsec;
+what     nix;
+what     particle ID/name;
+what     upper bound of particle;
+what     step length;
+what     nix;
+
+meaning  set transport time cut-offs for different particles;
+
+
+
+name     TITLE
+# ------------------------
+group    general
+type     extra
+disable  ifendif
+
+range    - - - - - - -
+defaults - - - - - - -
+what     nix 7;
+meaning  set title of this FLUKA run;
+
+
+
+name     USERDUMP
+# ------------------------
+group    scoring
+type     simple
+disable  comment
+
+range    r r r r r r UDQUENCH
+defaults - - - - - -
+what     First Birks parameter for quenching, for a first material, in g/(MeV cm2);
+what     Second Birks parameter for quenching, for a first material, in g/(MeV cm2);
+what     First Birks parameter for quenching, for a second material, in g/(MeV cm2);
+what     Second Birks parameter for quenching, for a second material, in g/(MeV cm2);
+what     First Birks parameter for quenching, for a third material, in g/(MeV cm2);
+what     Second Birks parameter for quenching, for a third material, in g/(MeV cm2);
+what     nix;
+
+range    r(x<=0,x==0,x>=100) lu f(x<=0,1<=x<=6,x>=7) r(x<0,x==0,x>=1) - - c10
+defaults 0 49 0 0 - - -
+what     request complete dump of information;
+what     logical output unit;
+what     selection of entry points to call within mgdraw.f;
+what     activate/ignore call to entry usrdrw within mgdraw.f;
+what     nix 2;
+what     corresponding file name;
+
+meaning  define/request user driven output by calling the user provided
+         routine mgdraw.f;
+
+
+
+name     USERWEIGHT
+# ------------------------
+group    scoring
+type     simple
+disable  comment
+
+range    - - r(x<0,x==0,0<x<1,1<=x<=2,x==2,2<x<4,x==4,x>4) - r(x<=0,x>0) r(x<0,x==0,0<x<1,1<=x<=2,x==2,2<x<4,x==4,x>4) -
+defaults - - -1 - 0 -1 -
+what     nix 2;
+what     yields obtained via USRYIELD and fluences or currents calculated with USRBDX, USRTRACK, USRCOLL, USRBIN are multiplied by a user-supplied function FLUSCW at scoring time;
+what     nix;
+what     the USRRNC user subroutine is called every time a residual nucleus is generated;
+what     energy and star densities obtained via SCORE and USRBIN, as well as energy deposition and star production obtained via EVENTBIN are multiplied by a user-supplied function COMSCW at scoring time;
+what     nix;
+
+meaning  define extra weights applied to several quantities of various
+         scoring options
+         (USRYIELD/SCORE/USRBIN/EVENTBIN/RESNUCLE/USRBDX/USRTRACK/USRCOLL);
+
+
+
+name     USRBDX
+# ------------------------
+group    scoring
+type     multi-range what(1)
+disable  comment
+
+range    f(x==2,x==102,x==10002,x==10102) pi slu ri ri r(x>=0) c10   r(x>=0) r(x>=0) i(x>=1) r(0<=x<4*math.pi) r(0<=x<=4*math.pi) i(x>=0)
+defaults 1 ALL-PART 11 1 2 1 -   beam 0 10 4*pi .001 3
+what     combined flag to define quantity (fluence/current) to be scored and how (linear or logarithmic);
+what     generalised particle ID/name;
+what     logical output unit;
+what     first region defining the boundary, in case of one-way scoring this is the upstream;
+what     second region defining the boundary, in case of one-way scoring this is the downstream region;
+what     area of the detector in cm^2;
+what     any character string not containing & identifying the detector;
+what     maximum kinetic energy for scoring in GeV;
+what     minimum kinetic energy for scoring in GeV;
+what     number of energy intervals for scoring;
+what     maximum solid angle for scoring in sr;
+what     minimum solid angle for scoring in sr (>0);
+what     number of angular bins;
+assert   w(7)>w(8)
+assert   w(10)>w(11)
+
+range    f(x==12,x==112,x==10012,x==10112) pi slu ri ri r(x>=0) c10   r(x>=0) r(x>=0) i(x>=1) r(0<=x<4*math.pi) r(0<x<=4*math.pi) i(x>=0)
+defaults 1 ALL-PART 11 1 2 1 -   beam 0 10 4*pi .001 3
+what     combined flag to define quantity to be scored and how -
+          here current(12)/fluence(112), two way scoring, linear in energy and logarithmic in angle;
+what     generalised particle ID/name;
+what     logical output unit;
+what     first region defining the boundary, in case of one-way scoring this is the upstream;
+what     second region defining the boundary, in case of one-way scoring this is the downstream region;
+what     area of the detector in cm^2;
+what     any character string not containing & identifying the detector;
+what     maximum kinetic energy for scoring in GeV;
+what     minimum kinetic energy for scoring in GeV;
+what     number of energy intervals for scoring;
+what     maximum solid angle for scoring in sr;
+what     minimum solid angle for scoring in sr (>0);
+what     number of angular bins;
+assert   w(7)>w(8)
+assert   w(10)>w(11)
+
+range    f(x==0,x==1,x==101,x==10000,x==10001,x==10101) pi slu ri ri r(x>=0) c10   r(x>=0) r(x>=0) i(x>=1) r(0<=x<2*math.pi) r(0<=x<=2*math.pi) i(x>=0)
+defaults 1 ALL-PART 11 1 2 1 -   beam 0 10 2*pi 0 1
+what     combined flag to define quantity to be scored and how -
+          here current(1)/fluence(101), one way scoring, linear in energy and angle;
+what     generalised particle ID/name;
+what     logical output unit;
+what     first region defining the boundary, in case of one-way scoring this is the upstream;
+what     second region defining the boundary, in case of one-way scoring this is the downstream region;
+what     area of the detector in cm^2;
+what     any character string not containing & identifying the detector;
+what     maximum kinetic energy for scoring in GeV;
+what     minimum kinetic energy for scoring in GeV;
+what     number of energy intervals for scoring;
+what     maximum solid angle for scoring in sr;
+what     minimum solid angle for scoring in sr;
+what     number of angular bins;
+assert   w(7)>w(8)
+assert   w(10)>w(11)
+
+range    f(x==11,x==111,x==10011,x==10111) pi slu ri ri r(x>=0) c10   r(x>=0) r(x>=0) i(x>=1) r(0<=x<4*math.pi) r(0<=x<=4*math.pi) i(x>=0)
+defaults 1 ALL-PART 11 1 2 1 -   beam 0 10 4*pi 0 1
+what     combined flag to define quantity to be scored and how -
+          here current(11)/fluence(111), two way scoring, linear in energy and angle;
+what     generalised particle ID/name;
+what     logical output unit;
+what     first region defining the boundary, in case of one-way scoring this is the upstream;
+what     second region defining the boundary, in case of one-way scoring this is the downstream region;
+what     area of the detector in cm^2;
+what     any character string not containing & identifying the detector;
+what     maximum kinetic energy for scoring in GeV;
+what     minimum kinetic energy for scoring in GeV;
+what     number of energy intervals for scoring;
+what     maximum solid angle for scoring in sr;
+what     minimum solid angle for scoring in sr;
+what     number of angular bins;
+assert   w(7)>w(8)
+assert   w(10)>w(11)
+
+range    f(x==-2,x==98,x==9998,x==10098) pi slu ri ri r(x>=0) c10   r(x>=0) r(x>0) i(x>=1) r(0<=x<2*math.pi) r(0<x<=2*math.pi) i(x>=0)
+defaults 1 ALL-PART 11 1 2 1 -   beam .001 10 2*pi .001 3
+what     combined flag to define quantity to be scored and how -
+          here current(-2)/fluence(98), one way scoring, logarithmic in energy and angle;
+what     generalised particle ID/name;
+what     logical output unit;
+what     first region defining the boundary, in case of one-way scoring this is the upstream;
+what     second region defining the boundary, in case of one-way scoring this is the downstream region;
+what     area of the detector in cm^2;
+what     any character string not containing & identifying the detector;
+what     maximum kinetic energy for scoring in GeV;
+what     minimum kinetic energy for scoring in GeV (>0);
+what     number of energy intervals for scoring;
+what     maximum solid angle for scoring in sr;
+what     minimum solid angle for scoring in sr (>0);
+what     number of angular bins;
+assert   w(7)>w(8)
+assert   w(10)>w(11)
+
+range    f(x==8,x==108,x==10008,x==10108) pi slu ri ri r(x>=0) c10   r(x>=0) r(x>0) i(x>=1) r(0<=x<4*math.pi) r(0<x<=4*math.pi) i(x>=0)
+defaults 1 ALL-PART 11 1 2 1 -   beam .001 10 4*pi .001 3
+what     combined flag to define quantity to be scored and how -
+          here current(8)/fluence(108), two way scoring, logarithmic in energy and angle;
+what     generalised particle ID/name;
+what     logical output unit;
+what     first region defining the boundary, in case of one-way scoring this is the upstream;
+what     second region defining the boundary, in case of one-way scoring this is the downstream region;
+what     area of the detector in cm^2;
+what     any character string not containing & identifying the detector;
+what     maximum kinetic energy for scoring in GeV;
+what     minimum kinetic energy for scoring in GeV (>0);
+what     number of energy intervals for scoring;
+what     maximum solid angle for scoring in sr;
+what     minimum solid angle for scoring in sr (>0);
+what     number of angular bins;
+assert   w(7)>w(8)
+assert   w(10)>w(11)
+
+range    f(x==-1,x==99,x==9999,x==10099) pi slu ri ri r(x>=0) c10   r(x>=0) r(x>0) i(x>=1) r(0<=x<2*math.pi) r(0<=x<=2*math.pi) i(x>=0)
+defaults 1 ALL-PART 11 1 2 1 -   beam 0 10 2*pi 0 1
+what     combined flag to define quantity to be scored and how -
+          here current(-1)/fluence(99), one way scoring, logarithmic in energy and linear angle;
+what     generalised particle ID/name;
+what     logical output unit;
+what     first region defining the boundary, in case of one-way scoring this is the upstream;
+what     second region defining the boundary, in case of one-way scoring this is the downstream region;
+what     area of the detector in cm^2;
+what     any character string not containing & identifying the detector;
+what     maximum kinetic energy for scoring in GeV;
+what     minimum kinetic energy for scoring in GeV (>0);
+what     number of energy intervals for scoring;
+what     maximum solid angle for scoring in sr;
+what     minimum solid angle for scoring in sr;
+what     number of angular bins;
+assert   w(7)>w(8)
+assert   w(10)>w(11)
+
+range    f(x==9,x==109,x==10009,x==10109) pi slu ri ri r(x>=0) c10   r(x>=0) r(x>0) i(x>=1) r(0<=x<4*math.pi) r(0<=x<=4*math.pi) i(x>=0)
+defaults 1 ALL-PART 11 1 2 1 -   beam 0 10 4*pi 0 1
+what     combined flag to define quantity to be scored and how -
+          here current(9)/fluence(109), two way scoring, logarithmic in energy and linear angle;
+what     generalised particle ID/name;
+what     logical output unit;
+what     first region defining the boundary, in case of one-way scoring this is the upstream;
+what     second region defining the boundary, in case of one-way scoring this is the downstream region;
+what     area of the detector in cm^2;
+what     any character string not containing & identifying the detector;
+what     maximum kinetic energy for scoring in GeV;
+what     minimum kinetic energy for scoring in GeV (>0);
+what     number of energy intervals for scoring;
+what     maximum solid angle for scoring in sr;
+what     minimum solid angle for scoring in sr;
+what     number of angular bins;
+assert   w(7)>w(8)
+assert   w(10)>w(11)
+
+meaning  define detector for a boundary crossing fluence or current estimator;
+
+
+
+name     USRBIN
+# ------------------------
+group    scoring
+type     multi-range what(1)
+disable  comment
+
+range    f(x==0,x==10) pi slu r r r c10   r r r i(x>=1) i(x>=1) i(x>=1)
+defaults - ENERGY 11 - - - -   0 0 0 30 30 10
+what     code number to select space points where to record information - here Cartesian, no symmetry;
+what     type(particle) of information recorded - depends also on what(1);
+what     logical unit for output (neg. for binary file);
+what     X max;
+what     Y max;
+what     Z max;
+what     name for binning;
+what     X min;
+what     Y min;
+what     Z min;
+what     number of bins in X;
+what     number of bins in Y;
+what     number of bins in Z;
+assert   w(7)<w(4)
+assert   w(8)<w(5)
+assert   w(9)<w(6)
+
+range    f(x==1,x==11) spi slu r(x>0.0) r r c10   r(x>=0.0) r r i(x>=1) i(x>=0) i(x>=1)
+defaults - ENERGY 11 - - - -   0 0 0 50 1 50
+what     code number to select space points where to record information - here r/phi or R/Phi/Z, no symmetry;
+what     type(particle) of information recorded - depends also on what(1);
+what     logical unit for output (neg. for binary file);
+what     R max;
+what     Y coordinate of the binning axis (=0 in case of R/Phi/Z);
+what     Z max;
+what     name for binning;
+what     R min;
+what     X coordinate of the binning axis (=0 in case of R/Phi/Z);
+what     Z min;
+what     number of R bins;
+what     number of Phi bins (=1 to request R/Z binning);
+what     number of bins in Z;
+assert   w(7)<w(4)
+assert   w(9)<w(6)
+
+range    f(x==2,x==12) spi slu ri ri ri c10   ri ri ri i(x>=1) i(x>=0) i(x>=0)
+defaults - ENERGY 11 - - - -   w4 w5 w6 1 1 1
+what     code number to select space points where to record information - here per region;
+what     type(particle) of information recorded - depends also on what(1);
+what     logical unit for output (neg. for binary file);
+what     last region of 1st region set;
+what     last region of 2nd region set;
+what     last region of 3rd region set;
+what     name for binning;
+what     first region of 1st region set;
+what     first region of 2nd region set;
+what     first region of 3rd region set;
+what     step increment for going from the first to the last region of 1st set;
+what     step increment for going from the first to the last region of 2nd set;
+what     step increment for going from the first to the last region of 3rd set;
+assert   w(7)<=w(4)
+assert   w(8)<=w(5)
+assert   w(9)<=w(6)
+
+range    f(x==3,x==13) spi slu r r r c10   r(x>=0) r r i(x>=1) i(x>=1) i(x>=1)
+defaults - ENERGY 11 - - - -   0 0 0 30 30 10
+what     code number to select space points where to record information - here cartesian, with symmetry +/- X;
+what     type(particle) of information recorded - depends also on what(1);
+what     logical unit for output (neg. for binary file);
+what     X max;
+what     Y max;
+what     Z max;
+what     name for binning;
+what     X min >=0;
+what     Y min;
+what     Z min;
+what     number of bins in X;
+what     number of bins in Y;
+what     number of bins in Z;
+assert   w(7)<w(4)
+assert   w(8)<w(5)
+assert   w(9)<w(6)
+
+range    f(x==4,x==14) spi slu r r r c10   r r(x>=0) r i(x>=1) i(x>=1) i(x>=1)
+defaults - ENERGY 11 - - - -   0 0 0 30 30 10
+what     code number to select space points where to record information - here cartesian, with symmetry +/- Y;
+what     type(particle) of information recorded - depends also on what(1);
+what     logical unit for output (neg. for binary file);
+what     X max;
+what     Y max;
+what     Z max;
+what     name for binning;
+what     X min;
+what     Y min >=0;
+what     Z min;
+what     number of bins in X;
+what     number of bins in Y;
+what     number of bins in Z;
+assert   w(7)<w(4)
+assert   w(8)<w(5)
+assert   w(9)<w(6)
+
+range    f(x==5,x==15) spi slu r r r c10   r r r(x>=0) i(x>=1) i(x>=1) i(x>=1)
+defaults - ENERGY 11 - - - -   0 0 0 30 30 10
+what     code number to select space points where to record information - here cartesian, with symmetry +/- Z;
+what     type(particle) of information recorded - depends also on what(1);
+what     logical unit for output (neg. for binary file);
+what     X max;
+what     Y max;
+what     Z max;
+what     name for binning;
+what     X min;
+what     Y min;
+what     Z min >=0;
+what     number of bins in X;
+what     number of bins in Y;
+what     number of bins in Z;
+assert   w(7)<w(4)
+assert   w(8)<w(5)
+assert   w(9)<w(6)
+
+range    f(x==6,x==16) spi slu r r r c10   r(x>=0) r(x>=0) r(x>=0) i(x>=1) i(x>=1) i(x>=1)
+defaults - ENERGY 11 - - - -   0 0 0 30 30 10
+what     code number to select space points where to record information - here cartesian,
+           with symmetry around the origin (i.e. |x|, |y| and |z| are used for scoring);
+what     type(particle) of information recorded - depends also on what(1);
+what     logical unit for output (neg. for binary file);
+what     X max;
+what     Y max;
+what     Z max;
+what     name for binning;
+what     X min >=0;
+what     Y min >=0;
+what     Z min >=0;
+what     number of bins in X;
+what     number of bins in Y;
+what     number of bins in Z;
+assert   w(7)<w(4)
+assert   w(8)<w(5)
+assert   w(9)<w(6)
+
+range    f(x==7,x==17) spi slu r r r c10   r r r i(x>=1) i(x>=1) i(x>=1)
+defaults - ENERGY 11 - - - -   0 0 0 50 1 50
+what     code number to select space points where to record information - here r/phi or R/Phi/Z, with symmetry +/- Z;
+what     type(particle) of information recorded - depends also on what(1);
+what     logical unit for output (neg. for binary file);
+what     R max;
+what     Y coordinate of the binning axis (=0 in case of R/Phi/Z);
+what     Z max;
+what     name for binning;
+what     R min;
+what     X coordinate of the binning axis (=0 in case of R/Phi/Z);
+what     Z min >=0;
+what     number of R bins;
+what     number of Phi bins (=1 to request R/Z binning);
+what     number of bins in Z;
+assert   w(7)<w(4)
+assert   w(9)<w(6)
+
+range    f(x==8,x==18) spi slu - - r c10   - - r i(x>=1) i(x>=1) i(x>=1)
+defaults - ENERGY 11 - - - -   0 0 0 30 30 10
+what     code number to select space points where to record information - here special 3D user binning;
+what     type(particle) of information recorded - depends also on what(1);
+what     logical unit for output (neg. for binary file);
+what     upper limit of the 1st user-defined variable;
+what     upper limit of the 2nd user-defined variable;
+what     upper limit of the 3rd user-defined variable;
+what     name for binning;
+what     lower limit of the 1st user-defined variable;
+what     lower limit of the 2nd user-defined variable;
+what     lower limit of the 3rd user-defined variable;
+what     step increment for 1st user variable;
+what     step increment for 2nd user variable;
+what     step increment for 3rd user variable;
+#assert   w(7)<=w(4)
+assert   w(8)<=w(5)
+assert   w(9)<=w(6)
+
+meaning  score distribution of several quantities in a regular spatial structure
+         (BINNING) independent of the actual geometry;
+
+
+
+name     USRCOLL
+# ------------------------
+# trouble: some defaults are complicated and need extra work --- FIXME ---
+group    scoring
+type     multi-range what(1)
+disable  comment
+
+range    f(x==0,x==1,x==10000,x==10001) pi slu ri r(x>=0) i(x>=1) c10   r(x>=0) r(x>=0) - - - -
+defaults 1 ALL-PART 11 1 1 10 -   beam 0 - - - -
+what     select linear/logarithmic binning in energy, linear here;
+what     generalised particle ID/name;
+what     logical output unit;
+what     region defining the detector;
+what     volume of the detector in cm^3;
+what     number of energy bins;
+what     any character string not containing & identifying the detector;
+what     maximum energy for scoring in GeV;
+what     minimum energy for scoring in GeV;
+what     nix 4;
+assert   w(7)>w(8)
+
+range    f(x==-1,x==9999,x==-10001) pi slu ri r(x>=0) i(x>=1) c10   r(x>=0) r(x>=0) - - - -
+defaults 1 ALL-PART 11 1 1 10 -   beam .001 - - - -
+what     select linear/logarithmic binning in energy, logarithmic here;
+what     generalised particle ID/name;
+what     logical output unit;
+what     region defining the detector;
+what     volume of the detector in cm^3;
+what     number of energy bins;
+what     any character string not containing & identifying the detector;
+what     maximum energy for scoring in GeV;
+what     minimum energy for scoring in GeV (>0);
+what     nix 4;
+assert   w(7)>w(8)
+
+meaning  define detector for collision fluence estimator;
+
+
+
+name     USRGCALL
+# ------------------------
+group    general
+type     simple
+disable  comment
+
+range    x x x x x x c8
+defaults - - - - - - -
+what     user defined;
+what     user defined;
+what     user defined;
+what     user defined;
+what     user defined;
+what     user defined;
+what     user defined;
+
+meaning  request call to user provided initialisation routine usrglo.f;
+
+
+
+
+name     USRICALL
+# ------------------------
+group    general
+type     simple
+disable  comment
+
+range    x x x x x x c8
+defaults - - - - - - -
+what     user defined;
+what     user defined;
+what     user defined;
+what     user defined;
+what     user defined;
+what     user defined;
+what     user defined;
+
+meaning  request call to user provided initialisation routine usrini.f;
+
+
+
+name     USROCALL
+# ------------------------
+group    general
+type     simple
+disable  comment
+
+range    x x x x x x c8
+defaults - - - - - - -
+what     nix 7;
+
+meaning  calls user-dependent output;
+
+
+
+name     USRTRACK
+# ------------------------
+group    scoring
+type     multi-range what(1)
+disable  comment
+
+range    f(x==0,x==1,x==10000,x==10001) pi slu ri r(x>=0) i(x>=1) c10   r(x>=0) r(x>=0) - - - -
+defaults 1 ALL-PART 11 1 1 10 -   beam 0 - - - -
+what     select linear/logarithmic binning in energy;
+what     generalised particle ID/name;
+what     logical output unit;
+what     region defining the detector;
+what     volume of the detector in cm^3;
+what     number of energy bins;
+what     any character string not containing & identifying the detector;
+what     maximum energy for scoring in GeV;
+what     minimum energy for scoring in GeV;
+what     nix 4;
+assert   w(7)>w(8)
+
+range    f(x==-1,x==9999,x==-10001) pi slu ri r(x>=0) i(x>=1) c10   r(x>=0) r(x>0) - - - -
+defaults 1 ALL-PART 11 1 1 10 -   beam 0 - - - -
+what     select linear/logarithmic binning in energy;
+what     generalised particle ID/name;
+what     logical output unit;
+what     region defining the detector;
+what     volume of the detector in cm^3;
+what     number of energy bins;
+what     any character string not containing & identifying the detector;
+what     maximum energy for scoring in GeV;
+what     minimum energy for scoring in GeV (>0);
+what     nix 4;
+assert   w(7)>w(8)
+
+meaning  define detector for track-length fluence estimator;
+
+
+
+name     USRYIELD
+# ------------------------
+# trouble: what(2) has complicated extra meaning in addition to pi --- FIXME ---
+#          and what about BEAMDEF
+group    scoring
+type     multi-range sdum
+disable  comment
+
+range    pi pi r(0<x) r(-1<=x<=1) r(-1<=x<=1) r(-1<=x<=1) BEAMDEF
+defaults 0 1 0 0 0 0 BEAMDEF
+what     projectile particle index;
+what     target particle index used to define the c.m.s. frame;
+what     projectile momentum;
+what     projectile direction cosine;
+what     projectile direction cosine;
+what     projectile direction cosine;
+what     select to define beam direction;
+
+range    f(0<=x<=13838) spi slu f(x==-1) f(x==-2) r(x>=0) c10 r r i(x>=0) r r i(0<=x)
+defaults - ALL-PART 11 1 2 -1 -2   0 0 50 - 0 1
+what     complicated composite flag to indicate what quantities to score;
+what     generalised particle type to be scored;
+what     logical output unit;
+what     yield of particles if -1;
+what     yield of particles if -2;
+what     normalization factor;
+what     any character string not containing & identifying the detector;
+what     upper limit of the scoring interval for the first quantity;
+what     lower limit of the scoring interval for the first quantity;
+what     number of scoring intervals for first quantity;
+what     upper scoring limit for the second quantity;
+what     lower scoring limit for the second quantity;
+what     indicate kind of yield/cross section requested and target
+         material if required to calculate a cross section;
+
+range    f(0<=x<=13838) spi slu ri ri r(x>=0) c10 r r i(x>=0) r r i(0<=x<=100076)
+defaults - ALL-PART 11 1 2 - -   0 0 50 - 0 1
+what     complicated composite flag to indicate what quantities to score;
+what     generalised particle type to be scored;
+what     logical output unit;
+what     first region - upstream;
+what     second region - downstream;
+what     normalization factor;
+what     any character string not containing & identifying the detector;
+what     upper limit of the scoring interval for the first quantity;
+what     lower limit of the scoring interval for the first quantity;
+what     number of scoring intervals for first quantity;
+what     upper scoring limit for the second quantity;
+what     lower scoring limit for the second quantity;
+what     indicate kind of yield/cross section requested and target
+         material if required to calculate a cross section;
+meaning  define detector to score double-differential particle yield
+         around an extended or point target;
+
+
+
+name     WW-FACTOR
+# ------------------------
+# trouble: marginal info here for now plus some complicated defaults --- FIXME ---
+group    biasing
+type     simple
+disable  comment
+
+range    r(x<0,x>=0) r r(x<0,x==0,x>0) ri ri i(x>=0) i(x==-1,x==0,1<=x<=5)
+defaults -1 0 1 2 w4 1 1
+what     Russian Roulette, bottom weight at lower energy threshold;
+what     Splitting, top weight at lower energy threshold;
+what     Multiplicative factor to the two energy thresholds for RR/splitting;
+what     region ID/name;
+what     upper bound of region;
+what     step assigning regions;
+what     index of low-energy neutron weight-window profile;
+
+meaning  define Weight Windows in selected regions;
+
+
+
+name     WW-PROFILE
+# ------------------------
+# trouble: marginal info here for now plus some complicated defaults --- FIXME ---
+group    biasing
+type     simple
+disable  comment
+
+range    r(x<0,x==0,x>0) r(x<0,x==0,x>0) i(x>=0) i(x>=0) i(x>=0) i(0<=x<=5) -
+defaults 1 1 1 w3 1 1 -
+what     WW extra factor for the profile defined by WHAT(6);
+what     Importance extra factor;
+what     lower bound of the group number;
+what     upper bound of the group number;
+what     step length;
+what     profile number defined by WHAT(1);
+what     nix;
+
+meaning  define extra factors dependent on energy groups to modify the basic
+         setting of the low-energy neutron weight-windows in selected sets
+         of regions, or the low-energy neutron importances in each region;
+
+
+name     WW-THRESH
+# ------------------------
+# trouble: marginal info here for now plus some complicated defaults --- FIXME ---
+group    biasing
+type     simple
+disable  comment
+
+range    r(x<0,x==0,x>0) r r pi pi i(x>=0) PRIMARY:NOPRIMAR:-
+defaults - - 10 1 0 1 PRIMARY
+what     Upper kinetic energy threshold (GeV) or neutron group;
+what     Lower kinetic energy threshold (GeV) or neutron group;
+what     Aplification factor. Upper-Top = Lower-top * factor, Upper-Bottom = Lower-bottom / factor;
+what     lower bound particle ID/name;
+what     upper bound particle ID/name;
+what     step length;
+what     [NO]PRIMARY if WW applies to primary particles also;
+
+meaning  define energy limits for Russian Roulette/splitting weight window
+         and apply particle dependent modification factors to windows
+         defined by WW-FACTO;
+
+##
+## ------
+##
+##
+
+#-break-
+
+##
+## ------ (jul'06 - vasilis.vlachoudis@cern.ch) ------
+##    special cards for Geometry
+##    we skip these completely, see break above, at least for now
+##
+
+
+name     ARB
+# ------------------------
+group    Geometry
+type     simple
+disable  ifendif
+
+range    r r r r r r c8  r r r r r r  r r r r r r  r r r r r r i(x==0,123<=x<=8765) i(x==0,123<=x<=8765) i(x==0,123<=x<=8765) i(x==0,123<=x<=8765) i(x==0,123<=x<=8765) i(x==0,123<=x<=8765)
+
+defaults - - - - - - -   - - - - - -  - - - - - -  - - - - - -  - - - - - -
+what     x of first vertex;
+what     y of first vertex;
+what     z of first vertex;
+what     x of second vertex;
+what     y of second vertex;
+what     z of second vertex;
+what     body name;
+what     x of 3rd vertex;
+what     y of 3rd vertex;
+what     z of 3rd vertex;
+what     x of 4th vertex;
+what     y of 4th vertex;
+what     z of 4th vertex;
+what     x of 5th vertex;
+what     y of 5th vertex;
+what     z of 5th vertex;
+what     x of 6th vertex;
+what     y of 6th vertex;
+what     z of 6th vertex;
+what     x of 7th vertex;
+what     y of 7th vertex;
+what     z of 7th vertex;
+what     x of 8th vertex;
+what     y of 8th vertex;
+what     z of 8th vertex;
+what     edges of face 1;
+what     edges of face 2;
+what     edges of face 3;
+what     edges of face 4;
+what     edges of face 5;
+what     edges of face 6;
+meaning  Arbitrary Convex Polyhedron of 4, 5, or 6 sides;
+
+
+name     BOX
+# ------------------------
+group    Geometry
+type     simple
+disable  ifendif
+
+range    r r r r r r c8  r r r r r r
+defaults - - - - - - -   - - - - - -
+what     Vx of one vertex;
+what     Vy of one vertex;
+what     Vz of one vertex;
+what     H1x of height;
+what     H1y of height;
+what     H1z of height;
+what     body name;
+what     H2x of width;
+what     H2y of width;
+what     H2z of width;
+what     H3x of length;
+what     H3y of length;
+what     H3z of length;
+assert   w(4)!=0.0 or w(5)!=0.0 or w(6)!=0.0
+assert   w(7)!=0.0 or w(8)!=0.0 or w(9)!=0.0
+assert   w(10)!=0.0 or w(11)!=0.0 or w(12)!=0.0
+meaning  General Rectangular Parallelepiped;
+
+
+name     ELL
+# ------------------------
+group    Geometry
+type     simple
+disable  ifendif
+
+range    r r r r r r c8  r(x>0)
+defaults - - - - - - -   -
+what     F1x of first focus point;
+what     F1y of first focus point;
+what     F1z of first focus point;
+what     F2x of second focus point;
+what     F2y of second focus point;
+what     F2z of second focus point;
+what     body name;
+what     L length of major axis;
+assert   (w(1)-w(4))**2 + (w(2)-w(5))**2 + (w(3)-w(6))**2 < w(7)**2
+meaning  Ellipsoid of Revolution;
+
+
+name     PLA
+# ------------------------
+group    Geometry
+type     simple
+disable  ifendif
+
+range    r r r r r r c8
+defaults - - - - - - -
+what     Hx of normal vector;
+what     Hy of normal vector;
+what     Hz of normal vector;
+what     Vx of any point lying on plane;
+what     Vy of any point lying on plane;
+what     Vz of any point lying on plane;
+what     body name;
+assert   w(1)!=0.0 or w(2)!=0.0 or w(3)!=0.0
+meaning  Generic infinite half-space;
+
+
+name     RAW
+# ------------------------
+group    Geometry
+type     simple
+disable  ifendif
+
+range    r r r r r r c8  r r r r r r
+defaults - - - - - - -   - - - - - -
+what     Vx of one vertex;
+what     Vy of one vertex;
+what     Vz of one vertex;
+what     H1x of height;
+what     H1y of height;
+what     H1z of height;
+what     body name;
+what     H2x of width;
+what     H2y of width;
+what     H2z of width;
+what     H3x of length;
+what     H3y of length;
+what     H3z of length;
+assert   w(4)!=0.0 or w(5)!=0.0 or w(6)!=0.0
+assert   w(7)!=0.0 or w(8)!=0.0 or w(9)!=0.0
+assert   w(10)!=0.0 or w(11)!=0.0 or w(12)!=0.0
+meaning  Right Angle Wedge;
+
+
+name     RCC
+# ------------------------
+group    Geometry
+type     simple
+disable  ifendif
+
+range    r r r r r r c8  r(x>0.0)
+defaults - - - - - - -   -
+what     Vx center of one circular face;
+what     Vy center of one circular face;
+what     Vz center of one circular face;
+what     Hx height;
+what     Hy height;
+what     Hz height;
+what     body name;
+what     R cylinder radius;
+assert   w(4)!=0.0 or w(5)!=0.0 or w(6)!=0.0
+meaning  Right Circular Cylinder;
+
+
+name     REC
+# ------------------------
+group    Geometry
+type     simple
+disable  ifendif
+
+range    r r r r r r c8  r r r r r r
+defaults - - - - - - -   - - - - - -
+what     Vx center of one elliptical face;
+what     Vy center of one elliptical face;
+what     Vz center of one elliptical face;
+what     Hx height;
+what     Hy height;
+what     Hz height;
+what     body name;
+what     R1x vector defining minor half axis;
+what     R1y vector defining minor half axis;
+what     R1z vector defining minor half axis;
+what     R2x vector defining major half axis;
+what     R2y vector defining major half axis;
+what     R2z vector defining major half axis;
+assert   w(4)!=0.0 or w(5)!=0.0 or w(6)!=0.0
+assert   w(7)!=0.0 or w(8)!=0.0 or w(9)!=0.0
+assert   w(10)!=0.0 or w(11)!=0.0 or w(12)!=0.0
+meaning  Right Elliptical Cylinder;
+
+
+name     RPP
+# ------------------------
+group    Geometry
+type     simple
+disable  ifendif
+
+range    r r r r r r c8
+defaults - - - - - - -
+what     x minimum;
+what     x maximum;
+what     y minimum;
+what     y maximum;
+what     z minimum;
+what     z maximum;
+what     body name;
+assert   w(1)<w(2)
+assert   w(3)<w(4)
+assert   w(5)<w(6)
+meaning  Rectangular Parallelepiped;
+
+
+name     SPH
+# ------------------------
+group    Geometry
+type     simple
+disable  ifendif
+
+range    r r r r(x>0) - - c8
+defaults - - - - - - -
+what     Vx center of sphere;
+what     Vy center of sphere;
+what     Vz center of sphere;
+what     R radius of sphere;
+what     -;
+what     -;
+what     body name;
+meaning  Sphere;
+
+
+name     TRC
+# ------------------------
+group    Geometry
+type     simple
+disable  ifendif
+
+range    r r r r r r c8  r(x>=0) r(x>=0)
+defaults - - - - - - -   - -
+what     Vx center of major circular base;
+what     Vy center of major circular base;
+what     Vz center of major circular base;
+what     Hx height;
+what     Hy height;
+what     Hz height;
+what     body name;
+what     R1 radius of major base;
+what     R2 radius of minor base;
+assert   w(4)!=0.0 or w(5)!=0.0 or w(6)!=0.0
+assert   w(7)!=0.0 or w(8)!=0.0
+meaning  Truncated Right Angle Cone;
+
+name     TRX
+# ------------------------
+group    Geometry developers
+type     simple
+disable  ifendif
+
+range    r r r r(x>0) r(x>0) r(x>0) c8
+defaults - - - - - - -
+what     x origin of the torus;
+what     y origin of the torus;
+what     z origin of the torus;
+what     a radius;
+what     b radius;
+what     c radius;
+what     body name;
+meaning  Torus on the Y-Z plane;
+
+
+name     TRY
+# ------------------------
+group    Geometry developers
+type     simple
+disable  ifendif
+
+range    r r r r(x>0) r(x>0) r(x>0) c8
+defaults - - - - - - -
+what     x origin of the torus;
+what     y origin of the torus;
+what     z origin of the torus;
+what     a radius;
+what     b radius;
+what     c radius;
+what     body name;
+meaning  Torus on the X-Z plane;
+
+
+name     TRZ
+# ------------------------
+group    Geometry developers
+type     simple
+disable  ifendif
+
+range    r r r r(x>0) r(x>0) r(x>0) c8
+defaults - - - - - - -
+what     x origin of the torus;
+what     y origin of the torus;
+what     z origin of the torus;
+what     a radius;
+what     b radius;
+what     c radius;
+what     body name;
+meaning  Torus on the X-Y plane;
+
+
+name     QUA
+# ------------------------
+group    Geometry
+type     simple
+disable  ifendif
+
+range    r r r r r r c8  r r r r - -
+defaults - - - - - - -   - - - - - -
+what     Cxx coefficient;
+what     Cyy coefficient;
+what     Czz coefficient;
+what     Cxy coefficient;
+what     Cxz coefficient;
+what     Cyz coefficient;
+what     body name;
+what     Cx  coefficient;
+what     Cy  coefficient;
+what     Cz  coefficient;
+what     C   coefficient;
+assert   w(1)!=0.0 or w(2)!=0.0 or w(3)!=0.0 or w(4)!=0.0 or w(5)!=0.0 or w(6)!=0.0
+meaning  Quadratic equation;
+
+
+name     WED
+# ------------------------
+group    Geometry
+type     simple
+disable  ifendif
+
+range    r r r r r r c8  r r r r r r
+defaults - - - - - - -   - - - - - -
+what     Vx of one vertex;
+what     Vy of one vertex;
+what     Vz of one vertex;
+what     H1x of height;
+what     H1y of height;
+what     H1z of height;
+what     body name;
+what     H2x of width;
+what     H2y of width;
+what     H2z of width;
+what     H3x of length;
+what     H3y of length;
+what     H3z of length;
+assert   w(4)!=0.0 or w(5)!=0.0 or w(6)!=0.0
+assert   w(7)!=0.0 or w(8)!=0.0 or w(9)!=0.0
+assert   w(10)!=0.0 or w(11)!=0.0 or w(12)!=0.0
+meaning  Right Angle Wedge;
+
+
+name     XCC
+# ------------------------
+group    Geometry
+type     simple
+disable  ifendif
+
+range    r r r(x>0.0) - - - c8
+defaults - - - - - - -
+what     Ay coordinate of cylindrical axis;
+what     Az coordinate of cylindrical axis;
+what     R cylinder radius;
+what     -;
+what     -;
+what     -;
+what     body name;
+meaning  Infinite Circular Cylinder parallel to X coordinate axis;
+
+
+name     XEC
+# ------------------------
+group    Geometry
+type     simple
+disable  ifendif
+
+range    r r r(x>0.0) r(x>0.0) - - c8
+defaults - - - - - - -
+what     Ay coordinate of elliptical axis;
+what     Az coordinate of elliptical axis;
+what     Ly semi-elliptical axis;
+what     Lz semi-elliptical axis;
+what     -;
+what     -;
+what     body name;
+meaning  Infinite Elliptical Cylinder parallel to X axis;
+
+
+name     XYP
+# ------------------------
+group    Geometry
+type     simple
+disable  ifendif
+
+range    r - - - - - c8
+defaults - - - - - - -
+what     Vz coordinate of plane;
+what     -;
+what     -;
+what     -;
+what     -;
+what     -;
+what     body name;
+meaning  Infinite half-space delimited by a Z coordinate plane;
+
+
+name     XZP
+# ------------------------
+group    Geometry
+type     simple
+disable  ifendif
+
+range    r - - - - - c8
+defaults - - - - - - -
+what     Vy coordinate of plane;
+what     -;
+what     -;
+what     -;
+what     -;
+what     -;
+what     body name;
+meaning  Infinite half-space delimited by a Y coordinate plane;
+
+
+name     YCC
+# ------------------------
+group    Geometry
+type     simple
+disable  ifendif
+
+range    r r r(x>0.0) - - - c8
+defaults - - - - - - -
+what     Az coordinate of cylindrical axis;
+what     Ay coordinate of cylindrical axis;
+what     R cylinder radius;
+what     -;
+what     -;
+what     -;
+what     body name;
+meaning  Infinite Circular Cylinder parallel to Y coordinate axis;
+
+
+name     YEC
+# ------------------------
+group    Geometry
+type     simple
+disable  ifendif
+
+range    r r r(x>0.0) r(x>0.0) - - c8
+defaults - - - - - - -
+what     Az coordinate of elliptical axis;
+what     Ax coordinate of elliptical axis;
+what     Lz semi-elliptical axis;
+what     Lx semi-elliptical axis;
+what     -;
+what     -;
+what     body name;
+meaning  Infinite Elliptical Cylinder parallel to Y axis;
+
+
+name     YZP
+# ------------------------
+group    Geometry
+type     simple
+disable  ifendif
+
+range    r - - - - - c8
+defaults - - - - - - -
+what     Vx coordinate of plane;
+what     -;
+what     -;
+what     -;
+what     -;
+what     -;
+what     body name;
+meaning  Infinite half-space delimited by a X coordinate plane;
+
+
+name     ZCC
+# ------------------------
+group    Geometry
+type     simple
+disable  ifendif
+
+range    r r r(x>0.0) - - - c8
+defaults - - - - - - -
+what     Ax coordinate of cylindrical axis;
+what     Ay coordinate of cylindrical axis;
+what     R cylinder radius;
+what     -;
+what     -;
+what     -;
+what     body name;
+meaning  Infinite Circular Cylinder parallel to Z coordinate axis;
+
+
+name     ZEC
+# ------------------------
+group    Geometry
+type     simple
+disable  ifendif
+
+range    r r r(x>0.0) r(x>0.0) - - c8
+defaults - - - - - - -
+what     Ax coordinate of elliptical axis;
+what     Ay coordinate of elliptical axis;
+what     Lx semi-elliptical axis;
+what     Ly semi-elliptical axis;
+what     -;
+what     -;
+what     body name;
+meaning  Infinite Elliptical Cylinder parallel to Z axis;
+
+
+name     END
+# ------------------------
+group    Geometry
+type     simple
+disable  ifendif
+
+range    - - - - - - -
+defaults - - - - - - -
+what     nix 7;
+meaning  End of bodies or regions;
+
+
+name     REGION
+# ------------------------
+group    Geometry
+type     extra
+disable  ifendif
+
+range    i - - - - - c8 expr
+defaults 5 - - - - - - -
+what     NAZ contiguity list length estimation (negative always use DNEAR in that region);
+what     nix 5;
+what     region name;
+what     region expression: + intersection, - subtraction, | union, (..) parenthesis allowed;
+meaning  Region definition;
+assert   W(-1)!=""
+
+
+name     VOXELS
+# ------------------------
+group    Geometry
+type     simple
+disable  ifendif
+
+range    r r r ti - - c8
+defaults -  -  - - - - -
+what     nix 7;
+meaning  Voxel volume and file definition;
+
+
+name     LATTICE
+# ------------------------
+group    Geometry
+type     simple
+disable  comment
+
+range    ri ri i(x>=0) - - i(x>=0) ti
+defaults -  -  - - - - -
+what     Container region (fist lattice cell);
+what     Container region (last lattice cell);
+what     step in assigning regions;
+what     Lattice name/number of first region;
+what     Lattice name/number of last region;
+what     step in assigning lattices;
+what     rotation name or index;
+meaning  Lattice definition;
+
+name     LATTSNGL
+# ------------------------
+group    Geometry
+type     simple
+disable  comment
+
+range    ri ti ti i(x>=0) - - -
+defaults -  -  - - - - -
+what     Container-region of the lattice cell;
+what     index or name (with sign) of the first transformation;
+what     index or name (with sign) of the second transformation;
+what     lattice number of the lattice cell (or corresponding name), assigned to region WHAT(1);
+what     nix;
+what     nix;
+what     nix;
+meaning  Single lattice definition with up to two nested transformations;
+
+# -----------------------------------------------------------------------------
+# Flair specific cards, declared as comments to be
+# ignored by FLUKA
+# -----------------------------------------------------------------------------
+#
+#!point x y z option size|anchor color name     # size?
+#
+name     !point
+# ------------------------
+group    Flair
+type     simple
+disable  comment
+
+range    r r r i(x>=0) i(x>=0) i(x>=0) c10
+defaults -  -  - - - - -
+what     x position;
+what     y position;
+what     z position;
+what     plotting option;
+what     text anchor;
+what     color;
+what     name;
+meaning  Define a point;
+
+#
+#!arrow x y z option anchor color name
+#!arrow dx dy dz                    &
+#
+name     !arrow
+# ------------------------
+group    Flair
+type     simple
+disable  comment
+
+range    r r r i(x>=0) i(x>=0) i(x>=0) c10 r r r - - -
+defaults - - - - - - -   - - - - - -
+what     x position;
+what     y position;
+what     z position;
+what     plotting option;
+what     text anchor;
+what     color;
+what     name;
+what     dx dimension of vector;
+what     dy dimension of vector;
+what     dz dimension of vector;
+what     nix 3;
+meaning  Define a vector or line;
+
+#
+#!ruler x y z option anchor color name
+#!ruler xe ye ze xa ya za           &
+#
+name     !ruler
+# ------------------------
+group    Flair
+type     simple
+disable  comment
+
+range    r r r i(x>=0) i(x>=0) i(x>=0) c10 r r r r r r
+defaults - - - - - - -   - - - - - -
+what     x position;
+what     y position;
+what     z position;
+what     plotting option;
+what     text anchor;
+what     color;
+what     name;
+what     x end location;
+what     y end location;
+what     z end location;
+what     x angle handle end location;
+what     y angle handle end location;
+what     z angle handle end location;
+meaning  Define a ruler to measure dimensions and/or angles;
+
+#
+#!light x y z option anchor color name
+#!light dx dy dz power falloff|shadow spec &
+#
+name     !light
+# ------------------------
+group    Flair
+type     simple
+disable  comment
+
+range    r r r i(x>=0) i(x>=0) i(x>=0) c10 r r r r(x>0) i r(x>=0)
+defaults - - - - - - -   - - - - - -   - - - - - -
+what     x position;
+what     y position;
+what     z position;
+what     plotting option;
+what     text anchor;
+what     color;
+what     name;
+what     x end location;
+what     y end location;
+what     z end location;
+what     light power;
+what     falloff rule. Negative to activate shadow;
+what     specular light power;
+meaning  Define a light to be used in 3D images;
+
+#
+#!mesh x y z option size|anchor color name      # size?
+#
+name     !mesh
+# ------------------------
+group    Flair
+type     simple
+disable  comment
+
+range    r r r i(x>=0) i(x>=0) i(x>=0) c10
+defaults -  -  - - - - -
+what     x position;
+what     y position;
+what     z position;
+what     plotting option;
+what     text anchor;
+what     color;
+what     name;
+meaning  Define a mesh;
+
+#
+#!spline x1 y1 z1 option anchor color name
+#!spline x2 y2 z2 x3 y3 z3           &
+#!spline .................           &
+#!spline ........ xn yn zn           &
+#
+name     !spline
+# ------------------------
+group    Flair
+type     simple
+disable  comment
+
+range    r r r i(x>=0) i(x>=0) i(x>=0) c10 r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r
+defaults - - - - - - -   - - - - - -
+what     x1 node position;
+what     y1 node position;
+what     z1 node position;
+what     plotting option;
+what     text anchor;
+what     color;
+what     name;
+what     xi node position;
+what     yi node position;
+what     zi node position;
+what     xn node position;
+what     yn node position;
+what     zn node position;
+meaning  Define a spline with n nodes;
+
+#
+#!COFFEE
+#
+name     !coffee
+# ------------------------
+group    Flair
+type     simple
+disable  comment
+
+range    ARABICA:COLOMBIAN:MIXED i(0<=x<=3) i i(0<=x<=2) r(x>=0) r(x>=0) r(0<=x<=100)
+defaults 0 - - - - - -
+what     Coffee type;
+what     Number of Cups;
+what     Milk;
+what     Sugar (g);
+what     Cocoa powder (g);
+what     Temperaturee (C);
+what     Blend choice;
+meaning  Coffee generation card;
+
+
+name     #define
+# ------------------------
+group    preprocessor
+type     simple
+disable  comment
+
+range    c80 - - - - - c80
+defaults - - - - - - -
+what     nix 6;
+what     variable name;
+meaning  Preprocessor: variable definition;
+
+
+name     #undef
+# ------------------------
+group    preprocessor
+type     simple
+disable  comment
+
+range    - - - - - - vi
+defaults - - - - - - -
+what     nix 6;
+what     variable name;
+meaning  Preprocessor: delete variable definition;
+
+
+name     #if
+# ------------------------
+group    preprocessor
+type     simple
+disable  comment
+
+range    - - - - - - vi
+defaults - - - - - - -
+what     nix 6;
+what     variable name;
+meaning  Preprocessor: conditional include when variable is defined;
+
+
+name     #ifdef
+# ------------------------
+# will be mapped to #if
+group    preprocessor
+type     simple
+disable  comment
+
+range    - - - - - - vi
+defaults - - - - - - -
+what     nix 6;
+what     variable name;
+meaning  Preprocessor: conditional include when variable is defined;
+
+
+name     #ifndef
+# ------------------------
+group    preprocessor
+type     simple
+disable  comment
+
+range    - - - - - - vi
+defaults - - - - - - -
+what     nix 6;
+what     variable name;
+meaning  Preprocessor: conditional include when variable is not defined;
+
+
+name     #elif
+# ------------------------
+group    preprocessor
+type     simple
+disable  comment
+
+range    - - - - - - vi
+defaults - - - - - - -
+what     nix 6;
+what     variable name;
+meaning  Preprocessor: conditional include when variable is defined;
+
+
+name     #else
+# ------------------------
+group    preprocessor
+type     simple
+disable  comment
+
+range    - - - - - - -
+defaults - - - - - - -
+what     nix 7;
+meaning  Preprocessor: conditional include when all other fail;
+
+
+name     #endif
+# ------------------------
+group    preprocessor
+type     simple
+disable  comment
+
+range    - - - - - - -
+defaults - - - - - - -
+what     nix 7;
+meaning  Preprocessor: conditional end;
+
+
+name     #include
+# ------------------------
+group    preprocessor
+type     simple
+disable  ifendif
+
+range    - - - - - - c80
+defaults - - - - - - -
+what     nix 6;
+what     file name to include;
+meaning  Preprocessor: include filename as part of the input;
+
+name     #endinclude
+# ------------------------
+group    preprocessor
+type     simple
+disable  comment
+
+range    - - - - - - -
+defaults - - - - - - -
+what     nix 7;
+meaning  Preprocessor: end include filename as part of the input;
+
+
+name     $start_expansion
+# ------------------------
+group    Geometry
+type     simple
+disable  comment
+
+range    r(x>=0.0) - - - - - -
+defaults 1.0 - - - - - - -
+what     Expansion/reduction factor;
+what     nix 6;
+meaning  provides a coordinate expansion (reduction) factor for all bodies
+         embedded within the directive;
+
+
+name     $end_expansion
+# ------------------------
+group    Geometry
+type     simple
+disable  comment
+
+range    - - - - - - -
+defaults - - - - - - - -
+what     nix 7;
+meaning  ends the expansion (reduction) of bodies;
+
+
+name     $start_translat
+# ------------------------
+group    Geometry
+type     simple
+disable  comment
+
+range    r r r - - - -
+defaults 0.0 0.0 0.0 - - - - -
+what     dx;
+what     dy;
+what     dz;
+what     nix 4;
+meaning  translation for all bodies embedded within the directive;
+
+
+name     $end_translat
+# ------------------------
+group    Geometry
+type     simple
+disable  comment
+
+range    - - - - - - -
+defaults - - - - - - - -
+what     nix 7;
+meaning  ends the translation for all bodies embedded within the directive;
+
+
+name     $start_transform
+# ------------------------
+group    Geometry
+type     simple
+disable  comment
+
+range    ti - - - - - -
+defaults - - - - - - - -
+what     ROT-DEFI transformation;
+what     nix 6;
+meaning  applies a predefined (via ROT-DEFI) transformation for all bodies
+         embedded within the directive;
+
+
+name     $end_transform
+# ------------------------
+group    Geometry
+type     simple
+disable  comment
+
+range    - - - - - - -
+defaults - - - - - - - -
+what     nix 7;
+meaning  ends the transformation for all bodies embedded within the directive;
+
+##
+## ------
+##
+##
+
+-break-
+
+##
+## --- jan'06 02-13:51
+##     cut out of fluka2005.6 ascii manual
+##     only removed commenting text and a few stars to ease reading
+##     we only look at leading two columns
+##     include as a section of our simple database
+##
+
+
+ 4-HELIUM      -6   3.72738025692891E+00   Alpha                   ---
+ 3-HELIUM      -5   2.80839223660482E+00   Helium-3
+ TRITON        -4   2.80892177415259E+00   Triton                  ---
+ DEUTERON      -3   1.87561339000000E+00   Deuteron                ---
+ HEAVYION      -2   0.00000000000000E+00   Generic heavy ion (see command HI-PROPE)
+ OPTIPHOT      -1   0.00000000000000E+00   Optical Photon          ---
+ RAY            0   0.00000000000000E+00   Pseudoparticle          ---
+ PROTON         1   0.93827231000000E+00   Proton                  2212
+ APROTON        2   0.93827231000000E+00   Antiproton             -2212
+ ELECTRON       3   0.51099906000000E-03   Electron                  11
+ POSITRON       4   0.51099906000000E-03   Positron                 -11
+ NEUTRIE        5   0.00000000000000E+00   Electron Neutrino         12
+ ANEUTRIE       6   0.00000000000000E+00   Electron Antineutrino    -12
+ PHOTON         7   0.00000000000000E+00   Photon                    22
+ NEUTRON        8   0.93956563000000E+00   Neutron                 2112
+ ANEUTRON       9   0.93956563000000E+00   Antineutron            -2112
+ MUON+         10   0.10565838900000E+00   Positive Muon            -13
+ MUON-         11   0.10565838900000E+00   Negative Muon             13
+ KAONLONG      12   4.97671000000000E-01   Kaon-zero long           130
+ PION+         13   1.39569950000000E-01   Positive Pion            211
+ PION-         14   1.39569950000000E-01   Negative Pion           -211
+ KAON+         15   4.93646000000000E-01   Positive Kaon            321
+ KAON-         16   4.93646000000000E-01   Negative Kaon           -321
+ LAMBDA        17   1.11563000000000E+00   Lambda                  3122
+ ALAMBDA       18   1.11563000000000E+00   Antilambda             -3122
+ KAONSHRT      19   4.97671000000000E-01   Kaon zero short          310
+ SIGMA-        20   1.19743000000000E+00   Negative Sigma          3112
+ SIGMA+        21   1.18937000000000E+00   Positive Sigma          3222
+ SIGMAZER      22   1.19255000000000E+00   Sigma-zero              3212
+ PIZERO        23   1.34976400000000E-01   Pion-zero                111
+ KAONZERO      24   4.97671000000000E-01   Kaon-zero                311
+ AKAONZER      25   4.97671000000000E-01   Antikaon-zero           -311
+#Reserved      26   1.34976400000000E-01   ---                      ---
+ NEUTRIM       27   0.00000000000000E+00   Muon neutrino             14
+ ANEUTRIM      28   0.00000000000000E+00   Muon antineutrino        -14
+#Blank         29   5.47450000000000E-01   ---                      ---
+#Reserved      30   0.00000000000000E+00   ---                      ---
+ ASIGMA-       31   5.47450000000000E-01   Antisigma-minus        -3222
+ ASIGMAZE      32   7.69900000000000E-01   Antisigma-zero         -3212
+ ASIGMA+       33   7.69900000000000E-01   Antisigma-plus         -3112
+ XSIZERO       34   7.69900000000000E-01   Xi-zero                 3322
+ AXSIZERO      35   7.81940000000000E-01   Antixi-zero            -3322
+ XSI-          36   8.91830000000000E-01   Negative Xi             3312
+ AXSI+         37   8.96100000000000E-01   Positive Xi            -3312
+ OMEGA-        38   8.91830000000000E-01   Omega-minus             3334
+ AOMEGA+       39   8.96100000000000E-01   Antiomega              -3334
+ WWLOWNEU      40   0.93956563000000E+00   Low-energy neutrons (used only in some input options)
+ TAU+          41   1.25000000000000E+00   Positive Tau (***)       -15
+ TAU-          42   1.25000000000000E+00   Negative Tau (***)        15
+ NEUTRIT       43   1.25000000000000E+00   Tau neutrino              16
+ ANEUTRIT      44   1.42100000000000E+00   Tau antineutrino         -16
+ D+            45   1.42100000000000E+00   D-plus                   411
+ D-            46   1.42100000000000E+00   D-minus                 -411
+ D0            47   1.42100000000000E+00   D-zero                   421
+ D0BAR         48   1.38280000000000E+00   AntiD-zero              -421
+ DS+           49   1.38370000000000E+00   D_s-plus                 431
+ DS-           50   1.38720000000000E+00   D_s-minus               -431
+ LAMBDAC+      51   1.82000000000000E+00   Lambda_c-plus           4122
+ XSIC+         52   2.03000000000000E+00   Xi_c-plus               4232
+ XSIC0         53   1.23200000000000E+00   Xi_c-zero               4112
+ XSIPC+        54   1.23200000000000E+00   Xi'_c-plus              4322
+ XSIPC0        55   1.23200000000000E+00   Xi'_c-zero              4312
+ OMEGAC0       56   1.23200000000000E+00   Omega_c-zero            4332
+ ALAMBDC-      57   1.67500000000000E+00   Antilambda_c-minus     -4122
+ AXSIC-        58   1.67500000000000E+00   AntiXi_c-minus         -4232
+ AXSIC0        59   1.67500000000000E+00   AntiXi_c-zero          -4132
+ AXSIPC-       60   1.67500000000000E+00   AntiXi'_c-minus        -4322
+ AXSIPC0       61   1.44000000000000E+00   AntiXi'_c-zero         -4312
+ AOMEGAC0      62   1.44000000000000E+00   AntiOmega_c-zero       -4332
+#Reserved      63   0.00000000000000E+00   ---                      ---
+ @LASTPAR      64   0.00000000000000E+00   ---                      ---
+ ISOTOPE       99   0.00000000000000E+00    Isotope definition in beam
+
+##
+## ---
+##
+
+ ALL-PART     201   0.00000000000000E+00    All transportable particles
+ ALL-CHAR     202   0.00000000000000E+00    All charged particles
+ ALL-NEUT     203   0.00000000000000E+00    All neutral particles
+ ALL-NEGA     204   0.00000000000000E+00    All negative particles
+ ALL-POSI     205   0.00000000000000E+00    All positive particles
+ NUCLEONS     206   0.00000000000000E+00    Protons and neutrons
+ NUC&PI+-     207   0.00000000000000E+00    Protons, neutrons and charged pions
+ ENERGY       208   0.00000000000000E+00    For dose scoring: Deposited energy For energy fluence scoring: Kinetic energy
+ PIONS+-      209   0.00000000000000E+00    Charged pions
+ BEAMPART     210   0.00000000000000E+00    Primary (source or beam) particles
+ EM-ENRGY     211   0.00000000000000E+00    Electromagnetic energy (of electrons, positrons or photons)
+ MUONS        212   0.00000000000000E+00    Muons
+ E+&E-        213   0.00000000000000E+00    Electrons and positrons
+ AP&AN        214   0.00000000000000E+00    Antiprotons and antineutrons
+ KAONS        215   0.00000000000000E+00    All kaons
+ STRANGE      216   0.00000000000000E+00    All kaons and all hyperons and anti-hyperons (i.e., all strange particles)
+ KAONS+-      217   0.00000000000000E+00    Charged kaons
+ HAD-CHAR     218   0.00000000000000E+00    Charged hadrons
+ FISSIONS     219   0.00000000000000E+00    Fissions
+ HE-FISS      220   0.00000000000000E+00    High energy fissions
+ LE-FISS      221   0.00000000000000E+00    Low energy fissions
+ NEU-BALA     222   0.00000000000000E+00    Neutron balance (algebraic sum of outgoing N minus incoming N for all interactions)
+ HAD-NEUT     223   0.00000000000000E+00    Neutral hadrons
+ KAONS0       224   0.00000000000000E+00    Neutral kaons
+ C-MESONS     225   0.00000000000000E+00    Charmed mesons
+ C-(A)BAR     226   0.00000000000000E+00    Charmed (anti)baryons
+ CHARMED      227   0.00000000000000E+00    Charmed hadrons
+ DOSE         228   0.00000000000000E+00    Energy deposition per unit mass (GeV/g)
+ UNB-ENER     229   0.00000000000000E+00    Unbiased deposited energy (GeV)
+ UNB-EMEN     230   0.00000000000000E+00    Unbiased electromagnetic energy (of electrons, positrons or photons) (GeV)
+ X-MOMENT     231   0.00000000000000E+00    X component of momentum transfer (GeV/c)
+ Y-MOMENT     232   0.00000000000000E+00    Y component of momentum transfer (GeV/c)
+ Z-MOMENT     233   0.00000000000000E+00    Z component of momentum transfer (GeV/c)
+ ACTIVITY     234   0.00000000000000E+00    Activity per unit volume (Bq/cm3)
+ ACTOMASS     235   0.00000000000000E+00    Activity per unit mass (Bq/g)
+ SI1MEVNE     236   0.00000000000000E+00    1 MeV neutron equivalent on Silicon (cm-2)
+ HADGT20M     237   0.00000000000000E+00    Hadrons E>20MeV (cm-2)
+ NIEL-DEP     238   0.00000000000000E+00    Non Ionizing Energy Loss deposition (GeV)
+ DPA-SCO      239   0.00000000000000E+00    Displacements per atoms
+ DOSE-EQ      240   0.00000000000000E+00    Dose equivalent (pSv)
+ DOSE-EM      241   0.00000000000000E+00    Dose equivalent Electromagnetic only (pSv)
+ NET-CHRG     242   0.00000000000000E+00    Net charge
+ DOSEQLET     243   0.00000000000000E+00    Dose equivalent LET (pSv)
+ RES-NIEL     244   0.00000000000000E+00    Restricted above damage threshold NIEL (GeV)
+ DPA-NRES     245   0.00000000000000E+00    DPA non
+ LOWENNEU     246   0.00000000000000E+00    Low energy neutrons
+ DPA-NRES     245   0.00000000000000E+00    NRT Displacements per atoms, unrestricted NIEL
+ LOWENNEU     246   0.00000000000000E+00    Low energy (E<20 MeV)neutrons
+ NTLOWENE     247   0.00000000000000E+00    High energy (E>20 MeV) neutrons
+ ALL-IONS     248   0.00000000000000E+00    All ions
+ HEHAD-EQ     249   0.00000000000000E+00    High Energy Hadron equivalent (/cm2)
+ THNEU-EQ     250   0.00000000000000E+00    Thermal Neutron equivalent (/cm2)
+ RES-NUCL     251   0.00000000000000E+00    ?
+ DOSE-H2O     252   0.00000000000000E+00    Dose to water
+ ALPHA-D      253   0.00000000000000E+00    ?
+ SQBETA-D     254   0.00000000000000E+00    ?
+ LGH-IONS     255   0.00000000000000E+00    All ions equal or lighter than alphas included
+ HVY-IONS     256   0.00000000000000E+00    All ions heavier than alphas
+ E+E-GAMM     257   0.00000000000000E+00    e+/- and photons
+ ANNIHRST     258   0.00000000000000E+00    Positron annihilation at rest
+ DPA-NRT      259   0.00000000000000E+00    NRT Displacements per atoms
+
+##
+## ---
+##
+
+-break-
+
+##
+## ---
+##
+
+ BLCKHOLE   1 Blackhole or External Vacuum    0        0      0
+ VACUUM     2 Vacuum or Internal Vacuum       0        0      0
+ HYDROGEN   3 Hydrogen                       1.00794   1      0.0000837
+ HELIUM     4 Helium                         4.002602  2      0.000166
+ BERYLLIU   5 Beryllium                      9.012182  4      1.848
+ CARBON     6 Carbon                        12.0107    6      2.000
+ NITROGEN   7 Nitrogen                      14.0067    7      0.00117
+ OXYGEN     8 Oxygen                        15.9994    8      0.00133
+ MAGNESIU   9 Magnesium                     24.3050   12      1.740
+ ALUMINUM  10 Aluminium                     26.981538 13      2.699
+ IRON      11 Iron                          55.845    26      7.874
+ COPPER    12 Copper                        63.546    29      8.960
+ SILVER    13 Silver                       107.8682   47     10.500
+ SILICON   14 Silicon                       28.0855   14      2.329
+ GOLD      15 Gold                         196.96655  79     19.320
+ MERCURY   16 Mercury                      200.59     80     13.546
+ LEAD      17 Lead                         207.2      82     11.350
+ TANTALUM  18 Tantalum                     180.9479   73     16.654
+ SODIUM    19 Sodium                        22.989770 11      0.971
+ ARGON     20 Argon                         39.948    18      0.00166
+ CALCIUM   21 Calcium                       40.078    20      1.550
+ TIN       22 Tin                          118.710    50      7.310
+ TUNGSTEN  23 Tungsten                     183.84     74     19.300
+ TITANIUM  24 Titanium                      47.867    22      4.540
+ NICKEL    25 Nickel                        58.6934   28      8.902
+ WATER     -1 Water                          0.0       0      1.0
+ POLYSTYR  -2 Polystyrene                    0.0       0      1.06
+ PLASCINT  -3 Plastic scintillator           0.0       0      1.032
+ PMMA      -4 Polymethyl methacrylate        0.0       0      1.19
+ BONECOMP  -5 Compact bone                   0.0       0      1.85
+ BONECORT  -6 Cortical bone                  0.0       0      1.85
+ MUSCLESK  -7 Skeletal muscle                0.0       0      1.04
+ MUSCLEST  -8 Striated muscle                0.0       0      1.04
+ ADTISSUE  -9 Adipose tissue                 0.0       0      0.92
+ KAPTON   -10 Kapton                         0.0       0      1.42
+ POLYETHY -11 Polyethylene                   0.0       0      0.94
+ AIR      -12 Dry air 20oC                   0.0       0      0.00120479
+
+
+##
+## ---
+##
+
+-break-
+
+##
+## ---
+##
+
+groups 72
+  1   1.9600E-02
+  2   1.7500E-02
+  3   1.4918E-02
+  4   1.3499E-02
+  5   1.2214E-02
+  6   1.1052E-02
+  7   1.0000E-02
+  8   9.0484E-03
+  9   8.1873E-03
+ 10   7.4082E-03
+ 11   6.7032E-03
+ 12   6.0653E-03
+ 13   5.4881E-03
+ 14   4.9659E-03
+ 15   4.4933E-03
+ 16   4.0657E-03
+ 17   3.6788E-03
+ 18   3.3287E-03
+ 19   3.0119E-03
+ 20   2.7253E-03
+ 21   2.4660E-03
+ 22   2.2313E-03
+ 23   2.0190E-03
+ 24   1.8268E-03
+ 25   1.6530E-03
+ 26   1.4957E-03
+ 27   1.3534E-03
+ 28   1.2246E-03
+ 29   1.1080E-03
+ 30   1.0026E-03
+ 31   9.0718E-04
+ 32   8.2085E-04
+ 33   7.4274E-04
+ 34   6.0810E-04
+ 35   4.9787E-04
+ 36   4.0762E-04
+ 37   3.3373E-04
+ 38   2.7324E-04
+ 39   2.2371E-04
+ 40   1.8316E-04
+ 41   1.4996E-04
+ 42   1.2277E-04
+ 43   8.6517E-05
+ 44   5.2475E-05
+ 45   3.1828E-05
+ 46   2.1852E-05
+ 47   1.5034E-05
+ 48   1.0332E-05
+ 49   7.1018E-06
+ 50   4.8809E-06
+ 51   3.3546E-06
+ 52   2.3054E-06
+ 53   1.5846E-06
+ 54   1.0446E-06
+ 55   6.8871E-07
+ 56   4.5400E-07
+ 57   2.7537E-07
+ 58   1.6702E-07
+ 59   1.0130E-07
+ 60   6.1442E-08
+ 61   3.7267E-08
+ 62   2.2603E-08
+ 63   1.5535E-08
+ 64   1.0677E-08
+ 65   7.3375E-09
+ 66   5.0435E-09
+ 67   3.4662E-09
+ 68   2.3824E-09
+ 69   1.6374E-09
+ 70   1.1254E-09
+ 71   6.8257E-10
+ 72   4.1400E-10
+ 73   1.0000E-14
+
+groups 260
+  1   2.000000E-2
+  2   1.964033E-2
+  3   1.915541E-2
+  4   1.868246E-2
+  5   1.822119E-2
+  6   1.777131E-2
+  7   1.733253E-2
+  8   1.690459E-2
+  9   1.648721E-2
+ 10   1.608014E-2
+ 11   1.568312E-2
+ 12   1.529590E-2
+ 13   1.491825E-2
+ 14   1.454991E-2
+ 15   1.419068E-2
+ 16   1.384031E-2
+ 17   1.349859E-2
+ 18   1.316531E-2
+ 19   1.284025E-2
+ 20   1.252323E-2
+ 21   1.221403E-2
+ 22   1.191246E-2
+ 23   1.161834E-2
+ 24   1.133148E-2
+ 25   1.105171E-2
+ 26   1.077884E-2
+ 27   1.051271E-2
+ 28   1.025315E-2
+ 29   1.000000E-2
+ 30   9.753099E-3
+ 31   9.512294E-3
+ 32   9.277435E-3
+ 33   9.048374E-3
+ 34   8.824969E-3
+ 35   8.607080E-3
+ 36   8.394570E-3
+ 37   8.187308E-3
+ 38   7.985162E-3
+ 39   7.788008E-3
+ 40   7.595721E-3
+ 41   7.408182E-3
+ 42   7.225274E-3
+ 43   7.046881E-3
+ 44   6.872893E-3
+ 45   6.703200E-3
+ 46   6.647595E-3
+ 47   6.592384E-3
+ 48   6.537698E-3
+ 49   6.376282E-3
+ 50   6.218851E-3
+ 51   6.065307E-3
+ 52   5.915554E-3
+ 53   5.769498E-3
+ 54   5.488116E-3
+ 55   5.220458E-3
+ 56   4.965853E-3
+ 57   4.843246E-3
+ 58   4.723666E-3
+ 59   4.607038E-3
+ 60   4.493290E-3
+ 61   4.274149E-3
+ 62   4.065697E-3
+ 63   3.867410E-3
+ 64   3.678794E-3
+ 65   3.499377E-3
+ 66   3.328711E-3
+ 67   3.246525E-3
+ 68   3.166368E-3
+ 69   3.088190E-3
+ 70   3.011942E-3
+ 71   2.865048E-3
+ 72   2.725318E-3
+ 73   2.592403E-3
+ 74   2.465970E-3
+ 75   2.425130E-3
+ 76   2.385205E-3
+ 77   2.365253E-3
+ 78   2.345703E-3
+ 79   2.306855E-3
+ 80   2.268877E-3
+ 81   2.231302E-3
+ 82   2.122480E-3
+ 83   2.018965E-3
+ 84   1.969117E-3
+ 85   1.920499E-3
+ 86   1.873082E-3
+ 87   1.826835E-3
+ 88   1.737739E-3
+ 89   1.652989E-3
+ 90   1.612176E-3
+ 91   1.572372E-3
+ 92   1.533550E-3
+ 93   1.495686E-3
+ 94   1.422741E-3
+ 95   1.353353E-3
+ 96   1.287349E-3
+ 97   1.224564E-3
+ 98   1.194330E-3
+ 99   1.164842E-3
+100   1.108032E-3
+101   1.053992E-3
+102   1.002588E-3
+103   9.778344E-4
+104   9.616402E-4
+105   9.536916E-4
+106   9.071795E-4
+107   8.629359E-4
+108   8.208500E-4
+109   7.808167E-4
+110   7.427358E-4
+111   7.065121E-4
+112   6.720551E-4
+113   6.392786E-4
+114   6.081006E-4
+115   5.784432E-4
+116   5.502322E-4
+117   5.366469E-4
+118   5.233971E-4
+119   5.104743E-4
+120   4.978707E-4
+121   4.735892E-4
+122   4.504920E-4
+123   4.285213E-4
+124   4.076220E-4
+125   3.877421E-4
+126   3.688317E-4
+127   3.508435E-4
+128   3.337327E-4
+129   3.174564E-4
+130   3.096183E-4
+131   3.019738E-4
+132   2.945181E-4
+133   2.872464E-4
+134   2.801543E-4
+135   2.732372E-4
+136   2.599113E-4
+137   2.472353E-4
+138   2.351775E-4
+139   2.237077E-4
+140   2.127974E-4
+141   2.024191E-4
+142   1.925470E-4
+143   1.831564E-4
+144   1.742237E-4
+145   1.699221E-4
+146   1.657268E-4
+147   1.616349E-4
+148   1.576442E-4
+149   1.499558E-4
+150   1.426423E-4
+151   1.356856E-4
+152   1.290681E-4
+153   1.227734E-4
+154   1.167857E-4
+155   1.110900E-4
+156   9.803655E-5
+157   8.651695E-5
+158   7.635094E-5
+159   6.737947E-5
+160   6.251086E-5
+161   5.946217E-5
+162   5.656217E-5
+163   5.247518E-5
+164   4.630919E-5
+165   4.086771E-5
+166   3.606563E-5
+167   3.517517E-5
+168   3.430669E-5
+169   3.182781E-5
+170   2.808794E-5
+171   2.605841E-5
+172   2.478752E-5
+173   2.417552E-5
+174   2.357862E-5
+175   2.187491E-5
+176   2.133482E-5
+177   1.930454E-5
+178   1.703620E-5
+179   1.503439E-5
+180   1.326780E-5
+181   1.170880E-5
+182   1.033298E-5
+183   9.118820E-6
+184   8.047330E-6
+185   7.101744E-6
+186   6.267267E-6
+187   5.530844E-6
+188   5.004514E-6
+189   4.528272E-6
+190   4.307425E-6
+191   4.097350E-6
+192   3.707435E-6
+193   3.354626E-6
+194   3.035391E-6
+195   2.863488E-6
+196   2.746536E-6
+197   2.612586E-6
+198   2.485168E-6
+199   2.248673E-6
+200   2.034684E-6
+201   1.841058E-6
+202   1.665858E-6
+203   1.584613E-6
+204   1.507331E-6
+205   1.363889E-6
+206   1.234098E-6
+207   9.611165E-7
+208   7.485183E-7
+209   5.829466E-7
+210   4.539993E-7
+211   3.535750E-7
+212   2.753645E-7
+213   2.144541E-7
+214   1.670170E-7
+215   1.300730E-7
+216   1.013009E-7
+217   7.889325E-8
+218   6.144212E-8
+219   4.785117E-8
+220   3.726653E-8
+221   2.902320E-8
+222   2.260329E-8
+223   1.760346E-8
+224   1.370959E-8
+225   1.067704E-8
+226   8.315287E-9
+227   6.475952E-9
+228   5.043477E-9
+229   3.927864E-9
+230   3.059023E-9
+231   2.382370E-9
+232   1.855391E-9
+233   1.444980E-9
+234   1.125352E-9
+235   8.764248E-10
+236   8.336811E-10
+237   6.825603E-10
+238   6.250621E-10
+239   5.315785E-10
+240   4.139938E-10
+241   2.826153E-10
+242   1.929290E-10
+243   1.317041E-10
+244   8.990856E-11
+245   6.137660E-11
+246   4.189910E-11
+247   2.860266E-11
+248   1.952578E-11
+249   1.332938E-11
+250   9.099382E-12
+251   6.211746E-12
+252   4.240485E-12
+253   2.894792E-12
+254   1.976147E-12
+255   1.349028E-12
+256   9.209218E-13
+257   6.286727E-13
+258   4.291671E-13
+259   2.929734E-13
+260   2.000000E-13
+261   1.000010E-14
+
+##
+## ---
+##
+
+-break-
+
+##
+## ---
+##
+
+groups 260
+#      Material                    Temp.  Origin      RN Name      Identifiers  Gam
+     H H2O bound natural Hydrogen  296K  ENDF/B-VIIR0 Y  HYDROGEN   1   -2  296  Y
+     H CH2 bound natural Hydrogen  296K  ENDF/B-VIIR0 Y  HYDROGEN   1   -3  296  Y
+     H Free gas natural Hydrogen   296K  ENDF/B-VIIR0 Y  HYDROGEN   1   -5  296  Y
+     H Free gas natural Hydrogen    87K  ENDF/B-VIIR0 Y  HYDROGEN   1   -2   87  Y
+    1H H2O bound Hydrogen 1        296K  ENDF/B-VIIR0 Y  HYDROG-1   1   +1  296  Y
+    1H CH2 bound Hydrogen 1        296K  ENDF/B-VIIR0 Y  HYDROG-1   1  +11  296  Y
+    1H Free gas Hydrogen 1         296K  ENDF/B-VIIR0 Y  HYDROG-1   1  +31  296  Y
+    1H Free gas Hydrogen 1          87K  ENDF/B-VIIR0 Y  HYDROG-1   1   +1   87  Y
+    2H D2O bound Deuterium         296K  ENDF/B-VIIR0 Y  DEUTERIU   1   +2  296  Y
+    2H Free gas Deuterium          296K  ENDF/B-VIIR0 Y  DEUTERIU   1  +32  296  Y
+    2H Free gas Deuterium           87K  ENDF/B-VIIR0 Y  DEUTERIU   1   +2   87  Y
+    3H Free gas Tritium            296K  ENDF/B-VIIR0 Y  TRITIUM    1   +4  296  Y
+    3H Free gas Tritium             87K  ENDF/B-VIIR0 Y  TRITIUM    1   +4   87  Y
+    He Natural Helium              296K  ENDF/B-VIIR0 Y  HELIUM     2   -2  296  Y
+    He Natural Helium               87K  ENDF/B-VIIR0 Y  HELIUM     2   -2   87  Y
+    He Natural Helium                4K  ENDF/B-VIIR0 Y  HELIUM     2   -2    4  Y
+   3He Helium 3                    296K  ENDF/B-VIIR0 Y  HELIUM-3   2    3  296  Y
+   3He Helium 3                     87K  ENDF/B-VIIR0 Y  HELIUM-3   2    3   87  Y
+   3He Helium 3                      4K  ENDF/B-VIIR0 Y  HELIUM-3   2    3    4  Y
+   4He Helium 4                    296K  ENDF/B-VIIR0 Y  HELIUM-4   2    4  296  Y
+   4He Helium 4                     87K  ENDF/B-VIIR0 Y  HELIUM-4   2    4   87  Y
+   4He Helium 4                      4K  ENDF/B-VIIR0 Y  HELIUM-4   2    4    4  Y
+    Li Natural Lithium             296K  JENDL-3.3    Y  LITHIUM    3   -2  296  Y
+    Li Natural Lithium              87K  JENDL-3.3    Y  LITHIUM    3   -2   87  Y
+   6Li Lithium 6                   296K  JENDL-3.3    Y  LITHIU-6   3    6  296  Y
+   6Li Lithium 6                    87K  JENDL-3.3    Y  LITHIU-6   3    6   87  Y
+   7Li Lithium 7                   296K  JENDL-3.3    Y  LITHIU-7   3    7  296  Y
+   7Li Lithium 7                    87K  JENDL-3.3    Y  LITHIU-7   3    7   87  Y
+   9Be Beryllium 9                 296K  ENDF/B-VIIR0 Y  BERYLLIU   4    9  296  Y
+   9Be Beryllium 9                  87K  ENDF/B-VIIR0 Y  BERYLLIU   4    9   87  Y
+     B Natural Boron               296K  ENDF/B-VIIR0 Y  BORON      5   -2  296  Y
+     B Natural Boron                87K  ENDF/B-VIIR0 Y  BORON      5   -2   87  Y
+   10B Boron 10                    296K  ENDF/B-VIIR0 Y  BORON-10   5   10  296  Y
+   10B Boron 10                     87K  ENDF/B-VIIR0 Y  BORON-10   5   10   87  Y
+   11B Boron 11                    296K  ENDF/B-VIIR0 Y  BORON-11   5   11  296  Y
+   11B Boron 11                     87K  ENDF/B-VIIR0 Y  BORON-11   5   11   87  Y
+     C Free gas natural Carbon     296K  ENDF/B-VIIR0 Y  CARBON     6   -2  296  Y
+     C Graphite bound nat. Carbon  296K  ENDF/B-VIIR0 Y  CARBON     6   -3  296  Y
+     C Free gas natural Carbon      87K  ENDF/B-VIIR0 Y  CARBON     6   -2   87  Y
+     N Natural Nitrogen            296K  ENDF/B-VIIR0 Y  NITROGEN   7   -2  296  Y
+     N Natural Nitrogen             87K  ENDF/B-VIIR0 Y  NITROGEN   7   -2   87  Y
+   14N Nitrogen 14                 296K  ENDF/B-VIIR0 Y  NITRO-14   7   14  296  Y
+   14N Nitrogen 14                  87K  ENDF/B-VIIR0 Y  NITRO-14   7   14   87  Y
+   16O Oxygen 16                   296K  ENDF/B-VIR8  Y  OXYGEN     8   16  296  Y
+   16O Oxygen 16                    87K  ENDF/B-VIR8  Y  OXYGEN     8   16   87  Y
+   19F Fluorine 19                 296K  ENDF/B-VIR8  Y  FLUORINE   9   19  296  Y
+   19F Fluorine 19                  87K  ENDF/B-VIR8  Y  FLUORINE   9   19   87  Y
+  23Na Sodium 23                   296K  JENDL-3.3    Y  SODIUM    11   23  296  Y
+  23Na Sodium 23                    87K  JENDL-3.3    Y  SODIUM    11   23   87  Y
+    Mg Natural Magnesium           296K  JENDL-3.3    Y  MAGNESIU  12   -2  296  Y
+    Mg Natural Magnesium            87K  JENDL-3.3    Y  MAGNESIU  12   -2   87  Y
+  27Al Aluminium 27                296K  ENDF/B-VIIR0 Y  ALUMINUM  13   27  296  Y
+  27Al Aluminium 27 SelfShielded   296K  ENDF/B-VIIR0 Y  ALUMINUM  13 1027  296  Y
+  27Al Aluminium 27                 87K  ENDF/B-VIIR0 Y  ALUMINUM  13   27   87  Y
+  27Al Aluminium 27 SelfShielded    87K  ENDF/B-VIIR0 Y  ALUMINUM  13 1027   87  Y
+  27Al Aluminium 27                  4K  ENDF/B-VIIR0 Y  ALUMINUM  13   27    4  Y
+  27Al Aluminium 27 SelfShielded     4K  ENDF/B-VIIR0 Y  ALUMINUM  13 1027    4  Y
+    Si Natural Silicon             296K  ENDF/B-VIR8  Y  SILICON   14   -2  296  Y
+    Si Natural Silicon              87K  ENDF/B-VIR8  Y  SILICON   14   -2   87  Y
+   31P Phosphorus 31               296K  JENDL-3.3    Y  PHOSPHO   15   31  296  Y
+   31P Phosphorus 31                87K  JENDL-3.3    Y  PHOSPHO   15   31   87  Y
+     S Natural Sulphur (1)         296K  JENDL-3.3    Y  SULFUR    16   -2  296  Y
+     S Natural Sulphur (1)          87K  JENDL-3.3    Y  SULFUR    16   -2   87  Y
+    Cl Natural Chlorine            296K  ENDF/B-VIIR0 Y  CHLORINE  17   -2  296  Y
+    Cl Natural Chlorine             87K  ENDF/B-VIIR0 Y  CHLORINE  17   -2   87  Y
+    Ar Natural Argon               296K  JEFF-3.1     Y  ARGON     18   -2  296  Y
+    Ar Natural Argon SelfShielded  296K  JEFF-3.1     Y  ARGON     18   -4  296  Y
+    Ar Natural Argon                87K  JEFF-3.1     Y  ARGON     18   -2   87  Y
+    Ar Natural Argon SelfShielded   87K  JEFF-3.1     Y  ARGON     18   -4   87  Y
+  40Ar Argon 40                    296K  JEFF-3.1     Y  ARGON-40  18   40  296  Y
+  40Ar Argon 40 SelfShielded       296K  JEFF-3.1     Y  ARGON-40  18 1040  296  Y
+  40Ar Argon 40                     87K  JEFF-3.1     Y  ARGON-40  18   40   87  Y
+  40Ar Argon 40 SelfShielded        87K  JEFF-3.1     Y  ARGON-40  18 1040   87  Y
+     K Natural Potassium           296K  ENDF/B-VIIR0 Y  POTASSIU  19   -2  296  Y
+     K Natural Potassium            87K  ENDF/B-VIIR0 Y  POTASSIU  19   -2   87  Y
+    Ca Natural Calcium (2)         296K  ENDF/B-VIIR0 Y  CALCIUM   20   -2  296  Y
+    Ca Natural Calcium (2)          87K  ENDF/B-VIIR0 Y  CALCIUM   20   -2   87  Y
+  45Sc Scandium 45 (2)             296K  ENDF/B-VIIR0 Y  SCANDIUM  21   45  296  Y
+  45Sc Scandium 45 (2)              87K  ENDF/B-VIIR0 Y  SCANDIUM  21   45   87  Y
+    Ti Natural Titanium (3)        296K  ENDF/B-VIR8  Y  TITANIUM  22   -2  296  Y
+    Ti Natural Titanium (3)         87K  ENDF/B-VIR8  Y  TITANIUM  22   -2   87  Y
+     V Natural Vanadium            296K  JENDL-3.3    Y  VANADIUM  23   -2  296  Y
+     V Natural Vanadium             87K  JENDL-3.3    Y  VANADIUM  23   -2   87  Y
+    Cr Natural Chromium            296K  ENDF/B-VIR8  Y  CHROMIUM  24   -2  296  Y
+    Cr Natural Chromium             87K  ENDF/B-VIR8  Y  CHROMIUM  24   -2   87  Y
+  55Mn Manganese 55                296K  ENDF/B-VIR8  Y  MANGANES  25   55  296  Y
+  55Mn Manganese 55                 87K  ENDF/B-VIR8  Y  MANGANES  25   55   87  Y
+    Fe Natural Iron                296K  ENDF/B-VIR8  Y  IRON      26   -2  296  Y
+    Fe Natural Iron SelfShielded   296K  ENDF/B-VIR8  Y  IRON      26   -4  296  Y
+    Fe Shielding Fe (5% C) SelfSh. 296K  ENDF/B-VIR8  Y  IRON      26   -8  296  Y
+    Fe Natural Iron                 87K  ENDF/B-VIR8  Y  IRON      26   -2   87  Y
+    Fe Natural Iron SelfShielded    87K  ENDF/B-VIR8  Y  IRON      26   -4   87  Y
+    Fe Shielding Fe (5% C) SelfSh.  87K  ENDF/B-VIR8  Y  IRON      26   -8   87  Y
+    Co Natural Cobalt              296K  ENDF/B-VIIR0 Y  COBALT    27   59  296  Y
+    Co Natural Cobalt               87K  ENDF/B-VIIR0 Y  COBALT    27   59   87  Y
+    Ni Natural Nickel              296K  ENDF/B-VIR8  Y  NICKEL    28   -2  296  Y
+    Ni Natural Nickel               87K  ENDF/B-VIR8  Y  NICKEL    28   -2   87  Y
+    Cu Natural Copper              296K  ENDF/B-VIR8  Y  COPPER    29   -2  296  Y
+    Cu Natural Copper SelfShielded 296K  ENDF/B-VIR8  Y  COPPER    29   -4  296  Y
+    Cu Natural Copper               87K  ENDF/B-VIR8  Y  COPPER    29   -2   87  Y
+    Cu Natural Copper SelfShielded  87K  ENDF/B-VIR8  Y  COPPER    29   -4   87  Y
+    Cu Natural Copper                4K  ENDF/B-VIR8  Y  COPPER    29   -2    4  Y
+    Cu Natural Copper SelfShielded   4K  ENDF/B-VIR8  Y  COPPER    29   -4    4  Y
+    Zn Natural Zinc                296K  JEFF-3.1     N  ZINC      30   -2  296  N
+    Zn Natural Zinc                 87K  JEFF-3.1     N  ZINC      30   -2   87  N
+    Ga Natural Gallium (2,4)       296K  JEFF-3.1     Y  GALLIUM   31   -2  296  Y
+    Ga Natural Gallium (2,4)        87K  JEFF-3.1     Y  GALLIUM   31   -2   87  Y
+    Ge Natural Germanium           296K  ENDF/B-VII   Y  GERMANIU  32   -2  296  Y
+    Ge Natural Germanium            87K  ENDF/B-VII   Y  GERMANIU  32   -2   87  Y
+  75As Arsenic 75                  296K  ENDF/B-VIIR0 Y  ARSENIC   33   75  296  Y
+  75As Arsenic 75                   87K  ENDF/B-VIIR0 Y  ARSENIC   33   75   87  Y
+    Br Natural Bromine (2)         296K  ENDF/B-VIIR0 Y  BROMINE   35   -2  296  N
+    Br Natural Bromine (2)          87K  ENDF/B-VIIR0 Y  BROMINE   35   -2   87  N
+    Kr Natural Krypton             296K  ENDF/B-VIIR0 Y  KRYPTON   36   -2  296  N
+    Kr Natural Krypton             120K  ENDF/B-VIIR0 Y  KRYPTON   36   -2  120  N
+    Sr Natural Strontium           296K  ENDF/B-VIIR0 Y  STRONTIU  38   -2  296  N
+    Sr Natural Strontium            87K  ENDF/B-VIIR0 Y  STRONTIU  38   -2   87  N
+  90Sr Strontium 90                296K  ENDF/B-VIIR0 Y  90-SR     38   90  296  N
+  90Sr Strontium 90                 87K  ENDF/B-VIIR0 Y  90-SR     38   90   87  N
+  89Y  Yttrium 89                  296K  ENDF/B-VIR8  Y  YTTRIUM   39   89  296  N
+  89Y  Yttrium 89                   87K  ENDF/B-VIR8  Y  YTTRIUM   39   89   87  N
+    Zr Natural Zirconium (2)       296K  ENDF/B-VIIR0 Y  ZIRCONIU  40   -2  296  Y
+    Zr Natural Zirconium (2)        87K  ENDF/B-VIIR0 Y  ZIRCONIU  40   -2   87  Y
+  93Nb Niobium 93 (2)              296K  ENDF/B-VIIR0 Y  NIOBIUM   41   93  296  Y
+  93Nb Niobium 93 (2)               87K  ENDF/B-VIIR0 Y  NIOBIUM   41   93   87  Y
+    Mo Natural Molybdenum (2)      296K  EFF-2.4      Y  MOLYBDEN  42   -2  296  Y
+    Mo Natural Molybdenum (2)       87K  EFF-2.4      Y  MOLYBDEN  42   -2   87  Y
+  99Tc Technetium 99               296K  ENDF/B-VIIR0 Y  99-TC     43   99  296  Y
+  99Tc Technetium 99                87K  ENDF/B-VIIR0 Y  99-TC     43   99   87  Y
+    Ag Natural Silver              296K  ENDF/B-VIIR0 Y  SILVER    47   -2  296  Y
+    Ag Natural Silver               87K  ENDF/B-VIIR0 Y  SILVER    47   -2   87  Y
+    Cd Natural Cadmium (2)         296K  JENDL-3.3    Y  CADMIUM   48   -2  296  Y
+    Cd Natural Cadmium (2)          87K  JENDL-3.3    Y  CADMIUM   48   -2   87  Y
+    In Natural Indium (2)          296K  ENDF/B-VIIR0 Y  INDIUM    49   -2  296  N
+    In Natural Indium (2)           87K  ENDF/B-VIIR0 Y  INDIUM    49   -2   87  N
+    Sn Natural Tin                 296K  ENDF/B-VIR8  Y  TIN       50   -2  296  N
+    Sn Natural Tin                  87K  ENDF/B-VIR8  Y  TIN       50   -2   87  N
+    Sb Natural Antimony            296K  ENDF/B-VIIR0 Y  ANTIMONY  51   -2  296  N
+    Sb Natural Antimony             87K  ENDF/B-VIIR0 Y  ANTIMONY  51   -2   87  N
+  127I Iodine 127                  296K  ENDF/B-VIIR0 Y  IODINE    53  127  296  Y
+  127I Iodine 127                   87K  ENDF/B-VIIR0 Y  IODINE    53  127   87  Y
+  129I Iodine 129 (2)              296K  ENDF/B-VIIR0 Y  129-I     53  129  296  N
+  129I Iodine 129 (2)               87K  ENDF/B-VIIR0 Y  129-I     53  129   87  N
+    Xe Natural Xenon (2)           296K  ENDF/B-VIIR0 Y  XENON     54   -2  296  N
+    Xe Natural Xenon (2)            87K  ENDF/B-VIIR0 Y  XENON     54   -2   87  N
+ 124Xe Xenon 124                   296K  ENDF/B-VIIR0 Y  124-XE    54  124  296  N
+ 124Xe Xenon 124                    87K  ENDF/B-VIIR0 Y  124-XE    54  124   87  N
+ 126Xe Xenon 126                   296K  ENDF/B-VIIR0 Y  126-XE    54  126  296  N
+ 126Xe Xenon 126                    87K  ENDF/B-VIIR0 Y  126-XE    54  126   87  N
+ 128Xe Xenon 128                   296K  ENDF/B-VIIR0 Y  128-XE    54  128  296  N
+ 128Xe Xenon 128                    87K  ENDF/B-VIIR0 Y  128-XE    54  128   87  N
+ 129Xe Xenon 129                   296K  ENDF/B-VIIR0 Y  129-XE    54  129  296  N
+ 129Xe Xenon 129                    87K  ENDF/B-VIIR0 Y  129-XE    54  129   87  N
+ 130Xe Xenon 130                   296K  ENDF/B-VIIR0 Y  130-XE    54  130  296  N
+ 130Xe Xenon 130                    87K  ENDF/B-VIIR0 Y  130-XE    54  130   87  N
+ 131Xe Xenon 131                   296K  ENDF/B-VIIR0 Y  131-XE    54  131  296  Y
+ 131Xe Xenon 131                    87K  ENDF/B-VIIR0 Y  131-XE    54  131   87  Y
+ 132Xe Xenon 132                   296K  ENDF/B-VIIR0 Y  132-XE    54  132  296  N
+ 132Xe Xenon 132                    87K  ENDF/B-VIIR0 Y  132-XE    54  132   87  N
+ 134Xe Xenon 134                   296K  ENDF/B-VIIR0 Y  134-XE    54  134  296  N
+ 134Xe Xenon 134                    87K  ENDF/B-VIIR0 Y  134-XE    54  134   87  N
+ 135Xe Xenon 135                   296K  ENDF/B-VIIR0 Y  135-XE    54  135  296  N
+ 135Xe Xenon 135                    87K  ENDF/B-VIIR0 Y  135-XE    54  135   87  N
+ 136Xe Xenon 136                   296K  ENDF/B-VIIR0 Y  136-XE    54  136  296  N
+ 136Xe Xenon 136                    87K  ENDF/B-VIIR0 Y  136-XE    54  136   87  N
+ 133Cs Cesium 133                  296K  ENDF/B-VIIR0 Y  CESIUM    55  133  296  Y
+ 133Cs Cesium 133                   87K  ENDF/B-VIIR0 Y  CESIUM    55  133   87  Y
+ 135Cs Cesium 135 (2)              296K  ENDF/B-VIIR0 Y  135-CS    55  135  296  N
+ 135Cs Cesium 135 (2)               87K  ENDF/B-VIIR0 Y  135-CS    55  135   87  N
+ 137Cs Cesium 137 (2)              296K  ENDF/B-VIIR0 Y  137-CS    55  137  296  N
+ 137Cs Cesium 137 (2)               87K  ENDF/B-VIIR0 Y  137-CS    55  137   87  N
+    Ba Natural Barium (2)          296K  ENDF/B-VIIR0 Y  BARIUM    56   -2  296  N
+    Ba Natural Barium (2)           87K  ENDF/B-VIIR0 Y  BARIUM    56   -2   87  N
+    Ce Natural Cerium (2)          296K  ENDF/B-VIIR0 Y  CERIUM    58   -2  296  N
+    Ce Natural Cerium (2)           87K  ENDF/B-VIIR0 Y  CERIUM    58   -2   87  N
+    Nd Natural Neodymium           296K  ENDF/B-VIIR0 Y  NEODYMIU  60   -2  296  Y
+    Nd Natural Neodymium            87K  ENDF/B-VIIR0 Y  NEODYMIU  60   -2   87  Y
+    Sm Natural Samarium (2)        296K  ENDF/B-VIIR0 Y  SAMARIUM  62   -2  296  Y
+    Sm Natural Samarium (2)         87K  ENDF/B-VIIR0 Y  SAMARIUM  62   -2   87  Y
+    Eu Natural Europium            296K  ENDF/B-VIR8  Y  EUROPIUM  63   -2  296  Y
+    Eu Natural Europium             87K  ENDF/B-VIR8  Y  EUROPIUM  63   -2   87  Y
+    Gd Natural Gadolinium          296K  ENDF/B-VIIR0 Y  GADOLINI  64   -2  296  Y
+    Gd Natural Gadolinium           87K  ENDF/B-VIIR0 Y  GADOLINI  64   -2   87  Y
+ 159Tb Terbium 159                 296K  ENDF/B-VIIR0 Y  TERBIUM   65  159  296  N
+ 159Tb Terbium 159                  87K  ENDF/B-VIIR0 Y  TERBIUM   65  159   87  N
+    Hf Natural Hafnium             296K  JENDL-3.3    Y  HAFNIUM   72   -2  296  Y
+    Hf Natural Hafnium              87K  JENDL-3.3    Y  HAFNIUM   72   -2   87  Y
+ 181Ta Tantalum 181 (2)            296K  JENDL-3.3    Y  TANTALUM  73  181  296  Y
+ 181Ta Tantalum 181 SelfSh. (2)    296K  JENDL-3.3    Y  TANTALUM  73 1181  296  Y
+ 181Ta Tantalum 181 (2)             87K  JENDL-3.3    Y  TANTALUM  73  181   87  Y
+ 181Ta Tantalum 181 SelfSh. (2)     87K  JENDL-3.3    Y  TANTALUM  73 1181   87  Y
+     W Natural Tungsten (2)        296K  ENDF/B-VIIR0 Y  TUNGSTEN  74   -2  296  Y
+     W Natural Tungsten SelfSh.(2) 296K  ENDF/B-VIIR0 Y  TUNGSTEN  74   -4  296  Y
+     W Natural Tungsten (2)         87K  ENDF/B-VIIR0 Y  TUNGSTEN  74   -2   87  Y
+    Re Natural Rhenium             296K  ENDF/B-VIIR0 Y  RHENIUM   75   -2  296  N
+    Re Natural Rhenium              87K  ENDF/B-VIIR0 Y  RHENIUM   75   -2   87  N
+    Ir Natural Iridium             296K  ENDF/B-VIIR0 Y  IRIDIUM   77   -2  296  Y
+    Ir Natural Iridium              87K  ENDF/B-VIIR0 Y  IRIDIUM   77   -2   87  Y
+ 197Au Gold 197                    296K  ENDF/B-VIIR0 Y  GOLD      79  197  296  Y
+ 197Au Gold 197 SelfShielded       296K  ENDF/B-VIIR0 Y  GOLD      79 1197  296  Y
+ 197Au Gold 197                     87K  ENDF/B-VIIR0 Y  GOLD      79  197   87  Y
+ 197Au Gold 197 SelfShielded        87K  ENDF/B-VIIR0 Y  GOLD      79 1197   87  Y
+    Hg Natural Mercury (2)         296K  ENDF/B-VIIR0 Y  MERCURY   80   -2  296  Y
+    Hg Natural Mercury (2)          87K  ENDF/B-VIIR0 Y  MERCURY   80   -2   87  Y
+    Pb Natural Lead                296K  ENDF/B-VIR8  Y  LEAD      82   -2  296  Y
+    Pb Natural Lead SelfShielded   296K  ENDF/B-VIR8  Y  LEAD      82   -4  296  Y
+    Pb Natural Lead                 87K  ENDF/B-VIR8  Y  LEAD      82   -2   87  Y
+    Pb Natural Lead SelfShielded    87K  ENDF/B-VIR8  Y  LEAD      82   -4   87  Y
+ 208Pb Lead 208                    296K  ENDF/B-VIR8  Y  208-PB    82  208  296  Y
+ 208Pb Lead 208 SelfShielded       296K  ENDF/B-VIR8  Y  208-PB    82 1208  296  Y
+ 209Bi Bismuth 209                 296K  ENDF/B-VIR8  Y  BISMUTH   83  209  296  Y
+ 209Bi Bismuth 209 SelfShielded    296K  ENDF/B-VIR8  Y  BISMUTH   83 1209  296  Y
+ 209Bi Bismuth 209                  87K  ENDF/B-VIR8  Y  BISMUTH   83  209   87  Y
+ 209Bi Bismuth 209 SelfShielded     87K  ENDF/B-VIR8  Y  BISMUTH   83 1209   87  Y
+ 230Th Thorium 230                 296K  ENDF/B-VIIR0 Y  230-TH    90  230  296  N
+ 230Th Thorium 230                  87K  ENDF/B-VIIR0 Y  230-TH    90  230   87  N
+ 232Th Thorium 232                 296K  ENDF/B-VIR8  Y  232-TH    90  232  296  Y
+ 232Th Thorium 232                  87K  ENDF/B-VIR8  Y  232-TH    90  232   87  Y
+  233U Uranium 233                 296K  ENDF/B-VIIR0 Y  233-U     92  233  296  Y
+  233U Uranium 233                  87K  ENDF/B-VIIR0 Y  233-U     92  233   87  Y
+  234U Uranium 234                 296K  ENDF/B-VIIR0 Y  234-U     92  234  296  Y
+  234U Uranium 234                  87K  ENDF/B-VIIR0 Y  234-U     92  234   87  Y
+  235U Uranium 235                 296K  ENDF/B-VIR8  Y  235-U     92  235  296  Y
+  235U Uranium 235                  87K  ENDF/B-VIR8  Y  235-U     92  235   87  Y
+  238U Uranium 238                 296K  ENDF/B-VIR8  Y  238-U     92  238  296  Y
+  238U Uranium 238                  87K  ENDF/B-VIR8  Y  238-U     92  238   87  Y
+ 239Pu Plutonium 239               296K  ENDF/B-VIIR0 Y  239-PU    94  239  296  Y
+ 239Pu Plutonium 239                87K  ENDF/B-VIIR0 Y  239-PU    94  239   87  Y
+ 241Am Americium 241               296K  ENDF/B-VIIR0 Y  241-AM    95  241  296  Y
+ 241Am Americium 241                87K  ENDF/B-VIIR0 Y  241-AM    95  241   87  Y
+ 243Am Americium 243               296K  ENDF/B-VIIR0 Y  243-AM    95  243  296  Y
+ 243Am Americium 243                87K  ENDF/B-VIIR0 Y  243-AM    95  243   87  Y
+
+
+groups 72
+#       Material                    Temp.  Origin   RN Name      Identifiers Gam
+    H  H2O bound nat. Hydrogen (1) 293K  JEF-2.2   N HYDROGEN   1   -2  293  Y
+    H  CH2 bound nat. Hydrogen (1) 293K  JEF-2.2   N HYDROGEN   1   -3  293  Y
+    H  Bound nat. Hydrogen (1)     293K  JEF-2.2   N HYDROGEN   1   -4  293  Y
+    H  Free natural Hydrogen (1)   293K  JEF-2.2   N HYDROGEN   1   -5  293  Y
+   1H  H2O bound Hydrogen 1        293K  JEF-2.2   N HYDROG-1   1   +1  293  Y
+   1H  CH2 bound Hydrogen 1        293K  JEF-2.2   N HYDROG-1   1  +11  293  Y
+   1H  bound Hydrogen 1            293K  JEF-2.2   N HYDROG-1   1  +21  293  Y
+   1H  Free Hydrogen 1             293K  JEF-2.2   N HYDROG-1   1  +31  293  Y
+    H  H2O bound nat. Hydrogen (1)  87K  JEF-2.2   N HYDROGEN   1   -2   87  Y
+    H  Natural Hydrogen (1)         87K  JEF-2.2   N HYDROGEN   1   -5   87  Y
+   2H  Deuterium                   293K  JEF-1     N DEUTERIU   1   +2  293  Y
+   3He Helium 3                    293K  JEF-1     Y HELIUM-3   2   +3  293  N
+    He Natural Helium  (1)         293K  JEF-1     Y HELIUM     2   -2  293  N
+    Li Natural Lithium (1)         293K  ENDF/B-VI Y LITHIUM    3   -2  293  Y
+    Li Natural Lithium (1)          87K  ENDF/B-VI Y LITHIUM    3   -2   87  Y
+   6Li Lithium 6                   293K  ENDF/B-VI Y LITHIU-6   3   +6  293  Y
+   6Li Lithium 6                    87K  ENDF/B-VI Y LITHIU-6   3   +6   87  Y
+   7Li Lithium 7                   293K  ENDF/B-VI Y LITHIU-7   3   +7  293  Y
+   7Li Lithium 7                    87K  ENDF/B-VI Y LITHIU-7   3   +7   87  Y
+   9Be Beryllium 9                 293K  ENDF/B-VI Y BERYLLIU   4   +9  293  Y
+    B  Natural Boron (1)           293K  JEF-2.2   Y BORON      5   -2  293  Y
+  10B  Boron 10                    293K  JEF-2.2   Y BORON-10   5  +10  293  Y
+  11B  Boron 11                    293K  ENDF/B-VI Y BORON-11   5  +11  293  Y
+    C  Natural Carbon              293K  ENDF/B6R8 Y CARBON     6   -2  293  Y
+    C  Natural Carbon               87K  ENDF/B6R8 Y CARBON     6   -2   87  Y
+    N  Natural Nitrogen (1,16)     293K  JEF-2.2   Y NITROGEN   7   -2  293  Y
+    N  Natural Nitrogen (1,16)      87K  JEF-2.2   Y NITROGEN   7   -2   87  Y
+  16O  Oxygen 16                   293K  ENDF/B6R8 Y OXYGEN     8  +16  293  Y
+  16O  Oxygen 16                    87K  ENDF/B6R8 Y OXYGEN     8  +16   87  Y
+  19F  Fluorine 19                 293K  ENDF/B-VI Y FLUORINE   9   -2  293  Y
+  23Na Sodium 23                   293K  JEF-2.2   Y SODIUM    11   -2  293  Y
+    Mg Nat. Magnesium (2)          293K  JENDL3.2  Y MAGNESIU  12   -2  293  Y
+    Mg Nat. Magnesium (2)           87K  JENDL3.2  Y available on request    Y
+  27Al Aluminium 27                293K  ENDF/B6R8 Y ALUMINUM  13   -2  293  Y
+  27Al Aluminium 27                 87K  ENDF/B6R8 Y ALUMINUM  13   -2   87  Y
+  27Al Aluminium 27                  4K  ENDF/B6R8 Y ALUMINUM  13   -2    4  Y
+    Si Natural Silicon (1)         293K  JENDL3.3  Y SILICON   14   -2  293  Y
+    Si Natural Silicon (1)          87K  JENDL3.3  Y available on request    Y
+  31P  Phosphorus 31               293K  ENDF/B-VI Y PHOSPHO   15   -2  293  Y
+    S  Natural Sulfur (3)          293K  JENDL3.2  Y SULFUR    16   -2  293  Y
+    Cl Nat. Chlorine (4)           293K  ENDF/B-VI N CHLORINE  17   -2  293  Y
+    Ar Natural Argon               293K  ENDL      Y ARGON     18   -2  293  Y
+    Ar Natural Argon                87K  ENDL      Y ARGON     18   -2   87  Y
+    K  Nat. Potassium (5)          293K  ENDF/B-VI Y POTASSIU  19   -2  293  Y
+    K  Nat. Potassium (5)           87K  ENDF/B-VI Y available on request    Y
+    Ca Natural Calcium (6)         293K  JENDL-3.3 Y CALCIUM   20   -2  293  Y
+    Ti Natural Titanium (7)        293K  JEF-2.2   Y TITANIUM  22   -2  293  Y
+    V  Vanadium                    293K  ENDF/B-VI Y VANADIUM  23   -2  293  Y
+    V  Vanadium                     87K  ENDF/B-VI Y available on request    Y
+    Cr Natural Chromium (1)        293K  ENDF/B-VI Y CHROMIUM  24   -2  293  Y
+    Cr Natural Chromium (1)         87K  ENDF/B-VI Y CHROMIUM  24   -2   87  Y
+  55Mn Manganese 55                293K  ENDF/B-VI Y MANGANES  25   55  293  Y
+  55Mn Manganese 55                 87K  ENDF/B-VI Y available on request    Y
+    Fe Natural Iron (1)            293K  ENDF/B-VI Y IRON      26   -2  293  Y
+    Fe Nat. Iron SS (1,8)          293K  ENDF/B-VI Y IRON      26   -4  293  Y
+    Fe Nat. Iron Shield. (1,9)     293K  ENDF/B-VI Y IRON      26   -8  293  Y
+    Fe Natural Iron (1)             87K  ENDF/B-VI Y IRON      26   -2   87  Y
+    Fe Natural Iron SS (1,8)        87K  ENDF/B-VI Y IRON      26   -4   87  Y
+    Fe Natural Iron Shield. (1,9)   87K  ENDF/B-VI Y IRON      26   -9   87  Y
+  59Co Cobalt 59                   293K  ENDF/B-VI Y COBALT    27   59  293  Y
+  59Co Cobalt 59                    87K  ENDF/B-VI Y available on request    Y
+    Ni Natural Nickel (1)          293K  ENDF/B-VI Y NICKEL    28   -2  293  Y
+    Ni Natural Nickel (1)           87K  ENDF/B-VI Y NICKEL    28   -2   87  Y
+    Cu Natural Copper (1)          293K  ENDF/B-VI Y COPPER    29   -2  293  Y
+    Cu Natural Copper SS (1,8)     293K  ENDF/B-VI Y COPPER    29   -4  293  Y
+    Cu Natural Copper SN (1,10)    293K  ENDF/B-VI Y COPPER    29   -5  293  Y
+    Cu Natural Copper (1)           87K  ENDF/B-VI Y COPPER    29   -2   87  Y
+    Cu Natural Copper SS (1,8)      87K  ENDF/B-VI Y COPPER    29   -4   87  Y
+    Cu Natural Copper SN (1,10)     87K  ENDF/B-VI Y COPPER    29   -5   87  Y
+    Zn Natural Zinc                293K  ENEA      N ZINC      30   -2  293  Y
+    Zn Natural Zinc                 87K  ENEA      N ZINC      30   -2   87  Y
+    Ga Natural Gallium             293K  ENDF/B-VI N GALLIUM   31   -2  293  Y
+    Ga Natural Gallium              87K  ENDF/B-VI N available on request    Y
+    Ge Natural Germanium (1)       293K  JEF-1     N GERMANIU  32   -2  293  N
+  75As Arsenic 75                  293K  JEF-1     Y ARSENIC   33   75  293  N
+    Br Natural Bromine (1)         293K  JENDL-3.2 Y BROMINE   35   -2  293  N
+    Kr Natural Krypton (1)         293K  JEF-2.2   Y KRYPTON   36   -2  293  N
+    Kr Natural Krypton (1)         120K  JEF-2.2   Y KRYPTON   36   -2  120  N
+    Sr Natural Strontium (1)       293   JENDL3.2  Y STRONTIU  38   -2  293  N
+  90Sr Strontium 90                293K  JEF-2.2   Y 90-SR     38   90  293  N
+    Zr Natural Zirconium (1)       293K  BROND     Y ZIRCONIU  40   -2  293  Y
+  93Nb Niobium 93 (11)             293K  ENDF/B6R8 Y NIOBIUM   41   93  293  Y
+  93Nb Niobium 93 (11)              87K  ENDF/B6R8 Y available on request    Y
+    Mo Natural Molybdenum (1)      293K  EFF2.4    Y MOLYBDEN  42   -2  293  Y
+    Mo Natural Molybdenum (1)       87K  EFF2.4    Y available on request    Y
+  99Tc Technetium 99               293K  JEF-2.2   Y 99-TC     43   99  293  N
+    Ag Natural Silver (1,11)       293K  JENDL-3.2 Y SILVER    47   -2  293  Y
+    Cd Natural Cadmium (17)        293K  JENDL-3   Y CADMIUM   48   -2  293 (Y)(12)
+    In Natural Indium (1)          293K  JEF-1     Y INDIUM    49   -2  293  N
+    Sn Natural Tin    (1)          293K  JENDL-3   Y TIN       50   -2  293  N
+    Sn Natural Tin    (1)           87K  JENDL-3   Y TIN       50   -2   87  N
+    Sb Natural Antimony (1)        293K  ENDF/B-VI Y ANTIMONY  51   -2  293  N
+    Sb Natural Antimony (1)         87K  ENDF/B-VI Y available on request    N
+ 127I  Iodine 127                  293K  JEF-2.2   Y IODINE    53  127  293  N
+ 129I  Iodine 129                  293K  JEF-2.2   Y available on request    N
+    Xe Natural Xenon (1,13)        293K  JEF-2.2   Y XENON     54   -2  293 (N)
+ 124Xe Xenon  124                   93K  JEF-2.2   Y 124-XE    54  124  293 (N)(13)
+ 126Xe Xenon  126                  293K  JEF-2.2   Y 126-XE    54  126  293 (N)(13)
+ 128Xe Xenon  128                  293K  JEF-2.2   Y 128-XE    54  128  293 (N)(13)
+ 129Xe Xenon  129                  293K  JEF-2.2   Y 129-XE    54  129  293 (N)(13)
+ 130Xe Xenon  130                  293K  JEF-2.2   Y 130-XE    54  130  293 (N)(13)
+ 131Xe Xenon  131                  293K  JEF-2.2   Y 131-XE    54  131  293 (N)(13)
+ 132Xe Xenon  132                  293K  JEF-2.2   Y 132-XE    54  132  293 (N)(13)
+ 134Xe Xenon  134                  293K  JEF-2.2   Y 134-XE    54  134  293 (N)(13)
+ 135Xe Xenon  135                  293K  JEF-2.2   Y 135-XE    54  135  293 (N)(13)
+ 136Xe Xenon  136                  293K  JEF-2.2   Y 136-XE    54  136  293 (N)(13)
+ 133Cs Cesium 133                  293K  JEF-2.2   Y CESIUM    55  133  293  N
+ 135Cs Cesium 135                  293K  JEF-2.2   Y available on request    N
+ 137Cs Cesium 137                  293K  JEF-2.2   Y available on request    N
+    Ba Natural Barium (1)          293K  JEF-1     Y BARIUM    56   -2  293  N
+    Ce Natural Cerium (1)          293K  JENDL-3.2 Y CERIUM    58   -2  293  N
+    Nd Natural Neodymium (1)       293K  JENDL-3.2 Y NEODYMIU  60   -2  293  N
+    Sm Natural Samarium (1)        293K  ENDF/B6R8 Y SAMARIUM  62   -2  293  N
+    Eu Natural Europium (1,11)     293K  ENDF/B6R8 Y EUROPIUM  63   -2  293  Y
+    Gd Natural Gadolinium (1)      293K  ENDF/B-VI Y GADOLINI  64   -2  293  N
+    Gd Natural Gadolinium (1)       87K  ENDF/B-VI Y available on request    N
+ 181Ta Tantalum 181 (11,14)        293K  ENDF/B6R8 Y TANTALUM  73  181  293  Y
+ 181Ta Tantalum 181 (11,14)         87K  ENDF/B6R8 Y available on request    Y
+    W  Nat. Tungsten (1,11)        293K  ENDF/B6R8 Y TUNGSTEN  74   -2  293  Y
+    W  Nat. Tungsten (1,11)         87K  ENDF/B6R8 Y TUNGSTEN  74   -2   87  Y
+ 186W  Tungsten 186                293K  ENDF/B6R8 Y 186-W     74  186  293  Y
+    Re Natural Rhenium (1)         293K  ENDF/B-VI Y RHENIUM   75   -2  293  N
+    Re Natural Rhenium (1)          87K  ENDF/B-VI Y available on request    N
+ 197Au Gold 197 (11)               293K  ENDF/B-VI Y GOLD      79  197  293  Y
+    Hg Natural Mercury (1,15)      293K  JENDL-3.3 Y MERCURY   80   -2  293  N
+    Pb Natural Lead (1)            293K  ENDF/B6R6 Y LEAD      82   -2  293  Y
+    Pb Natural Lead SS (1,8)       293K  ENDF/B6R6 Y LEAD      82   -4  293  Y
+ 208Pb Lead 208                    293K  ENDF/B6R6 Y 208-PB    82  208  293  Y
+ 208Pb Lead 208 SS (8)             293K  ENDF/B6R6 Y 208-PB    82 1208  293  Y
+    Pb Natural Lead (1)             87K  ENDF/B6R6 Y LEAD      82   -2   87  Y
+    Pb Natural Lead SS (1,8)        87K  ENDF/B6R6 Y LEAD      82   -4   87  Y
+ 209Bi Bismuth 209 (14)            293K  JEF-2.2   Y BISMUTH   83  209  293  Y
+ 209Bi Bismuth 209 (14)             87K  JEF-2.2   Y available on request    Y
+ 230Th Thorium 230                 293K  ENDF/B-VI Y 230-TH    90  230  293  N
+ 232Th Thorium 232                 293K  ENDF/B-VI Y 232-TH    90  232  293  Y
+ 233U  Uranium 233                 293K  ENDF/B-VI Y 233-U     92  233  293  Y
+ 234U  Uranium 234                 293K  ENDF/B-VI Y 234-U     92  234  293  N
+ 234U  Uranium 234                  87K  ENDF/B-VI Y available on request    N
+ 235U  Uranium 235                 293K  ENDF/B-VI Y 235-U     92  235  293  Y
+ 235U  Uranium 235                  87K  ENDF/B-VI Y 235-U     92  235   87  Y
+ 238U  Uranium 238                 293K  ENDF/B-VI Y 238-U     92  238  293  Y
+ 238U  Uranium 238                  87K  ENDF/B-VI Y 238-U     92  238   87  Y
+ 237Np Neptunium 237               293K  ENDF/B-VI Y 237-NP    93  237  293  Y
+ 239Pu Plutonium 239               293K  ENDF/B-VI Y 239-PU    94  239  293  Y
+ 239Pu Plutonium 239                87K  ENDF/B-VI Y available on request    Y
+ 241Am Americium 241               293K  ENDF/B6R8 Y 241-AM    95  241  293  Y
+ 243Am Americium 243               293K  ENDF/B6R8 Y 243-AM    95  243  293  Y
+
+
+##
+## ---
+##
+
+-break-
+
+##
+## ---
+##
+
+# FLUKA User routines
+ ABSCFF absorption coefficient (for optical photons)
+ COMSCW response functions, user dependent selection for density-like quantities
+ DFFCFF diffusion coefficient (for optical photons)
+ ENDSCP energy density distributed - change of positions
+ FLDSCP fluence distributed - change of positions
+ FLUSCW response functions, user dependent selection for flux-like quantities
+ FORMFU nuclear charge form factors
+ FRGHNS material roughness (for optical photons)
+ FTELOS this routine is called at the very end of a FLUKA run
+ FUSRBV defines a continuous variable for 3-D binnings
+ LATTIC symmetry transformation for lattice geometry
+ LUSRBL defines a discrete variable for 3-D binnings
+ MAGFLD to use a magnetic field map
+ MDSTCK management of secondary stack
+ MGDRAW to dump trajectories, etc.
+ MUSRBR defines a discrete variable for 3-D binnings
+ OPHBDX boundary crossing properties (for optical photons)
+ PSHCKP Push Cerenkov photon
+ QUEFFC quantum efficiency (for optical photons)
+ RFLCTV reflectivity (for optical photons)
+ RFRNDX refraction index (for optical photons)
+ SOEVSV saving source events
+ SOURCE to generate any distribution for source particles
+ STUPRE set user variables (electrons and photons)
+ STUPRF set user variables (hadrons, muons and neutrinos)
+ STUPRR set user properties for residuals
+ UBSSET to override input biasing parameters
+ UDCDRL decay direction biasing
+ UESDRL User defined Elastic Scattering Direction biasing and lambda
+ USIMBS user-defined importance biasing
+ USREIN event initialisation
+ USREOU post-event output
+ USRGLO user global settings
+ USRHSC USer provided RHo (density) SCaling factors
+ USRINI user initialisation
+ USRMED to perform user driven biasing and/or particle selections on a material basis
+ USROUT user output
+ USRRNC user customisation of residual nuclei scoring
+ USTCKV UserSTeppingCKV
+ WVLNSH WaVe LeNgth SHifted photon production
+
+#vim:spell:et

@@ -1,0 +1,35 @@
+[pet]
+name = MicroPET Focus220, Siemens
+modules = 42
+radius = 13.0
+angle = 180.0
+material = BGO
+axisux = 0.0
+axisuy = 0.0
+axisuz = 1.0
+centrx = 0.0
+centry = 0.0
+centrz = 0.0
+
+[module]
+mr = 1
+lr = 0.0
+
+mz = 4
+lz = 0.021867
+
+ma = 1
+la = 0.0
+
+[block]
+nr = 1
+dr = 1.
+sr = 0.
+
+nz = 12
+dz = 0.15
+sz = 0.0076
+
+na = 12
+da = 0.15
+sa = 0.0076

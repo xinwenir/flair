@@ -1,0 +1,199 @@
+# FLUKA Project file
+Title: n_TOF lead target
+Input: tutorial.inp
+Notes:
+n_TOF spallation lead target simulation:
+Neutron yield at experimental area
+Energy deposition on the target
+Debug: "Target Area" -45.0 -55.0 -40.0 45.0 55.0 40.0 51 51 51
+LinkPrg: lfluka
+F77bound: True
+F77dline: False
+FlukaVar: FLUPRO
+
+# Run information
+Run: <default>
+Prev:     0
+Last:     5
+Status:   2
+Pid:      27462
+StartRun: 1212160088
+
+# USRxxx data file
+Data: tutorial_usrbin_50
+Unit:     50
+Type:     b
+Rule:     +,^tutorial\d\d\d_fort.50$
+Rule:     +,^tutorial\d\d\d_ftn.50$
+EndData
+
+# USRxxx data file
+Data: tutorial_usrcoll_51
+Unit:     51
+Type:     c
+Rule:     +,^tutorial\d\d\d_fort.51$
+Rule:     +,^tutorial\d\d\d_ftn.51$
+EndData
+
+# USRxxx data file
+Data: tutorial_resnuclei_52
+Unit:     52
+Type:     r
+Rule:     +,^tutorial\d\d\d_fort.52$
+Rule:     +,^tutorial\d\d\d_ftn.52$
+EndData
+EndRun
+
+# Geometry plot "nTOF Target Geometry"
+Plot: geometry
+Title: nTOF Target Geometry
+Format:     .eps
+Type:       Geometry
+Keys:       1
+AutoAspect: 1
+Ratio:      1
+TitleOpts:  font 'Times,20'
+XLabel:     Z (cm)
+YLabel:     Y (cm)
+XLabelOpts: font 'Times,12'
+YLabelOpts: font 'Times,12'
+origin: 0 0 0
+coord: Z-Y
+subtype: Material
+extends: 50 50
+basisu: 0 0 1
+basisv: 0 1 0
+nu: 200
+nv: 200
+EndPlot
+
+# USRBIN plot "Deposited Energy"
+Plot: enedep
+Title: Deposited Energy
+Format:     .eps
+Type:       USRBIN
+Grid:       1
+Keys:       1
+AutoAspect: 1
+Ratio:      1
+TitleOpts:  font 'Times,20'
+XLabel:     X (cm)
+YLabel:     Y (cm)
+CBLabel:    Energy Density (J/7e12p/cm3)
+XLabelOpts: font 'Helvetica,14'
+YLabelOpts: font 'Helvetica,14'
+CBLabelOpts: font 'Helvetica,14'
+datafile: tutorial_usrbin_50
+cbcpd: 3
+axes: Auto
+det: 1
+geopos: -15
+proj: Z
+geo: -Auto-
+swap: 0
+norm: 7e12*1.6e-10*x
+cbcolors: 30
+EndPlot
+
+# USR-1D plot "Particle Fluence"
+Plot: fluence
+Title: Particle Fluence
+Format:     .eps
+Type:       USR-1D
+Grid:       1
+Keys:       1
+AutoAspect: 1
+TitleOpts:  font 'Times,20'
+XLabel:     Energy
+YLabel:     Fluence (dn/dlnE/7e12p)
+XLabelOpts: font 'Helvetica,14'
+YLabelOpts: font 'Helvetica,14'
+Commands:
+set xtics ('1meV' 1e-12, '10m' 1e-11, '100m' 1e-10, '1eV' 1e-9, '10' 1e-8,'100' 1e-7,'1keV' 1e-6, '10k' 1e-5, '100k' 1e-4, '1MeV' 1e-3, '10M' 0.01, '100M' 0.1, '1GeV' 1, '10G' 10, '100G' 100, '1TeV' 1000, '10T' 1e4, '100T' 1e5)
+set label 'Evaporation peak' at 1e-6,5e16 font 'Arial,14'
+xlog: 1
+lt.2: 3
+ylog: 1
+lt.0: 1
+lt.1: 0
+name.1: #Proton
+lw.0: 1
+name.3: #Neutron
+name.2: Neutron
+ls.1: 0
+ls.0: 0
+ls.3: 0
+ls.2: 0
+det.0: 0
+det.1: 0
+det.2: 1
+det.3: 1
+y2log: 0
+norm.2: 7e12
+norm.3: 7e12
+norm.0: 7e12
+norm.1: 7e12
+norm: 7e12
+lw.2: 1
+ps.1: 1
+with.0: steps
+with.1: errorbars
+with.2: steps
+with.3: errorbars
+x.0: 2
+x.3: 0
+lt.3: 0
+ps.2: 1
+x2tics: 0
+ndetectors: 4
+axes.3: x1y1
+axes.2: x1y1
+axes.1: x1y1
+axes.0: x1y1
+x.1: 0
+ps.0: 1
+ps.3: 1
+x.2: 2
+lw.1: 1
+name.0: Proton
+y2tics: 0
+file.2: tutorial_usrcoll_51_tab.lis
+lw.3: 1
+file.3: tutorial_usrcoll_51_tab.lis
+pt.2: 1
+pt.3: 1
+pt.0: 1
+pt.1: 1
+y.2: 2
+x2log: 0
+y.3: 2
+y.0: 2
+y.1: 2
+file.0: tutorial_usrcoll_51_tab.lis
+file.1: tutorial_usrcoll_51_tab.lis
+EndPlot
+
+# RESNUCLE plot "Resitual Nuclei"
+Plot: resnuc
+Title: Resitual Nuclei
+Format:     .eps
+Type:       RESNUCLE
+Grid:       1
+Keys:       1
+AutoAspect: 1
+TitleOpts:  font 'Times,20'
+XLabel:     Atomic Charge (Z)
+YLabel:     Atomic Mass (A)
+CBLabel:    Residual Nuclei
+XLabelOpts: font 'Helvetica,14'
+YLabelOpts: font 'Helvetica,14'
+CBLabelOpts: font 'Helvetica,14'
+plot: Z/A
+datafile: tutorial_resnuclei_52
+cbcpd: 3
+xlog: 0
+det: 1
+ylog: 0
+norm: 7e12
+cbcolors: 30
+EndPlot

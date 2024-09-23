@@ -1,0 +1,16 @@
+#!/bin/sh
+# $Id$
+#
+# shell script to launch the program
+#
+# Author:	Vasilis.Vlachoudis@cern.ch
+# Date:	13-Jun-2006
+
+DIR=`dirname $0`
+PYTHONPATH=${DIR}/lib
+export PYTHONPATH
+if [ .$PYTHON = . ]; then
+	PYTHON=python3
+fi
+CMD="${PYTHON} -W ignore -O ${DIR}/flair.py"
+$CMD $*

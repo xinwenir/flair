@@ -1,0 +1,36 @@
+[pet]
+name = Hi-Rez, Siemens
+modules = 48
+radius = 41.26
+angle = 180.0
+material = LSO
+axisux = 0.0
+axisuy = 0.0
+axisuz = 1.0
+centrx = 0.0
+centry = 0.0
+centrz = 0.0
+
+[module]
+mr = 1
+lr = 0.0
+
+mz = 1
+lz = 0.0
+
+ma = 1
+la = 0.0
+
+[block]
+
+nr = 1
+dr = 2.
+sr = 0.
+
+nz = 39
+dz = 0.4
+sz = 0.01579
+
+na = 13
+da = 0.4
+sa = 0.01579

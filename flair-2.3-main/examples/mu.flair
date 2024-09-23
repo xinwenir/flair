@@ -1,0 +1,13 @@
+# FLUKA Project file
+Title: Test of Ph. Interaction of Muons in GS Rock
+Input: mu.inp
+Exec: 
+Notes:
+Testing notes of the FLUKA project
+Second Line
+Third line
+
+After empty line
+Debug: "Detector" -10 -20 -30 10 20 30 10 20 30
+Debug: "Region #222" -110 -110 -110 110 110 110 200 200 200
+Debug: "Testing" 1 4 7 2 5 8 3 6 9
