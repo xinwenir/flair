@@ -1,0 +1,8 @@
+[Desktop Entry]
+Encoding=UTF-8
+MimeType=application/x-fluka
+Comment=FLUKA input file
+#Icon=/usr/local/flair/icons/fluka_input.png
+Icon=/usr/share/icons/hicolor/48x48/mimetypes/application-x-fluka.png
+Type=MimeType
+Patterns=*.inp;*.INP;*.fluka;*.FLUKA;

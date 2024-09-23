@@ -1,0 +1,36 @@
+[pet]
+name = GE Advance, GEMS
+modules = 56
+radius = 46.35
+angle = 180.0
+material = BGO
+axisux = 0.0
+axisuy = 0.0
+axisuz = 1.0
+centrx = 0.0
+centry = 0.0
+centrz = 0.0
+
+[module]
+mr = 1
+lr = 0.0
+
+mz = 3
+lz = 0.085
+
+ma = 2
+la = 0.085
+
+[block]
+
+nr = 1
+dr = 3.
+sr = 0.
+
+nz = 6
+dz = 0.8
+sz = 0.042
+
+na = 6
+da = 0.4
+sa = 0.01
