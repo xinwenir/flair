@@ -1,8 +1,0 @@
-[Desktop Entry]
-Encoding=UTF-8
-MimeType=application/x-flair
-Comment=FLAIR project file
-#Icon=/usr/local/flair/icons/marmite.png
-Icon=/usr/share/icons/hicolor/48x48/mimetypes/application-x-flair.png
-Type=MimeType
-Patterns=*.flair;*.FLAIR;

@@ -1,3 +1,0 @@
-- Unicode/International characters do not work well and should be avoided
-- Saving COMBINAT geometries with () will end up with an error
-- Continuation of regions will fail in Mcnp and Povray export
