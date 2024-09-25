@@ -580,6 +580,7 @@ def readIni():
 	Input.infinite = getFloat(section, "infinite",	Input.infinite)
 	Input._useQUA  = getBool(section,   "usequa",	Input._useQUA)
 	Input._useBOX  = getBool(section,   "usebox",	Input._useBOX)
+	#Input._useBOX  = True
 #	GeometryViewer.LAPTOP       = getBool(section, "laptop",      GeometryViewer.LAPTOP)
 #	GeometryViewer.INVERTWHEEL  = getBool(section, "invertwheel", GeometryViewer.INVERTWHEEL)
 #	GeometryViewer.PINZOOM      = getBool(section, "pinzoom",     GeometryViewer.PINZOOM)
@@ -880,6 +881,7 @@ def bodiesMenu(menu, callback):
 	_addCommand("RPP", 0)	# R
 	if Input._useBOX:
 		_addCommand("WED", 0)	# W
+		_addCommand("RAW")
 
 	menu.add_command(label="Sphere",state=DISABLED)
 	_addCommand("SPH", 0)	# S
@@ -908,13 +910,11 @@ def bodiesMenu(menu, callback):
 	_addCommand("XZP", 1)	# Y
 	_addCommand("PLA", 0)	# P
 
-	if Input._useBOX:
-		menu.add_command(label="",state=DISABLED)
+	menu.add_command(label="",state=DISABLED)
+	_addCommand("TET", 0) #-----------------------zxw20240822----For TET, added by zxw
+	if Input._useBOX:		
 		_addCommand("BOX", 0)	# B
-		_addCommand("RAW")
-	else:
 		menu.add_command(label="",state=DISABLED)
-		_addCommand("TET", 0) #-----------------------zxw20240822----For TET, added by zxw
 
 	menu.add_command(label="",state=DISABLED)
 	_addCommand("ELL", 1)	# L
@@ -937,7 +937,7 @@ def bodiesMenu(menu, callback):
 		_addCommand("TRY")
 		column += 2
 
-	if Input._useBOX: column += 1
+	if Input._useBOX: column += 2
 	if menu["tearoff"]: column += 1
 	menu.entryconfigure(column, columnbreak=1)
 
