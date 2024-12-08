@@ -1,0 +1,239 @@
+# Icons to load in flair
+# Icon[.gif]   [alias]
+BEAM           SPOTBEAM
+BEAMPOS        SPOTPOS
+BEAMAXES       SPOTDIR
+GEOMETRY
+USR-1D
+USR-2D
+about
+add
+add32
+aligncenter
+alignjustify
+alignleft
+alignright
+all
+arrow      !arrow
+ascii
+attach
+attributes
+axes
+axial32
+bold
+build32
+calculator
+cardshow32
+center
+change
+change32
+clean
+clean32
+clone
+close
+close32
+coffee        !coffee
+comment
+comment32
+comment_add
+comment_delete
+compile
+compress
+compress32
+cone32
+config
+config32
+constant
+continue
+copy
+coronal32
+cut
+data
+data32
+database
+database32
+debug
+define     #define
+del
+dicom
+dicom32
+disable
+dock
+document
+down
+edit
+edit32
+elif       #elif
+else       #else
+empty
+enable
+endif      #endif
+endinclude #endinclude
+equal
+error32
+exit32
+expand
+expand32
+expand_parenthesis
+export
+export32
+file-manager32
+files
+filter
+find
+find32
+flair
+freeze
+function
+geant
+gear
+gear32
+geoedit
+hand
+hash
+heat
+hyperlink
+if         #if
+if         #ifdef
+ifendif    #if..#endif
+ifndef     #ifndef
+image
+import
+import32
+include    #include
+info
+info32
+input
+input32
+invert
+italic
+itemize
+layers
+layout     layout_2x2     layout_custom
+layout_1+2
+layout_1x2
+layout_2+1
+layout_2x1
+layout_Blue
+layout_Custom
+layout_Green
+layout_Magenta
+layout_Red
+left
+light      !light
+link
+list32
+load
+lock
+loop
+materialdb
+matrix
+mcnp
+mesh       !mesh
+navigation
+new
+new32
+newflair32
+none
+numbering
+object
+ok
+ok32
+open32
+openflair32
+openscad
+output
+overstrike
+paint
+palette
+pan
+particle
+paste
+paste32
+pencil
+pet
+pet_array
+pet_block
+pet_module
+pin
+plan32
+play
+play32
+plot
+plot32
+point      !point
+povray
+print
+print32
+process
+project
+properties
+queue
+redo
+refresh
+refresh32
+reload32
+rename
+replace
+reset
+right
+rotate
+rotate_down
+rotate_left
+rotate_right
+rotate_up
+rotate_vleft
+rotate_vright
+ruler      !ruler
+run
+run32
+sagittal32
+save
+save32
+saveflair32
+scan32
+select
+select32
+sep
+shrink
+slice32
+snap
+spline    !spline
+star
+stop32
+summary
+tag
+tags
+target
+tip
+toggle
+toggle32
+toi
+toi32
+tools
+tools32
+total32
+triangle_down
+undef      #undef
+underline
+undo
+undock
+units
+unlock
+up
+view
+viewer32
+voxel32
+wand
+warning32
+wireframe
+wireframe_off
+wizard32
+x
+x32
+zone
+zone32
+zoom
+zoom_in
+zoom_on
+zoom_out

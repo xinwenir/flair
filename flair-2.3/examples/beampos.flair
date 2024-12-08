@@ -1,0 +1,350 @@
+# FLUKA Project file
+Version: 1
+Title: 
+Input: beampos.inp
+Submit: *Default
+DefMain: True
+LinkPrg: lfluka
+F77bound: True
+F77dline: False
+
+# Run information
+Run: <default>
+	Prev:     0
+	Last:     1
+	Status:   3
+	Pid:      0
+	StartRun: 1347021910
+
+	# USRxxx data file: beampos_usrbin_22
+	Data: \I_\T_\U
+		Unit:      22
+		Type:      b
+		Recursive: 0
+		Rule:     +,\I\d\d\d_fort\.\U
+		Rule:     +,\I\d\d\d_ftn\.\U
+		Rule:     +,_\I_\d\d\d\d\d_fort\.\U
+	End
+End
+
+# Geometry Information
+Geometry:
+	Frame.bsplit: 0.5
+	Options.gridlevel: 25
+	Options.latticelevel: 25
+	Options.viewport: 1
+	Options.crosshair: 0
+	Options.title: 1
+	Options.axes: 1
+	Frame.vsplit: 0.5
+	Frame.tsplit: 0.5
+	Options.grid: 1
+
+	# Layer
+	Layer: 3D
+		Image.prompt: 0
+		3D.ambient: 64
+		3D.aperture: 30
+		Usrbin.norm: 1.0
+		3D.perspective: 0
+		Colorband.alpha: 0
+		3D: True
+		Colorband: False
+		Show.vertex: 1
+		Beam: False
+		Colorband.palette: FLUKA
+		Userdump: False
+		Colorband.max: 10000.0
+		Image.black: 0
+		Usrbin: False
+		Show.voxel: 1
+		Usrbin.alpha: 0
+		Usrbin.det: 1
+		Image.white: 16777215
+		Colorband.log: 1
+		Show.borders: 1
+		Colorband.min: 0.0001
+		Show.color: Material
+		Show.label: 0
+		Usrbin.input: 0
+		3D.clipnegative: 0
+		Options: True
+		Show.rotdefi: 0
+		Show.lattice: 1
+		Show: True
+		Image: False
+		Colorband.n: 32
+		Image.alpha: 127
+		3D.antialias: 1
+		Colorband.inv: 0
+		3D.xray: 0
+	End
+
+	# Layer
+	Layer: Beam
+		Image.prompt: 0
+		3D.ambient: 64
+		3D.aperture: 30
+		Usrbin.norm: 1.0
+		3D.perspective: 0
+		Colorband.alpha: 0
+		Colorband.palette: FLUKA
+		Usrbin: True
+		3D: False
+		Colorband: False
+		Show.vertex: 1
+		Beam: False
+		Usrbin2.input: False
+		Userdump: False
+		Colorband.max: 10000.0
+		Image.black: 0
+		Image.white: 16777215
+		Show.voxel: 0
+		Usrbin.alpha: 96
+		Usrbin.det: 1
+		Usrbin.file: beampos001_fort.22
+		Colorband.log: 1
+		Usrbin.input: 0
+		Show.borders: 1
+		Colorband.min: 0.0001
+		Show.color: Material
+		Show.label: 0
+		Usrbin2.det: 1
+		3D.clipnegative: 0
+		Options: True
+		Show.rotdefi: 0
+		Show.lattice: 0
+		Show: True
+		Image: False
+		Colorband.n: 32
+		Image.alpha: 127
+		3D.antialias: 1
+		Colorband.inv: 0
+		3D.xray: 0
+	End
+
+	# Layer
+	Layer: Lattice
+		Show.lattice: True
+		3D: False
+		Show: True
+		Show.voxel: True
+	End
+End
+
+# Geometry plot "GeoViewer Red plot"
+Plot: Red
+	Title: GeoViewer Red plot
+	Format:     .eps
+	Type:       Geometry
+	LineType:   
+	Keys:       1
+	origin: 0 0 0
+	layer: Media
+	labels: 1
+	coord: X-Y
+	boundaries: 1
+	subtype: Material
+	extends: 19.3807 16.4477
+	basisu: 1 0 0
+	basisv: 0 1 0
+	nu: 200
+	nv: 200
+End
+
+# Geometry plot "GeoViewer Green plot"
+Plot: Green
+	Title: GeoViewer Green plot
+	Format:     .eps
+	Type:       Geometry
+	LineType:   
+	Keys:       1
+	origin: 3.92715 2.5 0
+	layer: Beam
+	labels: 1
+	coord: Z-X
+	boundaries: 1
+	subtype: Material
+	extends: 11.2157 9.51837
+	basisu: 0 0 1
+	basisv: 1 0 0
+	nu: 200
+	nv: 200
+End
+
+# Geometry plot "GeoViewer Blue plot"
+Plot: Blue
+	Title: GeoViewer Blue plot
+	Format:     .eps
+	Type:       Geometry
+	LineType:   
+	Keys:       1
+	origin: 1.2 2.5 -4
+	layer: Beam
+	labels: 1
+	coord: U-V
+	boundaries: 1
+	subtype: Material
+	extends: 3.13009 2.6564
+	basisu: -0.607515 0 0.794308
+	basisv: 0 1 0
+	nu: 200
+	nv: 200
+End
+
+# Geometry plot "GeoViewer Magenta plot"
+Plot: Magenta
+	Title: GeoViewer Magenta plot
+	Format:     .eps
+	Type:       Geometry
+	LineType:   
+	Keys:       1
+	origin: 0 0 0
+	layer: Media
+	labels: 1
+	coord: X-Y
+	boundaries: 1
+	subtype: Material
+	extends: 27.9082 23.6847
+	basisu: -1 0 0
+	basisv: 0 1 0
+	nu: 200
+	nv: 200
+End
+
+# USRBIN plot "Beam particles"
+Plot: beampos_beam
+	Title: Beam particles
+	Format:     .eps
+	Type:       USRBIN
+	LineType:   
+	Grid:       1
+	Keys:       1
+	Ratio:      1
+	cbround: 1
+	cbcpd: 3
+	int: 10.6784772
+	lt.0: 1
+	lw.0: 1
+	ls.0: 0
+	cbcolors: 30
+	errors: 0
+	log: 1
+	min: 1.56959304E-05
+	xrebin: 1
+	axes: Auto
+	hist: 2D Projection
+	proj: Y
+	swap: 0
+	with.0: steps
+	zrebin: 1
+	max: 0.0498901792
+	yrebin: 1
+	geo: -No-
+	axes.0: x1y1
+	ps.0: 1
+	datafile: beampos001_fort.22
+	det: 1
+	cbpalette: FLUKA
+	pt.0: 1
+End
+
+# USERDUMP plot "Source particles"
+Plot: beampos_source
+	Title: Source particles
+	Format:     .eps
+	Type:       USERDUMP
+	LineType:   
+	Keys:       1
+	cbround: 1
+	cbcpd: 3
+	x2log: 0
+	int: 11.5432332
+	xlog: 0
+	ylog: 0
+	lt.0: 1
+	lw.0: 1
+	ls.0: 0
+	weigthed: 1
+	cbcolors: 30
+	errors: 0
+	from: 1
+	log: 1
+	min: 5.17248509E-06
+	xrebin: 1
+	axes: Auto
+	y2log: 0
+	hist: 2D Projection
+	proj: Y
+	geoaxes: U-V
+	type: Histogram
+	swap: 0
+	with.0: steps
+	zrebin: 1
+	max: 0.0360799097
+	x2tics: 0
+	yrebin: 1
+	geo: -No-
+	axes.0: x1y1
+	case: Source
+	ps.0: 1
+	datafile: beampos001_source
+	y2tics: 0
+	det: 1
+	cbpalette: FLUKA
+	n: 0
+	pt.0: 1
+	y: Particle
+	x: Kinetic-Energy
+	bins: 50
+End
+
+# USERDUMP plot "Source particles"
+Plot: beampos_sourceXY
+	Title: Source particles
+	Format:     .eps
+	Type:       USERDUMP
+	LineType:   
+	Keys:       1
+	cbround: 1
+	cbcpd: 3
+	int: 11.5432332
+	xlog: 0
+	ylog: 0
+	lt.0: 1
+	lw.0: 1
+	ls.0: 0
+	with.0: steps
+	weigthed: 1
+	cbcolors: 30
+	hist: 2D Projection
+	errors: 0
+	from: 1
+	log: 1
+	min: 5.17248509E-06
+	xrebin: 1
+	axes: Auto
+	y2log: 0
+	proj: Y
+	geoaxes: U-V
+	axes.0: x1y1
+	type: Scatter
+	swap: 0
+	x: x
+	zrebin: 1
+	max: 0.0360799097
+	x2tics: 0
+	yrebin: 1
+	geo: -No-
+	case: Source
+	ps.0: 1
+	datafile: beampos001_source
+	y2tics: 0
+	det: 1
+	cbpalette: FLUKA
+	n: 0
+	pt.0: 1
+	y: y
+	x2log: 0
+	bins: 50
+End

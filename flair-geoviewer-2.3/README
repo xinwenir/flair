@@ -1,0 +1,39 @@
+     Flair-geoviewer
+
+                 *****   ****
+                **  **     **               **
+                **         **               **
+               **         **
+             *******      **     **** **  ***   ***  **
+               **        **     **  ***    **    ** ****
+              **         **    **    **    **    **** *
+              **         **    **    **   **    ***
+              **        **    **    **    **    **
+             **         **    **    **    **    **
+             **        **     **   ***   **    **
+             **        ** *   **  **** * ** *  **
+             **        ****    **** ***  ****  **
+            **
+         ** **                                for FLUKA
+         ****                                (c) 2006-xx
+
+
+           www:      http://www.fluka.org/flair
+           email:    Vasilis.Vlachoudis@cern.ch
+           authors:  Vasilis Vlachoudis
+
+
+  ABOUT
+  ~~~~~
+
+  flair-geoviewer is an addition to flair for editing, viewing
+  and debugging FLUKA geometries. The geometry viewer being a
+  C++ program requires building for the system to be installed.
+  flair-geoviewer has minimum requirements on third party libraries,
+  which they have to be installed for the compilation
+
+
+  INSTALLATION
+  ~~~~~~~~~~~~
+
+  For installation instructions please look the flair README file.

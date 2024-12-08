@@ -1,0 +1,115 @@
+TITLE
+Sponge Bob
+* Set the defaults for precision simulations
+DEFAULTS                                                              PRECISIO
+* Define the beam characteristics
+BEAM
+* Define the beam position
+BEAMPOS
+GEOBEGIN                                                              COMBNAME
+    0    0          
+* Black body
+SPH blkbody    0.0 0.0 0.0 100000.0
+* Void sphere
+SPH void       0.0 0.0 0.0 10000.0
+* Container
+RPP bob        -12.0 12.0 -8.0 24.0 -10.0 10.0
+* Main sponge body
+RPP sponge     -11.5 11.5 0.0 23.0 -5.0 5.0
+SPH hole0      11.0 22.5 5.2 2.0
+* Left side
+PLA cutL       .98480775301221 -.1736481776669 0.0 11.5 23.0 0.0
+* Right side
+PLA cutR       .98480775301221 .17364817766693 0.0 -11.5 23.0 0.0
+* Right eye
+SPH eyeR       -3.9 15.6 5.0 3.3
+* Left eye
+SPH eyeL       3.9 15.6 5.0 3.3
+PLA pupilR     1.0 0.0 1.0 -2.0 16.0 7.5
+PLA pupilL     -1.0 0.0 1.0 2.0 16.0 7.5
+* Nose
+ELL nose       0.0 13.033322019137 4.8999660574097 0.0 13.966677980863
+              7.7000339425903 3.3
+* Right sleeve
+TRC sleeveR    -8.7 7.3 0.0 -0.5 -3.0 0.0 0.1 1.0
+* Left sleeve
+TRC sleeveL    8.7 7.3 0.0 0.5 -3.0 0.0 0.1 1.0
+* Right arm
+RCC armR       -9.0 4.5 0.0 1.0 -5.0 0.0 0.3
+* Left arm
+RCC armL       9.0 4.5 0.0 -1.0 -5.0 0.0 0.3
+* Right hand
+ELL handR      -7.930846289313 -.6114795666312 0.0 -6.941912925951
+              -3.218815904173 0.0 3.6132070589954
+* Left hand
+ELL handL      7.8583564038603 -.6903565872214 0.0 7.1035721813633
+              -3.040743192828 0.0 3.4330051687692
+* End of head - begining of shirt
+XZP shirt      5.0
+* Split shirt - shorts
+XZP shorts     3.0
+* Shorts leg Right
+RCC shortsR    -3.0 0.1 0.0 0.0 -1.0 0.0 1.5
+* Shorts leg Left
+RCC shortsL    3.0 0.1 0.0 0.0 -1.0 0.0 1.5
+* Right leg
+RCC legR       -2.9 -0.8 0.0 0.5 -5.0 0.0 0.5
+* Left leg
+RCC legL       2.9 -0.8 0.0 -0.5 -5.0 0.0 0.5
+* Right shoe
+ELL shoeR      -5.758770483144 -6.5 1.3680805733027 -2.0 -6.5 0.0 4.8
+* Left shoe
+ELL shoeL      5.7587704831436 -6.5 1.3680805733027 2.0 -6.5 0.0 4.8
+XYP clip       0.0
+END
+* Black hole
+BLKBODY      5 +blkbody -void
+* Void around
+VOID         5 +void -bob
+* Bob
+BOB          5 +bob +cutR -sleeveR -armR -handR
+               | +bob -cutL -sleeveL -armL -handL
+               | +bob -sponge +cutL -cutR -shortsR -shortsL -legR -legL -shoeR -shoeL -handR -handL -eyeR -eyeL
+               | +bob +hole0
+* Main sponge body
+BODY         5 +sponge -hole0 +cutL -cutR -shirt -eyeR -eyeL
+               | -sleeveR +armR
+               | +handR
+               | -shortsR +legR -shoeR
+               | -shortsL +legL -shoeL
+               | -sleeveL +armL
+               | +handL
+* Bob's eyes
+EYEBALLS     5 | +eyeR +pupilR
+               | +eyeL +pupilL
+* Bob's pupils
+EYEPUPIL     5 | +eyeR -pupilR
+               | +eyeL -pupilL
+* Bob's shirt
+SHIRT        5 +sponge +cutL -cutR +shirt -shorts
+               | +cutR +sleeveR
+               | -cutL +sleeveL
+* Bob's shorts
+SHORTS       5 +sponge +cutL -cutR +shorts
+               | +shortsR
+               | +shortsL
+* Bob's shoes
+SHOES        5 | +shoeR
+               | +shoeL
+END
+GEOEND
+* ..+....1....+....2....+....3....+....4....+....5....+....6....+....7..
+ASSIGNMA    BLCKHOLE   BLKBODY
+ASSIGNMA      VACUUM      VOID
+ASSIGNMA      VACUUM       BOB
+ASSIGNMA      COPPER      BODY
+ASSIGNMA    MAGNESIU     SHIRT
+ASSIGNMA      CARBON    SHORTS
+ASSIGNMA      CARBON     SHOES
+ASSIGNMA       WATER  EYEBALLS
+ASSIGNMA      SODIUM  EYEPUPIL
+* Set the random number seed
+RANDOMIZ         1.0
+* Set the number of primary histories to be simulated in the run
+START
+STOP

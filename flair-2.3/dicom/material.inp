@@ -1,0 +1,196 @@
+*
+* $Id: material.inp 2852 2013-11-15 13:48:55Z bnv $
+*
+*
+* Schneider parametrisation of HU to materials
+* This file should be used together with the dicom/material.inp
+*
+* Based on the work of Andrea Mairani
+*
+MATERIAL         16.    32.066       2.0                              SULFUR
+MATERIAL         15. 30.973761       2.2                              PHOSPHO
+MATERIAL         17.   35.4527 0.0029947                              CHLORINE
+MATERIAL         19.   39.0983     0.862                              POTASSIU
+* MIXTURE : HU<-1020
+MATERIAL                       .00315972                            0.HU<-1020
+COMPOUND      -0.755  NITROGEN    -0.232    OXYGEN    -0.013     ARGONHU<-1020
+STERNHEI     10.5961    1.7418    4.2759   0.10914    3.3994          HU<-1020
+MAT-PROP                            85.7  HU<-1020
+* MIXTURE : HU<-1015
+MATERIAL                       .00717201                            0.HU<-1015
+COMPOUND      -0.755  NITROGEN    -0.232    OXYGEN    -0.013     ARGONHU<-1015
+* MIXTURE : HU<-1010
+MATERIAL                        .0121874                            0.HU<-1010
+COMPOUND      -0.755  NITROGEN    -0.232    OXYGEN    -0.013     ARGONHU<-1010
+* MIXTURE : HU<-1000
+MATERIAL                        .0207135                            0.HU<-1000
+COMPOUND      -0.755  NITROGEN    -0.232    OXYGEN    -0.013     ARGONHU<-1000
+* MIXTURE : HU<-995
+MATERIAL                         .027735                            0.HU<-995
+COMPOUND      -0.755  NITROGEN    -0.232    OXYGEN    -0.013     ARGONHU<-995
+* MIXTURE : HU<-988
+MATERIAL                        .0333252                            0.HU<-988
+COMPOUND      -0.755  NITROGEN    -0.232    OXYGEN    -0.013     ARGONHU<-988
+* MIXTURE : HU<-974
+MATERIAL                       4.3784E-2                            0.HU<-974
+COMPOUND      -0.755  NITROGEN    -0.232    OXYGEN    -0.013     ARGONHU<-974
+* MIXTURE : HU<-962
+MATERIAL                       5.6824E-2                            0.HU<-962
+COMPOUND      -0.755  NITROGEN    -0.232    OXYGEN    -0.013     ARGONHU<-962
+* MIXTURE : HU<-950
+MATERIAL                       6.8861E-2                            0.HU<-950
+COMPOUND      -0.755  NITROGEN    -0.232    OXYGEN    -0.013     ARGONHU<-950
+* MIXTURE : HU<-900
+MATERIAL                       8.8742E-2                            0.HU<-925
+COMPOUND      -0.103  HYDROGEN    -0.105    CARBON    -0.031  NITROGENHU<-925
+COMPOUND      -0.749    OXYGEN    -0.002    SODIUM    -0.002   PHOSPHOHU<-925
+COMPOUND      -0.003    SULFUR    -0.003  CHLORINE    -0.002  POTASSIUHU<-925
+* MIXTURE : HU<-900
+MATERIAL                       1.1249E-1                            0.HU<-900
+COMPOUND      -0.103  HYDROGEN    -0.105    CARBON    -0.031  NITROGENHU<-900
+COMPOUND      -0.749    OXYGEN    -0.002    SODIUM    -0.002   PHOSPHOHU<-900
+COMPOUND      -0.003    SULFUR    -0.003  CHLORINE    -0.002  POTASSIUHU<-900
+* MIXTURE : HU<-830
+MATERIAL                         0.16014                            0.HU<-830
+COMPOUND      -0.103  HYDROGEN    -0.105    CARBON    -0.031  NITROGENHU<-830
+COMPOUND      -0.749    OXYGEN    -0.002    SODIUM    -0.002   PHOSPHOHU<-830
+COMPOUND      -0.003    SULFUR    -0.003  CHLORINE    -0.002  POTASSIUHU<-830
+* MIXTURE : HU<-700
+MATERIAL                         0.26045                            0.HU<-700
+COMPOUND      -0.103  HYDROGEN    -0.105    CARBON    -0.031  NITROGENHU<-700
+COMPOUND      -0.749    OXYGEN    -0.002    SODIUM    -0.002   PHOSPHOHU<-700
+COMPOUND      -0.003    SULFUR    -0.003  CHLORINE    -0.002  POTASSIUHU<-700
+* MIXTURE : HU<-500
+MATERIAL                         0.42596                            0.HU<-500
+COMPOUND      -0.103  HYDROGEN    -0.105    CARBON    -0.031  NITROGENHU<-500
+COMPOUND      -0.749    OXYGEN    -0.002    SODIUM    -0.002   PHOSPHOHU<-500
+COMPOUND      -0.003    SULFUR    -0.003  CHLORINE    -0.002  POTASSIUHU<-500
+* MIXTURE : HU<-120
+MATERIAL                         0.71685                            0.HU<-120
+COMPOUND      -0.103  HYDROGEN    -0.105    CARBON    -0.031  NITROGENHU<-120
+COMPOUND      -0.749    OXYGEN    -0.002    SODIUM    -0.002   PHOSPHOHU<-120
+COMPOUND      -0.003    SULFUR    -0.003  CHLORINE    -0.002  POTASSIUHU<-120
+* MIXTURE : HU<-83
+MATERIAL                        0.925988                            0.HU<-83
+COMPOUND      -0.116  HYDROGEN    -0.681    CARBON    -0.002  NITROGENHU<-83
+COMPOUND      -0.198    OXYGEN    -0.001    SODIUM    -0.001    SULFURHU<-83
+COMPOUND      -0.001  CHLORINE                                        HU<-83
+* MIXTURE : HU<-53
+MATERIAL                       0.9572760                            0.HU<-53
+COMPOUND      -0.113  HYDROGEN    -0.567    CARBON    -0.009  NITROGENHU<-53
+COMPOUND      -0.308    OXYGEN    -0.001    SODIUM    -0.001    SULFURHU<-53
+COMPOUND      -0.001  CHLORINE                                        HU<-53
+* MIXTURE : HU<-23
+MATERIAL                         0.98407                            0.HU<-23
+COMPOUND      -0.110  HYDROGEN    -0.458    CARBON    -0.015  NITROGENHU<-23
+COMPOUND      -0.411    OXYGEN    -0.001    SODIUM    -0.002    SULFURHU<-23
+COMPOUND      -0.001  CHLORINE    -0.001   PHOSPHO                    HU<-23
+* MIXTURE : HU<7
+MATERIAL                         1.01086                            0.HU<7
+COMPOUND      -0.108  HYDROGEN    -0.356    CARBON    -0.022  NITROGENHU<7
+COMPOUND      -0.509    OXYGEN    -0.001   PHOSPHO    -0.002    SULFURHU<7
+COMPOUND      -0.002  CHLORINE                                        HU<7
+* MIXTURE : HU<18
+MATERIAL                         1.02872                            0.HU<18
+COMPOUND      -0.106  HYDROGEN    -0.284    CARBON    -0.026  NITROGENHU<18
+COMPOUND      -0.578    OXYGEN    -0.001   PHOSPHO    -0.002    SULFURHU<18
+COMPOUND      -0.002  CHLORINE    -0.001  POTASSIU                    HU<18
+* MIXTURE : HU<80
+MATERIAL                         1.05911                            0.HU<80
+COMPOUND      -0.103  HYDROGEN    -0.134    CARBON    -0.030  NITROGENHU<80
+COMPOUND      -0.723    OXYGEN    -0.002    SODIUM    -0.002   PHOSPHOHU<80
+COMPOUND      -0.002    SULFUR    -0.002  CHLORINE    -0.002  POTASSIUHU<80
+* MIXTURE : HU<120
+MATERIAL                        1.118731                            0.HU<120
+COMPOUND      -0.094  HYDROGEN    -0.207    CARBON    -0.062  NITROGENHU<120
+COMPOUND      -0.622    OXYGEN    -0.006    SODIUM    -0.006    SULFURHU<120
+COMPOUND      -0.003  CHLORINE                                        HU<120
+* MIXTURE : HU<200
+MATERIAL                        1.111128                            0.HU<200
+COMPOUND      -0.095  HYDROGEN    -0.455    CARBON    -0.025  NITROGENHU<200
+COMPOUND      -0.355    OXYGEN    -0.001    SODIUM    -0.021   PHOSPHOHU<200
+COMPOUND      -0.001    SULFUR    -0.001  CHLORINE    -0.001  POTASSIUHU<200
+COMPOUND      -0.045   CALCIUM                                        HU<200
+* MIXTURE : HU<300
+MATERIAL                        1.164408                            0.HU<300
+COMPOUND      -0.089  HYDROGEN    -0.423    CARBON    -0.027  NITROGENHU<300
+COMPOUND      -0.363    OXYGEN    -0.001    SODIUM    -0.030   PHOSPHOHU<300
+COMPOUND      -0.001    SULFUR    -0.001  CHLORINE    -0.001  POTASSIUHU<300
+COMPOUND      -0.064   CALCIUM                                        HU<300
+* MIXTURE : HU<400
+MATERIAL                       1.2236080                            0.HU<400
+COMPOUND      -0.082  HYDROGEN    -0.391    CARBON    -0.029  NITROGENHU<400
+COMPOUND      -0.372    OXYGEN    -0.001    SODIUM    -0.039   PHOSPHOHU<400
+COMPOUND      -0.001    SULFUR    -0.001  CHLORINE    -0.001  POTASSIUHU<400
+COMPOUND      -0.083   CALCIUM                                        HU<400
+* MIXTURE : HU<500
+MATERIAL                       1.2828080                            0.HU<500
+COMPOUND      -0.076  HYDROGEN    -0.361    CARBON    -0.030  NITROGENHU<500
+COMPOUND      -0.380    OXYGEN    -0.001    SODIUM    -0.047   PHOSPHOHU<500
+COMPOUND      -0.002    SULFUR    -0.001  CHLORINE    -0.001  MAGNESIUHU<500
+COMPOUND      -0.101   CALCIUM                                        HU<500
+* MIXTURE : HU<600
+MATERIAL                       1.3420080                            0.HU<600
+COMPOUND      -0.071  HYDROGEN    -0.335    CARBON    -0.032  NITROGENHU<600
+COMPOUND      -0.387    OXYGEN    -0.001    SODIUM    -0.054   PHOSPHOHU<600
+COMPOUND      -0.002    SULFUR    -0.001  MAGNESIU    -0.117   CALCIUMHU<600
+* MIXTURE : HU<700
+MATERIAL                       1.4012080                            0.HU<700
+COMPOUND      -0.066  HYDROGEN    -0.310    CARBON    -0.033  NITROGENHU<700
+COMPOUND      -0.394    OXYGEN    -0.001    SODIUM    -0.061   PHOSPHOHU<700
+COMPOUND      -0.002    SULFUR    -0.001  MAGNESIU    -0.132   CALCIUMHU<700
+* MIXTURE : HU<800
+MATERIAL                        1.460408                            0.HU<800
+COMPOUND      -0.061  HYDROGEN    -0.287    CARBON    -0.035  NITROGENHU<800
+COMPOUND      -0.400    OXYGEN    -0.001    SODIUM    -0.067   PHOSPHOHU<800
+COMPOUND      -0.002    SULFUR    -0.001  MAGNESIU    -0.146   CALCIUMHU<800
+* MIXTURE : HU<900
+MATERIAL                       1.5196080                            0.HU<900
+COMPOUND      -0.056  HYDROGEN    -0.265    CARBON    -0.036  NITROGENHU<900
+COMPOUND      -0.405    OXYGEN    -0.001    SODIUM    -0.073   PHOSPHOHU<900
+COMPOUND      -0.003    SULFUR    -0.002  MAGNESIU    -0.159   CALCIUMHU<900
+* MIXTURE : HU<1000
+MATERIAL                       1.5788080                            0.HU<1000
+COMPOUND      -0.052  HYDROGEN    -0.246    CARBON    -0.037  NITROGENHU<1000
+COMPOUND      -0.411    OXYGEN    -0.001    SODIUM    -0.078   PHOSPHOHU<1000
+COMPOUND      -0.003    SULFUR    -0.002  MAGNESIU    -0.170   CALCIUMHU<1000
+* MIXTURE : HU<1100
+MATERIAL                       1.6380080                            0.HU<1100
+COMPOUND      -0.049  HYDROGEN    -0.227    CARBON    -0.038  NITROGENHU<1100
+COMPOUND      -0.416    OXYGEN    -0.001    SODIUM    -0.083   PHOSPHOHU<1100
+COMPOUND      -0.003    SULFUR    -0.002  MAGNESIU    -0.181   CALCIUMHU<1100
+* MIXTURE : HU<1200
+MATERIAL                       1.6972080                            0.HU<1200
+COMPOUND      -0.045  HYDROGEN    -0.210    CARBON    -0.039  NITROGENHU<1200
+COMPOUND      -0.420    OXYGEN    -0.001    SODIUM    -0.088   PHOSPHOHU<1200
+COMPOUND      -0.003    SULFUR    -0.002  MAGNESIU    -0.192   CALCIUMHU<1200
+* MIXTURE : HU<1300
+MATERIAL                        1.756408                            0.HU<1300
+COMPOUND      -0.042  HYDROGEN    -0.194    CARBON    -0.040  NITROGENHU<1300
+COMPOUND      -0.425    OXYGEN    -0.001    SODIUM    -0.092   PHOSPHOHU<1300
+COMPOUND      -0.003    SULFUR    -0.002  MAGNESIU    -0.201   CALCIUMHU<1300
+* MIXTURE : HU<1400
+MATERIAL                       1.8156080                            0.HU<1400
+COMPOUND      -0.039  HYDROGEN    -0.179    CARBON    -0.041  NITROGENHU<1400
+COMPOUND      -0.429    OXYGEN    -0.001    SODIUM    -0.096   PHOSPHOHU<1400
+COMPOUND      -0.003    SULFUR    -0.002  MAGNESIU    -0.210   CALCIUMHU<1400
+* MIXTURE : HU<1500
+MATERIAL                       1.8748080                            0.HU<1500
+COMPOUND      -0.036  HYDROGEN    -0.165    CARBON    -0.042  NITROGENHU<1500
+COMPOUND      -0.432    OXYGEN    -0.001    SODIUM    -0.100   PHOSPHOHU<1500
+COMPOUND      -0.003    SULFUR    -0.002  MAGNESIU    -0.219   CALCIUMHU<1500
+* MIXTURE : HU<1600
+MATERIAL                       1.9340080                            0.HU<1600
+COMPOUND      -0.034  HYDROGEN    -0.155    CARBON    -0.042  NITROGENHU<1600
+COMPOUND      -0.435    OXYGEN    -0.001    SODIUM    -0.103   PHOSPHOHU<1600
+COMPOUND      -0.003    SULFUR    -0.002  MAGNESIU    -0.225   CALCIUMHU<1600
+* MIXTURE : HU<2000
+MATERIAL                       2.0802008                            0.HU<2000
+COMPOUND      -0.034  HYDROGEN    -0.155    CARBON    -0.042  NITROGENHU<2000
+COMPOUND      -0.435    OXYGEN    -0.001    SODIUM    -0.103   PHOSPHOHU<2000
+COMPOUND      -0.003    SULFUR    -0.002  MAGNESIU    -0.225   CALCIUMHU<2000
+* MIXTURE : HU<3070
+MATERIAL                          2.2935                            0.HU<3070
+COMPOUND      -0.034  HYDROGEN    -0.155    CARBON    -0.042  NITROGENHU<3070
+COMPOUND      -0.435    OXYGEN    -0.001    SODIUM    -0.103   PHOSPHOHU<3070
+COMPOUND      -0.003    SULFUR    -0.002  MAGNESIU    -0.225   CALCIUMHU<3070

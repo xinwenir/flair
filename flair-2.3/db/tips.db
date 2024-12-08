@@ -1,0 +1,239 @@
+Axis coordinate system choice.
+The general tendency is to use the Z-axis collinear with the
+beam axis (usually lying on the horizontal plane), and then
+select the vertical and horizontal axis. Flair prefers the
+following convention:
+- X horizontal axis, pointing to the left, with respect
+    to beam direction
+- Y vertical axis, pointing upwards
+- Z beam axis, usually horizontal
+
+All the project frames can be accessed with various ways:
+  i. by selecting the appropriate node in the project tree;
+ ii. with the function F2 - F9 keys.
+iii. with the tool bar buttons
+ iv. From the menu item View
+  v. F4 launches the Geometry Editor
+
+During input editing there are two modes:
+ i. Card mode where you can manipulate the cards as a single
+    object i.e. Move, delete, insert, copy, paste.
+ii. Field editing mode, to modify the contents of a card.
+To start editing the fields of a card, first select the card
+with the Up/Down arrows or Ctrl-F (Find) and press ENTER-key
+to start the field editing mode. To exit editing press
+ESCAPE-key, and you will return to Card mode.
+
+The card display at the bottom of the Input Editing screen
+will start to fill in with the values as you type them,
+highlight with yellow the changes from the previous state.
+The values are always written in floating point format.
+
+In all flair list boxes you can key-in the starting
+characters of the item you are searching and it will
+highlight the first match
+
+"Change To" commands change the type of card, while at the
+same time trying to keep as much as possible from the whats.
+All exceeding whats in the new type will be discarded.
+
+When changing a body name, region name, material, or
+detector all cards that refer to this name will be changed
+also.
+
+To add a comment on a card, right click the card and select
+Insert Comment or from the Input menu select the
+Insert Comment.
+
+Is always a good practice to avoid touching (co-planar)
+bodies in FLUKA. Either try to cut the objects with the use
+of infinite planes, or slightly overlap the bodies and then
+performing the appropriate logical operation in the region
+definition.
+
+In geometry debugging is a good practice not to use even
+numbers as number of steps.
+
+Flair is trying to peak up the run information only by
+looking the status of the output files. It doesn't make use
+of the process information.
+
+The Stop button will try to make a clean stop by creating a
+fluka.stop file in the running directory.
+
+The Kill button will try to issue a kill -SIGHUP command to
+the running process. If you are using a batch system then
+you have to substitute the kill command with the appropriate
+program.
+
+The Attach button tries to re-attach to the running process
+in the case that flair failed to attach correctly, or lost
+the running status.
+
+The Refresh button can be used to update the progress
+information at any moment.
+
+The use of FLUKA code must be acknowledged explicitly by
+quoting the set of references found in the FLUKA manual.
+The use of FLAIR should be acknowledged by using the
+reference to the manual or to the web site.
+
+"Insert" key while editing a REGION shows a searchable
+list of bodies to select from.
+
+Lists in flair are searchable. Type the beginning of the
+item you are looking for and the closest match will be
+highlighted. Spacebar or Ctrl-N or Ctrl-G repeats the last
+search.
+
+Control-Space or Mouse Right-clicking on a card or on a
+listbox you a pop-up menu with the most import actions
+
+You can filter all cards related to a specific
+material/region/body/detector by simply RIGHT-clicking on
+the card and accessing the filter sub-menu.
+
+By pressing the "Insert" key or the [+] button on the
+toolbox, while editing the REGION expression you can insert
+a body.
+
+If you want to view the source particle distribution or
+superimposed on the geometry, make a test run by assigning
+all regions to BLCKHOLE material and use a USERDUMP card
+scoring only the source particles.
+
+Menu item "Filter Invalid", will show only the cards with
+errors in their definition
+
+Menu item "Append Input", can append cards divided in
+categories from other input files in the present input.
+
+Geometry can be used either from an external file or from
+another input file. In the Project frame "Geometry:" field.
+
+Menu item "Show Errors" (or by right-clicking) displays a
+small description of the errors on the present card.
+
+Control-Enter performs the default action of the frame.
+For example in Input Editor it adds a new card, in the
+Run Control it executes the run, and in Plot it creates
+the plot.
+
+To force a square aspect ratio on geometry plots enter 1
+in the ratio entry
+
+New window allows to work on multiple projects and
+exchanging information
+
+To import parts from another input file or project, use the
+import menu command or open the other project on a separate
+window
+
+In the Compile frame the "F" button allows the user to copy
+the default user routines from usermvax directory to the
+project directory. Furthermore the "Scan Input" button will
+scan all cards inside the Input if they request an external
+user routine
+
+In the Plot List frame the "Filter" button scans the data
+files that are generated by the run and proposes one default
+plot for each data file
+
+In some frames like "Usr-1d" and "Run" by selecting multiple
+detectors or runs the fields are disabled. By right clicking
+you can enable/disable the field and modify the information
+for all selected items.
+
+In all file dialogs, in the file entry you can enter
+a pattern do display e.g. *source*
+
+The automatic names of data merged output files is fully
+customizable in the preferences dialog
+
+When new scoring cards are added in an existing input the
+Data Merging panel will not automatically detect them. Press
+the "gear" button to rescan the input file.
+
+Pressing the database button in the "Compile Executable"
+frame, flair can scan your input for the need of user
+routines and copy them directly from the $FLUPRO/usermvax
+directory
+
+When inserting a card inside a block of "hidden" cards,
+flair will try to detect the best place to introduce the new
+card.
+
+Change the "Display" value in the all "Plot" header for
+displaying the results in multiple windows
+
+Ctrl-Enter executes the default action for each frame
+(highlighted with light yellow background)
+
+In the "Plot List" frame, there are two types of "Double
+click". Slow (more than a 1s between the two clicks) and
+Fast. With slow you can edit the item selected and with fast
+it will display the respective panel
+
+You can export your input file to MCNP format or import a
+MCNP format as FLUKA from
+   File->Export->Mcnp
+   File->Import->Mcnp
+
+Double click on the card tag:
+- Normal card: selects all similar cards
+- Preprocessor: selects conditional-block of cards
+- Hidden Card: displays hidden cards
+
+When multiple similar cards are selected, modifying one
+value will be cloned on all selected cards
+
+GeometryEditor: All important shortcuts are located in
+the right hand side of the keyboard. Check the manual.
+
+GeometryEditor: [Shift] selects a region or aligns to grid
+
+GeometryEditor: [Esc] cancel or unselect in the following
+order.
+  i. Cancel current action
+ ii. Unselect any selected body/objects
+iii. Unselect any selected zone
+
+GeometryEditor: [Control] toggles the selection or swaps the
+action (e.g. middle button to pan with Control to rotate)
+
+GeometryEditor: Bodies and objects are not by default
+visible. Select them first and click on (v) to toggle the
+visibility
+
+GeometryEditor: To edit a region remember:
+  i. Switch on the "Edit" mode
+ ii. Either select the zone you want to modify or
+     unselect any zone [Esc] to add a new one
+iii. Select the bodies that are involved in the zone
+     definition
+ iv. Click the "define zone" [d] and click one point inside
+     the zone you want to (re)define
+  v. Repeat from ii-iv
+ vi. Click on Edit to stop the editing mode
+
+GeometryEditor: You can visualize the location and the bin
+size of USRBINs as checkerboxes by adding a layer and
+selecting a USRBIN from the input
+
+GeometryEditor: You can visualize any region quantity like
+importance-biasing, emf thresholds, dpa thresholds etc. by
+creating an appropriate layer and selecting the value to
+display. Don't forget to set also the color range
+
+GeometryEditor: Technical drawings can be superimposed on
+the geometry with the Image layer. Very useful feature to
+check for correctness the geometry
+
+GeometryEditor: 3D layer can be combined with the USRBIN
+layer
+
+Easter egg: Go to "Input" frame and double click with the
+middle button on the card interpretation at the bottom of
+the screen
+
+vim:tw=60:spell
