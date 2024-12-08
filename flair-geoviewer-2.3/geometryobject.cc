@@ -457,6 +457,9 @@ static PyObject* Geometry_destroy(GeometryObject*self)
 	PRINT_SIZE(GVoxel);
 	PRINT_SIZE(GWEDBody);
 	PRINT_SIZE(GTETBody);//For TET, added by zxw
+	PRINT_SIZE(GPYXBody);//For PYX, added by zxw
+	PRINT_SIZE(GPYYBody);//For PYY, added by zxw
+	PRINT_SIZE(GPYZBody);//For PYZ, added by zxw
 	PRINT_SIZE(GZone);
 	PRINT_SIZE(Geometry);
 	PRINT_SIZE(GeometryEngine);

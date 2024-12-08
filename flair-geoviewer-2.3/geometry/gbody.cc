@@ -1679,7 +1679,8 @@ Location GPLABody::_locationWrt(const GBody *body) const
 	} else
 	if (body->type() == BOXbody || body->type() == RPPbody ||
 	    body->type() == WEDbody || body->type() == RAWbody ||
-	    body->type() == ARBbody || body->type() == TETbody) { //For TET, added by zxw
+	    body->type() == ARBbody || body->type() == TETbody || //For TET, added by zxw
+		body->type() == PYXbody || body->type() == PYYbody || body->type() == PYZbody) { //For PY, added by zxw
 		// FIXME normally this check could be done for every object
 		// assuming a safe sagita distance
 		double n = sqrt(Sqr(Q(0).Cx) + Sqr(Q(0).Cy) + Sqr(Q(0).Cz));
