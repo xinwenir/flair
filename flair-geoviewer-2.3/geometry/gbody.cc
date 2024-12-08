@@ -2843,8 +2843,8 @@ int GPYXBody::getWhat(double* what) const
 		V[i] = mesh.vertex(i);
 	}
 	what[0] = V[0].x;
-	what[1] = V[1].y + V[3].y;
-	what[2] = V[1].z + V[3].z;
+	what[1] = (V[1].y + V[3].y) / 2.0;
+	what[2] = (V[1].z + V[3].z) / 2.0;
 
 	what[3] = (V[1].y - V[3].y) / 2.0;
 	what[4] = (V[1].z - V[3].z) / 2.0;
@@ -3050,48 +3050,55 @@ OBBox* GPYXBody::updateOBB(bool in) const
 /* ---------------------------- GPYYBody ------------------------------- */ //For PYX, added by zxw
 void GPYYBody::setWhat(double* what, char* err)
 {
+	//PY_L_X, PY_L_Y, PY_L_Z, PY_H, PY_R
 	fixWhat(what, nWhat(), SMALL);
+	mesh.allocateVertices(8);
+	P.set(what[0], what[ 1], what[ 2]);
 
-	mesh.allocateVertices(4);
+	PY_L_X = what[3];
+	PY_L_Z = what[4];
+	PY_H = what[5];
+	PY_R = what[6];
 
-	// add vertices
-	P.set(what[3], what[4], what[5]); // P.set(what[0], what[1], what[2]);
+	Point V[8];
+	double mi_PY_L_X, mi_PY_L_Z;
+	mi_PY_L_X = PY_L_X * PY_R;
+	mi_PY_L_Z = PY_L_Z * PY_R;
+	V[0].set(P.x + PY_L_X, P.y, P.z - PY_L_Z);
+	V[1].set(P.x + PY_L_X, P.y, P.z + PY_L_Z);
+	V[2].set(P.x - PY_L_X, P.y, P.z + PY_L_Z);
+	V[3].set(P.x - PY_L_X, P.y, P.z - PY_L_Z);
+	V[4].set(P.x + mi_PY_L_X, P.y + PY_H, P.z - mi_PY_L_Z);
+	V[5].set(P.x + mi_PY_L_X, P.y + PY_H, P.z + mi_PY_L_Z);
+	V[6].set(P.x - mi_PY_L_X, P.y + PY_H, P.z + mi_PY_L_Z);
+	V[7].set(P.x - mi_PY_L_X, P.y + PY_H, P.z - mi_PY_L_Z);
+		
+	for (int i = 0; i < 8; i++)
+		mesh.vertex(i) = V[i];
 
-	P1.set(what[0], what[1], what[2]);
-	P2.set(what[6], what[7], what[8]);
-	P3.set(what[9], what[10], what[11]);
-
-	Vector u, v, w;
-	u = P1 - P;
-	v = P2 - P;
-	w = P3 - P;
-
-	X.set(u.x, u.y, u.z);
-	Y.set(v.x, v.y, v.z);
-	Z.set(w.x, w.y, w.z);
-
-	// normalize vectors
-	xlen = X.normalize();
-	ylen = Y.normalize();
-	zlen = Z.normalize();
-
-	for (int i = 0; i < 4; i++)
-		mesh.vertex(i) = Point(what[i * 3], what[i * 3 + 1], what[i * 3 + 2]);
-
-	// checkOrthogonal(err); 
+	checkOrthogonal(err); 
 } // setWhat
 
 /* --- getWhat --- */
 int GPYYBody::getWhat(double* what) const
 {
-	int w = 0;
-	for (int i = 0; i < 4; i++)
+	Point V[8];
+	for (int i = 0; i < 8; i++)
 	{
-		what[w++] = mesh.vertex(i).x;
-		what[w++] = mesh.vertex(i).y;
-		what[w++] = mesh.vertex(i).z;
+		V[i] = mesh.vertex(i);
 	}
-	return 12;
+	what[0] = (V[1].x + V[3].x) / 2.0;
+	what[1] = V[0].y;
+	what[2] = (V[1].z + V[3].z) / 2.0;
+
+	what[3] = (V[1].x - V[3].x) / 2.0;
+	what[4] = (V[1].z - V[3].z) / 2.0;
+
+	what[5] = V[4].y - V[0].y;
+
+	what[6] = double((V[5].z - V[7].z) / (V[1].z - V[3].z));
+
+	return 7;
 } // getWhat
 
 /** move body item to location
@@ -3127,57 +3134,101 @@ void GPYYBody::rotate(const double angle, const Vector& axis)
 /** create Quads */
 void GPYYBody::createQuads()
 {
-	Point V[4];
+	Point V[8];
 	if (mesh.isEmpty())
 	{
-		mesh.allocateVertices(4);
+		mesh.allocateVertices(8);
 		return;
 	}
 	else
 	{
-		for (int j = 0; j < 4; j++)
+		for (int j = 0; j < 8; j++)
 		{
 			V[j] = mesh.vertex(j);
 		}
 	}
-	// create quads
-	Vector N1 = (V[0] - V[1]) ^ (V[2] - V[1]);
-	Vector N2 = (V[3] - V[1]) ^ (V[2] - V[1]);
-	Vector N3 = (V[0] - V[1]) ^ (V[3] - V[1]);
-	Vector N4 = (V[3] - V[2]) ^ (V[0] - V[2]);
 
-	N1.normalize();
-	N2.normalize();
-	N3.normalize();
-	N4.normalize();
+	if (V[4] == V[5] && V[4] == V[6] && V[4] == V[7]){
+		// create quads
+		Vector N1 = V[4] - V[0];
+		Vector N2 = (V[0] - V[4]) ^ (V[3] - V[4]);
+		Vector N3 = (V[3] - V[4]) ^ (V[2] - V[4]);
+		Vector N4 = (V[2] - V[4]) ^ (V[1] - V[4]);
+		Vector N5 = (V[1] - V[4]) ^ (V[0] - V[4]);
+		N1.normalize();
+		N2.normalize();
+		N3.normalize();
+		N4.normalize();
+		N5.normalize();
+		// 5 planes will be
+		//        Cx    Cy    Cz      C
+		addQuad(N1.x, N1.y, N1.z, -N1 * V[0]);
+		addQuad(N2.x, N2.y, N2.z, -N2 * V[4]);
+		addQuad(N3.x, N3.y, N3.z, -N3 * V[4]);
+		addQuad(N4.x, N4.y, N4.z, -N4 * V[4]);
+		addQuad(N5.x, N5.y, N5.z, -N5 * V[4]);
+	} 
+	else{
+		// create quads
+		Vector N1 = (V[1] - V[0]) ^ (V[3] - V[0]);
+		Vector N2 = (V[3] - V[0]) ^ (V[4] - V[0]);
+		Vector N3 = (V[0] - V[1]) ^ (V[5] - V[1]);
+		Vector N4 = (V[1] - V[2]) ^ (V[6] - V[2]);
+		Vector N5 = (V[2] - V[3]) ^ (V[7] - V[3]);
+		Vector N6 = (V[7] - V[4]) ^ (V[5] - V[4]);
 
-	// 4 planes will be
-	//        Cx     Cy     Cz      C
-	// addQuad(N1.x, N1.y, N1.z, -N1 * V[1]);
-	// addQuad(-N2.x, -N2.y, -N2.z, N2 * V[1]);
-	// addQuad(-N3.x, -N3.y, -N3.z, N3 * V[1]);
-	// addQuad(-N4.x, -N4.y, -N4.z, N4 * V[2]);
-	addQuad(-N1.x, -N1.y, -N1.z, N1 * V[1]);
-	addQuad(N2.x, N2.y, N2.z, -N2 * V[1]);
-	addQuad(N3.x, N3.y, N3.z, -N3 * V[1]);
-	addQuad(N4.x, N4.y, N4.z, -N4 * V[2]);
+		N1.normalize();
+		N2.normalize();
+		N3.normalize();
+		N4.normalize();
+		N5.normalize();
+		N6.normalize();
+		// 6 planes will be
+		//        Cx    Cy    Cz      C
+		addQuad(N1.x, N1.y, N1.z, -N1 * V[0]);
+		addQuad(N2.x, N2.y, N2.z, -N2 * V[0]);
+		addQuad(N3.x, N3.y, N3.z, -N3 * V[1]);
+		addQuad(N4.x, N4.y, N4.z, -N4 * V[2]);
+		addQuad(N5.x, N5.y, N5.z, -N5 * V[3]);
+		addQuad(N6.x, N6.y, N5.z, -N6 * V[4]);
+	}
 } // createQuads
 
 /* createMesh */
 void GPYYBody::createMesh()
 {
-	// if (mesh.nedges())
-	// 	return;
-	Point V[4];
-	for (int j = 0; j < 4; j++)
+	Point V[8];
+	for (int j = 0; j < 8; j++)
 	{
 		V[j] = mesh.vertex(j);
 	}
+	if (V[4] == V[5] && V[4] == V[6] && V[4] == V[7]){
+		mesh.add(0, 1, 2, true, true, false);
+		mesh.add(2, 3, 0, true, true, false);
+		mesh.add(0, 4, 3, true, true, true);
+		mesh.add(1, 4, 0, true, true, true);
+		mesh.add(2, 4, 1, true, true, true);
+		mesh.add(3, 4, 2, true, true, true);
+	}
+	else{
+		mesh.add(0, 1, 2, true, true, false);
+		mesh.add(2, 3, 0, true, true, false);
 
-	mesh.add(0, 1, 2, true, true, true);
-	mesh.add(0, 2, 3, true, true, true);
-	mesh.add(0, 3, 1, true, true, true);
-	mesh.add(1, 3, 2, true, true, true);
+		mesh.add(4, 5, 6, true, true, false);
+		mesh.add(6, 7, 4, true, true, false);
+
+		mesh.add(0, 4, 7, true, true, false);
+		mesh.add(7, 3, 0, true, true, false);
+
+		mesh.add(1, 5, 4, true, true, false);
+		mesh.add(4, 0, 1, true, true, false);
+
+		mesh.add(2, 6, 5, true, true, false);
+		mesh.add(5, 1, 2, true, true, false);
+
+		mesh.add(3, 7, 6, true, true, false);
+		mesh.add(6, 2, 3, true, true, false);
+	}
 
 	mesh.calcBbox();
 	mesh.process();
@@ -3185,31 +3236,13 @@ void GPYYBody::createMesh()
 	assert(mesh.isOrientable());
 #if _DEBUG > 2
 	cout << endl;
-	cout << "TET Mesh ";
+	cout << "PYY Mesh ";
 	cout << "isClosed=" << mesh.isClosed();
 	cout << "isOrientable=" << mesh.isOrientable() << endl;
-	cout << "TET volume=" << mesh.volume() << endl;
+	cout << "PYY volume=" << mesh.volume() << endl;
 #endif
 } // createMesh
 
-/** @return bounding box of body */
-BBox GPYYBody::_bbox() const
-{
-	BBox bb;
-	Point V[4];
-	for (int j = 0; j < 4; j++)
-	{
-		V[j] = mesh.vertex(j);
-	}
-	Point p;
-	p = V[1];
-
-	bb.add(V[0].x - p.x, V[0].y - p.y, V[0].z - p.z);
-	bb.add(V[2].x - p.x, V[2].y - p.y, V[2].z - p.z);
-	bb.add(V[3].x - p.x, V[3].y - p.y, V[3].z - p.z);
-
-	return bb;
-} // bbox
 
 /** @return oriented bounding box of body */
 OBBox* GPYYBody::updateOBB(bool in) const
@@ -3241,47 +3274,52 @@ OBBox* GPYYBody::updateOBB(bool in) const
 void GPYZBody::setWhat(double* what, char* err)
 {
 	fixWhat(what, nWhat(), SMALL);
+	mesh.allocateVertices(8);
+	P.set(what[0], what[ 1], what[ 2]);
 
-	mesh.allocateVertices(4);
+	PY_L_X = what[3];
+	PY_L_Y = what[4];
+	PY_H = what[5];
+	PY_R = what[6];
 
-	// add vertices
-	P.set(what[3], what[4], what[5]); // P.set(what[0], what[1], what[2]);
+	Point V[8];
+	double mi_PY_L_X, mi_PY_L_Y;
+	mi_PY_L_X = PY_L_X * PY_R;
+	mi_PY_L_Y = PY_L_Y * PY_R;
+	V[0].set(P.x + PY_L_X, P.y - PY_L_Y, P.z);
+	V[1].set(P.x + PY_L_X, P.y + PY_L_Y, P.z);
+	V[2].set(P.x - PY_L_X, P.y + PY_L_Y, P.z);
+	V[3].set(P.x - PY_L_X, P.y - PY_L_Y, P.z);
+	V[4].set(P.x + mi_PY_L_X, P.y - mi_PY_L_Y, P.z + PY_H);
+	V[5].set(P.x + mi_PY_L_X, P.y + mi_PY_L_Y, P.z + PY_H);
+	V[6].set(P.x - mi_PY_L_X, P.y + mi_PY_L_Y, P.z + PY_H);
+	V[7].set(P.x - mi_PY_L_X, P.y - mi_PY_L_Y, P.z + PY_H);
+		
+	for (int i = 0; i < 8; i++)
+		mesh.vertex(i) = V[i];
 
-	P1.set(what[0], what[1], what[2]);
-	P2.set(what[6], what[7], what[8]);
-	P3.set(what[9], what[10], what[11]);
-
-	Vector u, v, w;
-	u = P1 - P;
-	v = P2 - P;
-	w = P3 - P;
-
-	X.set(u.x, u.y, u.z);
-	Y.set(v.x, v.y, v.z);
-	Z.set(w.x, w.y, w.z);
-
-	// normalize vectors
-	xlen = X.normalize();
-	ylen = Y.normalize();
-	zlen = Z.normalize();
-
-	for (int i = 0; i < 4; i++)
-		mesh.vertex(i) = Point(what[i * 3], what[i * 3 + 1], what[i * 3 + 2]);
-
-	// checkOrthogonal(err); 
+	checkOrthogonal(err); 
 } // setWhat
 
 /* --- getWhat --- */
 int GPYZBody::getWhat(double* what) const
 {
-	int w = 0;
-	for (int i = 0; i < 4; i++)
+	Point V[8];
+	for (int i = 0; i < 8; i++)
 	{
-		what[w++] = mesh.vertex(i).x;
-		what[w++] = mesh.vertex(i).y;
-		what[w++] = mesh.vertex(i).z;
+		V[i] = mesh.vertex(i);
 	}
-	return 12;
+	what[0] = (V[1].x + V[3].x) / 2.0;
+	what[1] = (V[1].y + V[3].y) / 2.0;
+	what[2] = V[0].z;
+
+	what[3] = (V[1].x - V[3].x) / 2.0;
+	what[4] = (V[1].y - V[3].y) / 2.0;
+
+	what[5] = V[4].z - V[0].z;
+
+	what[6] = double((V[5].x - V[7].x) / (V[1].x - V[3].x));
+	return 7;
 } // getWhat
 
 /** move body item to location
@@ -3317,57 +3355,101 @@ void GPYZBody::rotate(const double angle, const Vector& axis)
 /** create Quads */
 void GPYZBody::createQuads()
 {
-	Point V[4];
+	Point V[8];
 	if (mesh.isEmpty())
 	{
-		mesh.allocateVertices(4);
+		mesh.allocateVertices(8);
 		return;
 	}
 	else
 	{
-		for (int j = 0; j < 4; j++)
+		for (int j = 0; j < 8; j++)
 		{
 			V[j] = mesh.vertex(j);
 		}
 	}
-	// create quads
-	Vector N1 = (V[0] - V[1]) ^ (V[2] - V[1]);
-	Vector N2 = (V[3] - V[1]) ^ (V[2] - V[1]);
-	Vector N3 = (V[0] - V[1]) ^ (V[3] - V[1]);
-	Vector N4 = (V[3] - V[2]) ^ (V[0] - V[2]);
 
-	N1.normalize();
-	N2.normalize();
-	N3.normalize();
-	N4.normalize();
+	if (V[4] == V[5] && V[4] == V[6] && V[4] == V[7]){
+		// create quads
+		Vector N1 = V[4] - V[0];
+		Vector N2 = (V[0] - V[4]) ^ (V[3] - V[4]);
+		Vector N3 = (V[3] - V[4]) ^ (V[2] - V[4]);
+		Vector N4 = (V[2] - V[4]) ^ (V[1] - V[4]);
+		Vector N5 = (V[1] - V[4]) ^ (V[0] - V[4]);
+		N1.normalize();
+		N2.normalize();
+		N3.normalize();
+		N4.normalize();
+		N5.normalize();
+		// 5 planes will be
+		//        Cx    Cy    Cz      C
+		addQuad(N1.x, N1.y, N1.z, -N1 * V[0]);
+		addQuad(N2.x, N2.y, N2.z, -N2 * V[4]);
+		addQuad(N3.x, N3.y, N3.z, -N3 * V[4]);
+		addQuad(N4.x, N4.y, N4.z, -N4 * V[4]);
+		addQuad(N5.x, N5.y, N5.z, -N5 * V[4]);
+	} 
+	else{
+		// create quads
+		Vector N1 = (V[1] - V[0]) ^ (V[3] - V[0]);
+		Vector N2 = (V[3] - V[0]) ^ (V[4] - V[0]);
+		Vector N3 = (V[0] - V[1]) ^ (V[5] - V[1]);
+		Vector N4 = (V[1] - V[2]) ^ (V[6] - V[2]);
+		Vector N5 = (V[2] - V[3]) ^ (V[7] - V[3]);
+		Vector N6 = (V[7] - V[4]) ^ (V[5] - V[4]);
 
-	// 4 planes will be
-	//        Cx     Cy     Cz      C
-	// addQuad(N1.x, N1.y, N1.z, -N1 * V[1]);
-	// addQuad(-N2.x, -N2.y, -N2.z, N2 * V[1]);
-	// addQuad(-N3.x, -N3.y, -N3.z, N3 * V[1]);
-	// addQuad(-N4.x, -N4.y, -N4.z, N4 * V[2]);
-	addQuad(-N1.x, -N1.y, -N1.z, N1 * V[1]);
-	addQuad(N2.x, N2.y, N2.z, -N2 * V[1]);
-	addQuad(N3.x, N3.y, N3.z, -N3 * V[1]);
-	addQuad(N4.x, N4.y, N4.z, -N4 * V[2]);
+		N1.normalize();
+		N2.normalize();
+		N3.normalize();
+		N4.normalize();
+		N5.normalize();
+		N6.normalize();
+		// 6 planes will be
+		//        Cx    Cy    Cz      C
+		addQuad(N1.x, N1.y, N1.z, -N1 * V[0]);
+		addQuad(N2.x, N2.y, N2.z, -N2 * V[0]);
+		addQuad(N3.x, N3.y, N3.z, -N3 * V[1]);
+		addQuad(N4.x, N4.y, N4.z, -N4 * V[2]);
+		addQuad(N5.x, N5.y, N5.z, -N5 * V[3]);
+		addQuad(N6.x, N6.y, N5.z, -N6 * V[4]);
+	}
 } // createQuads
 
 /* createMesh */
 void GPYZBody::createMesh()
 {
-	// if (mesh.nedges())
-	// 	return;
-	Point V[4];
-	for (int j = 0; j < 4; j++)
+	Point V[8];
+	for (int j = 0; j < 8; j++)
 	{
 		V[j] = mesh.vertex(j);
 	}
+	if (V[4] == V[5] && V[4] == V[6] && V[4] == V[7]){
+		mesh.add(0, 1, 2, true, true, false);
+		mesh.add(2, 3, 0, true, true, false);
+		mesh.add(0, 4, 3, true, true, true);
+		mesh.add(1, 4, 0, true, true, true);
+		mesh.add(2, 4, 1, true, true, true);
+		mesh.add(3, 4, 2, true, true, true);
+	}
+	else{
+		mesh.add(0, 1, 2, true, true, false);
+		mesh.add(2, 3, 0, true, true, false);
 
-	mesh.add(0, 1, 2, true, true, true);
-	mesh.add(0, 2, 3, true, true, true);
-	mesh.add(0, 3, 1, true, true, true);
-	mesh.add(1, 3, 2, true, true, true);
+		mesh.add(4, 5, 6, true, true, false);
+		mesh.add(6, 7, 4, true, true, false);
+
+		mesh.add(0, 4, 7, true, true, false);
+		mesh.add(7, 3, 0, true, true, false);
+
+		mesh.add(1, 5, 4, true, true, false);
+		mesh.add(4, 0, 1, true, true, false);
+
+		mesh.add(2, 6, 5, true, true, false);
+		mesh.add(5, 1, 2, true, true, false);
+
+		mesh.add(3, 7, 6, true, true, false);
+		mesh.add(6, 2, 3, true, true, false);
+	}
 
 	mesh.calcBbox();
 	mesh.process();
@@ -3375,31 +3457,12 @@ void GPYZBody::createMesh()
 	assert(mesh.isOrientable());
 #if _DEBUG > 2
 	cout << endl;
-	cout << "TET Mesh ";
+	cout << "PYZ Mesh ";
 	cout << "isClosed=" << mesh.isClosed();
 	cout << "isOrientable=" << mesh.isOrientable() << endl;
-	cout << "TET volume=" << mesh.volume() << endl;
+	cout << "PYZ volume=" << mesh.volume() << endl;
 #endif
 } // createMesh
-
-/** @return bounding box of body */
-BBox GPYZBody::_bbox() const
-{
-	BBox bb;
-	Point V[4];
-	for (int j = 0; j < 4; j++)
-	{
-		V[j] = mesh.vertex(j);
-	}
-	Point p;
-	p = V[1];
-
-	bb.add(V[0].x - p.x, V[0].y - p.y, V[0].z - p.z);
-	bb.add(V[2].x - p.x, V[2].y - p.y, V[2].z - p.z);
-	bb.add(V[3].x - p.x, V[3].y - p.y, V[3].z - p.z);
-
-	return bb;
-} // bbox
 
 /** @return oriented bounding box of body */
 OBBox* GPYZBody::updateOBB(bool in) const
