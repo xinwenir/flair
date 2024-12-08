@@ -140,7 +140,8 @@ def newBody(tag, xyz, size, matrix):
 		what.append(-size*w[0])
 		what.append(-size*w[1])
 		what.append(-size*w[2])
-	#-------------------------zxw20241031--For ARB, added by zxw	
+		
+	#-------------------------zxw20241031--For ARB, added by zxw 	  
 	elif tag == "ARB":
 		what.append(xyz[0]+0)
 		what.append(xyz[1]+0)
@@ -173,11 +174,11 @@ def newBody(tag, xyz, size, matrix):
 
 		what.append(1234)
 		what.append(1562)
-		what.append(5876)
-		what.append(1485)
-		what.append(4378)
-		what.append(6732)
-	
+		what.append(2673)
+		what.append(3784)
+		what.append(4851)
+		what.append(8765)
+
 	elif tag in ("WED", "RAW"):
 		what.extend(list(xyz))
 		what.extend( size*u)

@@ -1740,17 +1740,17 @@ class GeometryViewer(Frame):
 	def actionAdd(self, event):
 		if self.action in (ACTION_MOVE, ACTION_ROTATE, ACTION_ADD_NEXT): return
 
-		u,v = self._viewer.pixel2uv(event.x, event.y)
+		u,v = self._viewer.pixel2uv(event.x, event.y) # Convert image pixel coordinates (i,j) to viewport (u,v)
 		if self.snap(event):
-			xyz = self._viewer.snap(u, v)
+			xyz = self._viewer.snap(u, v) # Return closest rounded position aligned to grid
 		else:
-			xyz = self._viewer.pixel2xyz(event.x, event.y)
+			xyz = self._viewer.pixel2xyz(event.x, event.y)# Convert image pixel coordinates (i,j) to real (x,y,z)
 
 		self._viewer.edit("start", ((u,v), self.snap(event)))
 		self.parent.stopThreads()
 
-		grid_size = self._viewer.grid("size")[0]
-		matrix    = self._viewer.matrix()
+		grid_size = self._viewer.grid("size")[0] # Return grid settings 100.0
+		matrix    = self._viewer.matrix() # Return transformation matrix[16] = {1.0, 0.0, 0.0, 0.0;	0.0, 1.0, 0.0, 0.0;	0.0, 0.0, 1.0, 0.0;	0.0, 0.0, 0.0, 1.0};
 		self.__opt = 0
 		self.__x   = self.x
 		self.__y   = self.y

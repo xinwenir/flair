@@ -580,7 +580,7 @@ def readIni():
 	Input.infinite = getFloat(section, "infinite",	Input.infinite)
 	Input._useQUA  = getBool(section,   "usequa",	Input._useQUA)
 	Input._useBOX  = getBool(section,   "usebox",	Input._useBOX)
-	#Input._useBOX  = True
+	Input._useBOX  = True
 #	GeometryViewer.LAPTOP       = getBool(section, "laptop",      GeometryViewer.LAPTOP)
 #	GeometryViewer.INVERTWHEEL  = getBool(section, "invertwheel", GeometryViewer.INVERTWHEEL)
 #	GeometryViewer.PINZOOM      = getBool(section, "pinzoom",     GeometryViewer.PINZOOM)
