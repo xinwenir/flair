@@ -126,7 +126,7 @@ def newBody(tag, xyz, size, matrix):
 		what.extend( size*u)
 		what.extend( size*v)
 		what.extend(-size*w)
-	#-------------------------zxw20240827--For TET, added by zxw	
+	#-------------------------20240827--For TET, added by zxw	
 	elif tag == "TET":
 		what.append(size*u[0])
 		what.append(size*u[1])
@@ -141,7 +141,7 @@ def newBody(tag, xyz, size, matrix):
 		what.append(-size*w[1])
 		what.append(-size*w[2])
 		
-	#-------------------------zxw20241031--For ARB, added by zxw 	  
+	#-------------------------20241031--For ARB, added by zxw 	  
 	elif tag == "ARB":
 		what.append(xyz[0]+0)
 		what.append(xyz[1]+0)
@@ -178,7 +178,18 @@ def newBody(tag, xyz, size, matrix):
 		what.append(3784)
 		what.append(4851)
 		what.append(8765)
+	#-------------------------20241208--For PY, added by zxw 	  
+	elif tag in ("PYX", "PYY", "PYZ"):
+		what.append(xyz[0])
+		what.append(xyz[1])
+		what.append(xyz[2])
 
+		what.append(size) # one of L_x, L_y, L_z
+		what.append(size) # another one of L_x, L_y, L_z
+
+		what.append(size*0.8) # H
+		what.append(0.0) # R
+		
 	elif tag in ("WED", "RAW"):
 		what.extend(list(xyz))
 		what.extend( size*u)

@@ -3601,6 +3601,60 @@ what     V4z of the fourth vertex;
 what     body name;
 meaning  Right Angle Wedge;
 
+name     PYX
+# ------------------------
+group    Geometry
+type     simple
+disable  ifendif
+
+range    r r r r r r c8 r
+defaults - - - - - - - - 
+what     V_x coordinates of the centre of the major base;
+what     V_y coordinates of the centre of the major base;
+what     V_z coordinates of the centre of the major base;
+what     L_y half-lengths of the sides of the major base;
+what     L_z half-lengths of the sides of the major base;
+what     H of the height for the pyramid;
+what     body name;
+what     R of ratio between the sides of the minor base and the sides of the major base;
+meaning  Pyramid parallel to the X-axis;
+
+name     PYY
+# ------------------------
+group    Geometry
+type     simple
+disable  ifendif
+
+range    r r r r r r c8 r
+defaults - - - - - - - - 
+what     V_x coordinates of the centre of the major base;
+what     V_y coordinates of the centre of the major base;
+what     V_z coordinates of the centre of the major base;
+what     L_x half-lengths of the sides of the major base;
+what     L_z half-lengths of the sides of the major base;
+what     H of the height for the pyramid;
+what     body name;
+what     R of ratio between the sides of the minor base and the sides of the major base;
+meaning  Pyramid parallel to the X-axis;
+
+name     PYZ
+# ------------------------
+group    Geometry
+type     simple
+disable  ifendif
+
+range    r r r r r r c8 r
+defaults - - - - - - - - 
+what     V_x coordinates of the centre of the major base;
+what     V_y coordinates of the centre of the major base;
+what     V_z coordinates of the centre of the major base;
+what     L_x half-lengths of the sides of the major base;
+what     L_y half-lengths of the sides of the major base;
+what     H of the height for the pyramid;
+what     body name;
+what     R of ratio between the sides of the minor base and the sides of the major base;
+meaning  Pyramid parallel to the X-axis;
+
 name     WED
 # ------------------------
 group    Geometry

@@ -880,9 +880,13 @@ def bodiesMenu(menu, callback):
 	menu.add_command(label="Box",state=DISABLED)
 	_addCommand("RPP", 0)	# R
 	if Input._useBOX:
-		_addCommand("WED", 0)	# W
 		_addCommand("RAW")
-
+		
+	menu.add_command(label="Pyramid",state=DISABLED)
+	_addCommand("PYX", 2)
+	_addCommand("PYY", 2)
+	_addCommand("PYZ", 2)
+	
 	menu.add_command(label="Sphere",state=DISABLED)
 	_addCommand("SPH", 0)	# S
 
@@ -900,44 +904,44 @@ def bodiesMenu(menu, callback):
 		_addCommand("TRX")
 		_addCommand("TRZ")
 
-	menu.add_command(label="",state=DISABLED)
-
 	# Second column
 	if menu["tearoff"]:
-		menu.add_command(label="",state=DISABLED)
+		menu.add_command(label="",state=DISABLED)  # Plane
 		menu["tearoffcommand"] = _bodiesMenuTearOff
 
+	menu.add_command(label="",state=DISABLED)  # Plane
 	_addCommand("XZP", 1)	# Y
 	_addCommand("PLA", 0)	# P
 
-	menu.add_command(label="",state=DISABLED)
-	_addCommand("TET", 0) #-----------------------zxw20240822----For TET, added by zxw
+	menu.add_command(label="",state=DISABLED) # box
 	if Input._useBOX:		
 		_addCommand("BOX", 0)	# B
-		menu.add_command(label="",state=DISABLED)
+		_addCommand("WED", 0)	# W
 
+	menu.add_command(label="",state=DISABLED) # Pyramid
+	_addCommand("TET", 0) #-----------------------20240822----For TET, added by zxw
+	_addCommand("ARB")
 	menu.add_command(label="",state=DISABLED)
+
+	menu.add_command(label="",state=DISABLED) #sphere
 	_addCommand("ELL", 1)	# L
 
-	menu.add_command(label="",state=DISABLED)
+	menu.add_command(label="",state=DISABLED) #cylinder
 	_addCommand("REC", 1)	# E
 	_addCommand("XEC")
 	_addCommand("YEC")
 	_addCommand("ZEC")
 	menu.add_command(label="",state=DISABLED)
+
+	menu.add_command(label="",state=DISABLED) # other
 	menu.add_command(label="",state=DISABLED)
-
-	if Input._useBOX:
-		_addCommand("ARB")
-	else:
-		menu.add_command(label="",state=DISABLED)
-
-	column = 15
+		
+	column = 19
 	if Input._developer:
 		_addCommand("TRY")
 		column += 2
-
-	if Input._useBOX: column += 2
+		
+	if Input._useBOX: column += 1
 	if menu["tearoff"]: column += 1
 	menu.entryconfigure(column, columnbreak=1)
 

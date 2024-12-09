@@ -224,7 +224,7 @@ _ELL_prop = [	("F1x",   1),
 		("@Rminor",-5)]
 
 #--------------------------------------------------------For TET, added by zxw
-#ZXW-20240816-right-angled rahedron
+#20240816-right-angled rahedron
 _TET_prop = [	
 		("V1x",   1),
 		("V1y",   2),
@@ -242,8 +242,33 @@ _TET_prop = [
 		# ("@Dy",  -2),
 		# ("@Dz",  -3)]
 #---------------------------------------------------------
+#--------------------------------------------------------For PY, added by zxw
+_PYX_prop = [	("V_x",     1),
+		("V_y",     2),
+		("V_z",     3),
+		("L_y",    4),
+		("L_z",    5),
+		("H",     6),
+		("R",     7)]
 
-_WED_prop = [	("x",     1),
+_PYY_prop = [	("V_x",     1),
+		("V_y",     2),
+		("V_z",     3),
+		("L_x",    4),
+		("L_z",    5),
+		("H",     6),
+		("R",     7)]
+
+_PYZ_prop = [	 ("v_x",     1),
+		("v_y",     2),
+		("v_z",     3),
+		("L_x",    4),
+		("L_y",    5),
+		("H",     6),
+		("R",     7)]
+
+#---------------------------------------------------------
+_WED_prop = [   ("x",     1),
 		("y",     2),
 		("z",     3),
 		("H1x",   4),
@@ -385,7 +410,11 @@ _BODIES = {	"ARB": _ARB_prop,
 		"TRY": _TRXYZ_prop,
 		"TRZ": _TRXYZ_prop,
 		"VOXELS" : _VOXEL_prop,
-		"TET": _TET_prop }
+		"TET": _TET_prop, # 20240810-------------------for TET, added by zxw 
+		"PYX": _PYX_prop, # 20241209-------------------for PYX, added by zxw 
+		"PYY": _PYY_prop, # 20241209-------------------for PYY, added by zxw
+		"PYZ": _PYZ_prop} # 20241209-------------------for PYZ, added by zxw
+
 
 _POINT_prop = [ ("option",	4),
 		("anchor",	5),
@@ -807,7 +836,7 @@ class BodyProperties(Properties):
 					if c.tag == "RPP":
 						undoinfo.append(
 							self.flair.setWhatUndo(c, 2, val+c.numWhat(1)))
-					# elif c.tag == "TET": #zxw20240830 -------------For TET, added by zxw
+					# elif c.tag == "TET": #20240830 -------------For TET, added by zxw
 					# 	V = c.bodyP()
 					# 	undoinfo.append(self.flair.setWhatUndo(c, 1, V[0]))
 					# 	undoinfo.append(self.flair.setWhatUndo(c, 2, V[1]))
@@ -846,7 +875,7 @@ class BodyProperties(Properties):
 						undoinfo.append(
 							self.flair.setWhatUndo(
 								c, 4, val+c.numWhat(3)))
-					# elif c.tag == "TET": #zxw20240830------------For TET, added by zxw
+					# elif c.tag == "TET": #20240830------------For TET, added by zxw
 					# 	V = c.bodyPn(3)
 					# 	undoinfo.append(self.flair.setWhatUndo(c, 7, V[0]))
 					# 	undoinfo.append(self.flair.setWhatUndo(c, 8, V[1]))
@@ -885,7 +914,7 @@ class BodyProperties(Properties):
 						undoinfo.append(
 							self.flair.setWhatUndo(
 								c, 6, val+c.numWhat(5)))
-					# elif c.tag == "TET": #zxw20240830-------For TET, added by zxw
+					# elif c.tag == "TET": #20240830-------For TET, added by zxw
 					# 	V = c.bodyPn(4)
 					# 	undoinfo.append(self.flair.setWhatUndo(c, 10, V[0]))
 					# 	undoinfo.append(self.flair.setWhatUndo(c, 11, V[1]))
@@ -2714,7 +2743,7 @@ class GeometryEditor(FlairRibbon.FlairPage):
 		b.grid(row=row, column=col, padx=0, pady=0, sticky=EW)
 		tkExtra.Balloon.set(b, "Calculate volume of selected regions")
 
-		# ---ZXW20240816-----------------------For TET added by zxw
+		# ---20240816-----------------------For TET added by zxw
 		col,row=1,1
 		b = Ribbon.LabelButton(group.frame,
 				image=tkFlair.icons["TET"],
@@ -2727,7 +2756,45 @@ class GeometryEditor(FlairRibbon.FlairPage):
 		if Input._developer: b["state"] = NORMAL
 		b.grid(row=row, column=col, padx=0, pady=0, sticky=EW)
 		tkExtra.Balloon.set(b, "Calculate volume of selected regions")
+		
+		# ---20241208-----------------------For PYX added by zxw
+		b = Ribbon.LabelButton(group.frame,
+				image=tkFlair.icons["PYX"],
+				text="Volume",
+				compound=LEFT,
+				state=DISABLED,
+				anchor=W,
+				command=self.regionVolume, 
+				background=Ribbon._BACKGROUND)
+		if Input._developer: b["state"] = NORMAL
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=EW)
+		tkExtra.Balloon.set(b, "Calculate volume of selected regions")
 
+		# ---20241208-----------------------For PYX added by zxw
+		b = Ribbon.LabelButton(group.frame,
+				image=tkFlair.icons["PYY"],
+				text="Volume",
+				compound=LEFT,
+				state=DISABLED,
+				anchor=W,
+				command=self.regionVolume, 
+				background=Ribbon._BACKGROUND)
+		if Input._developer: b["state"] = NORMAL
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=EW)
+		tkExtra.Balloon.set(b, "Calculate volume of selected regions")
+
+		# ---20241208-----------------------For PYX added by zxw
+		b = Ribbon.LabelButton(group.frame,
+				image=tkFlair.icons["PYZ"],
+				text="Volume",
+				compound=LEFT,
+				state=DISABLED,
+				anchor=W,
+				command=self.regionVolume, 
+				background=Ribbon._BACKGROUND)
+		if Input._developer: b["state"] = NORMAL
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=EW)
+		tkExtra.Balloon.set(b, "Calculate volume of selected regions")
 		# ---
 		col,row=0,2
 		b = Ribbon.LabelButton(group.frame,

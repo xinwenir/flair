@@ -855,7 +855,7 @@ _ELL_layout4 = [
 		("L:",		7),
 		_None2,
 		_None2 ]
-#-------------------------------- TET ------------------zxw20240827--For TET, added by zxw
+#-------------------------------- TET ------------------20240827--For TET, added by zxw
 _TET_layout4 = [
 	(None,			0),
 		("V1x:",	1),
@@ -873,6 +873,49 @@ _TET_layout4 = [
 		("V4x:",	10),
 		("V4y:",	11),
 		("V4z:",	12) ]
+
+#-------------------------------- PY ------------------20240827--For PY, added by zxw ????????????????
+_PYX_layout4 = [
+	(None,			0),
+		("V_x:",	    1),
+		("V_y:",	    2),
+		("V_z:",	    3),
+	_None2,
+		("L_y:",	    4),
+		("L_z:",	    5),
+		("H:",  	6),
+	_None2,
+		("R:",	    7),
+		_None2,
+	    _None2]
+
+_PYY_layout4 = [
+	(None,			0),
+		("V_x:",	    1),
+		("V_y:",	    2),
+		("V_z:",	    3),
+	_None2,
+		("L_x:",	    4),
+		("L_z:",	    5),
+		("H:",  	6),
+	_None2,
+		("R:",	    7),
+		_None2,
+	    _None2]
+
+_PYZ_layout4 = [
+	(None,			0),
+		("V_x:",	    1),
+		("V_y:",	    2),
+		("V_z:",	    3),
+	_None2,
+		("L_x:",	    4),
+		("L_y:",	    5),
+		("H:",  	6),
+	_None2,
+		("R:",	    7),
+		_None2,
+	    _None2]
 
 #-------------------------------- WED ------------------------------------------
 _WED_layout4 = [
@@ -4990,7 +5033,10 @@ def init():
 		( "GEOBEGIN"  , _GEOBEGIN_layout4 ),
 		( "VOXELS"    , _VOXELS_layout4   ),
 		( "&RPP"      , _RPP_layout4      ),
-		( "&TET"      , _TET_layout4      ), #ZXW20240830-----For TET, added by zxw
+		( "&TET"      , _TET_layout4      ), #20240830-----For TET, added by zxw
+		( "&PYX"      , _PYX_layout4      ), #20241208-----For PYX, added by zxw
+		( "&PYY"      , _PYY_layout4      ), #20241208-----For PYY, added by zxw
+		( "&PYZ"      , _PYZ_layout4      ), #20241208-----For PYZ, added by zxw
 		( "&BOX"      , _BOX_layout4      ),
 		( "&SPH"      , _SPH_layout4      ),
 		( "R&CC"      , _RCC_layout4      ),

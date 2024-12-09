@@ -261,7 +261,7 @@ def exportBodies(fout, input):
 			fout.write("box {<%.16g,%.16g,%.16g>, <%.16g,%.16g,%.16g>}\n" % \
 				(-card.numWhat(1), card.numWhat(3), card.numWhat(5), \
 				 -card.numWhat(2), card.numWhat(4), card.numWhat(6)))
-		#-----------------------------------------------------------------------zxw20240827----For TET, added by zxw
+		#-----------------------------------------------------------------------20240827----For TET, added by zxw
 		elif   card.tag == "TET":
 			P  = card.bodyP1()
 			V1 = card.bodyP2()
@@ -270,6 +270,11 @@ def exportBodies(fout, input):
 			fout.write("box {<%.16g,%.16g,%.16g>, <%.16g,%.16g,%.16g>, <%.16g,%.16g,%.16g>, <%.16g,%.16g,%.16g>\n" \
 			  % (P[0], P[1], P[2], V1[0], V1[1], V1[2], V2[0], V2[1], V2[2], V3[0], V3[1], V3[2]))
 		#----------------------------------------------------------------------------------	
+		#-----------------------------------------------------------------------20241208----For PYX,PYY,PYZ, added by zxw????????????
+		elif   card.tag in ("PYX", "PYY", "PYZ"):
+			fout.write("box {%s, %s, %.16g}\n"%(vec(card.bodyP()),vec(card.bodyHL_H()), card.bodyR()))
+		#----------------------------------------------------------------------------------	
+
 		elif card.tag == "BOX":
 			P  = card.bodyP()
 			lx = card.bodyX().length()

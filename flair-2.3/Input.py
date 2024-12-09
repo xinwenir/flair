@@ -2705,8 +2705,14 @@ class Card:
 						self.numWhat(3),
 						self.numWhat(5))
 		#-------------------------------------------------------------------------------
-		#ZXW---20240830---------For TET, added by zxw
+		#---20240830---------For TET, added by zxw
 		elif   self.tag == "TET":     
+			return bmath.Vector(	self.numWhat(1),
+						self.numWhat(2),
+						self.numWhat(3))
+		#-------------------------------------------------------------------------------
+		#---20241208---------For PY, added by zxw
+		elif   self.tag in ("PYX","PYY","PYZ"):     
 			return bmath.Vector(	self.numWhat(1),
 						self.numWhat(2),
 						self.numWhat(3))
@@ -2743,7 +2749,7 @@ class Card:
 			return bmath.Vector(	self.numWhat(4),
 						self.numWhat(5),
 						self.numWhat(6))
-		elif self.tag == "TET": #ZXW20240830--------------For TET, added by zxw
+		elif self.tag == "TET": #20240830--------------For TET, added by zxw
 			return bmath.Vector(	self.numWhat(4),
 						self.numWhat(5),
 						self.numWhat(6))
@@ -2759,7 +2765,7 @@ class Card:
 			return bmath.Vector(	self.numWhat(i),
 						self.numWhat(i+1),
 						self.numWhat(i+2))
-		elif self.tag == "TET": #ZXW20240830--------------For TET, added by zxw
+		elif self.tag == "TET": #20240830--------------For TET, added by zxw
 			return bmath.Vector(	self.numWhat(i),
 						self.numWhat(i+1),
 						self.numWhat(i+2))
@@ -2851,6 +2857,8 @@ class Card:
 		"""Radius (or x-radius) of body"""
 		if   self.tag == "SPH":
 			return self.numWhat(4)
+		elif self.tag in ("PYX","PYY","PYZ"):
+			return self.numWhat(7)
 		elif self.tag == "RCC":
 			return self.numWhat(7)
 		elif self.tag in ("XCC", "YCC", "ZCC"):
@@ -2863,7 +2871,14 @@ class Card:
 			return bmath.Vector(self.numWhat(3), self.numWhat(4), 0.0)
 		else:
 			return None
+		# ----------------------------------------------------------------------
 
+	def bodyHL_H(self):
+		"""half-lengths of the sides of the major base of pyramid"""
+		if   self.tag in ("PYX","PYY","PYZ"):
+			return bmath.Vector(self.numWhat(4), self.numWhat(5), self.numWhat(6))
+		else:
+			return None
 	# ----------------------------------------------------------------------
 	# Add a Zone to REGION
 	# ----------------------------------------------------------------------
@@ -4935,9 +4950,13 @@ class Input:
 
 		elif tag in ("RPP","BOX"):
 			self._transformBox(card, matrix)
-		#--------------------------------------------------zxw20240827------------For TET, added by zxw
+		#--------------------------------------------------20240827------------For TET, added by zxw
 		elif tag in ("TET"):
 			self._transformTET(card, matrix)
+		#--------------------------------------------------
+		#--------------------------------------------------20241208------------For PY, added by zxw
+		elif tag in ("PYX","PYY","PYZ"):
+			self._transformPY(card, matrix)
 		#--------------------------------------------------
 		elif tag=="REC":
 			self._transformREC(card, matrix)
@@ -5074,7 +5093,7 @@ class Input:
 		card.setWhat(11, self._format(Z[1]))
 		card.setWhat(12, self._format(Z[2]))
 
-	#-------------------------------------------ZXW20240827-----For TET, added by zxw
+	#-------------------------------------------20240827-----For TET, added by zxw
 	def _transformTET(self, card, matrix):
 		point1 = matrix * card.bodyP1()
 		point2 = matrix * card.bodyP2()
@@ -5093,7 +5112,18 @@ class Input:
 		card.setWhat(11, self._format(point4[1]))
 		card.setWhat(12, self._format(point4[2]))
 	#-----------------------------------------------------------------------
+	#-------------------------------------------20240827-----For PY, added by zxw ????????????
+	def _transformPY(self, card, matrix):
+		point = matrix * card.bodyP()
+		card.setWhat( 1, self._format(point[0]))
+		card.setWhat( 2, self._format(point[1]))
+		card.setWhat( 3, self._format(point[2]))
+		card.setWhat( 4, self._format(card.numWhat(4)))
+		card.setWhat( 5, self._format(card.numWhat(5)))
+		card.setWhat( 6, self._format(card.numWhat(6)))
+		card.setWhat( 7, self._format(card.numWhat(7)))
 	# ----------------------------------------------------------------------
+
 	def _transformREC(self, card, matrix):
 		point = matrix * card.bodyP()
 		X = matrix.multNoTranslation(card.bodyX())

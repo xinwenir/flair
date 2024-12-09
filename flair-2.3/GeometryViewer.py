@@ -278,8 +278,11 @@ _ADD_SEQUENCE = {	# use a list as a sequence since python 2.4 doesn't have tuple
 	"XEC"    : [  1, 2 ],
 	"YEC"    : [  1, 2 ],
 	"ZEC"    : [  1, 2 ],
-	"TET"    : [  1,   ], #zxw20240822---------# only position????? --For TET, added by zxw
-	"ARB"    : [  1,   ]  #zxw20240822---------# only position????? --For ARB, added by zxw
+	"TET"    : [  1,   ], # 20240822---------# only position????? --For TET, added by zxw
+	"ARB"    : [  1,   ], # 20240822---------# only position????? --For ARB, added by zxw
+	"PYX"    : [  1,   ], # 20241208---------# only position????? --For PYX, added by zxw
+	"PYY"    : [  1,   ], # 20241208---------# only position????? --For PYY, added by zxw
+	"PYZ"    : [  1,   ]  # 20241208---------# only position????? --For PYZ, added by zxw
 }
 
 # ------------------------------------------------------------------------------
@@ -2282,7 +2285,7 @@ class GeometryViewer(Frame):
 				if card.tag != "VOXELS" and card.tag != tag:
 					if Input._useBOX:
 						card.input.changeTag(card,tag)
-					elif tag not in ("BOX","WED","RAW","ARB","TET"):#------ZXW20240827----For TET, added by zxw
+					elif tag not in ("BOX","WED","RAW","ARB","TET","PYX","PYY","PYZ"):#------20241208----For TET & PY, added by zxw
 						card.input.changeTag(card,tag)
 
 			what = [format(x,15) for x in self._geometry.body(card[ID], "what")]
@@ -2299,9 +2302,9 @@ class GeometryViewer(Frame):
 			else:
 				what.insert(0,card.sdum())
 				if not Input._useBOX:
-					if tag not in ("BOX","WED","RAW","ARB","TET"): #------ZXW20240827----For TET, added by zxw
+					if tag not in ("BOX","WED","RAW","ARB","TET","PYX","PYY","PYZ"):#------20241208----For TET & PY, added by zxw
 						card.setWhats(what)
-				elif tag == "TET":    #--------------------zxw20240830----For TET, added by zxw------doing anythong else????
+				elif tag == "TET":    #--------------------20240830----For TET, added by zxw------doing anythong else????
 					card.setWhats(what)
 				else:
 					card.setWhats(what)

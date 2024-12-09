@@ -160,7 +160,7 @@ def exportBodies(fout, inp):
 			write_matrixZ(fout,Z,P)
 			fout.write("\tcylinder(h=%g,r1=%g, r2=%g, center=false, $fn=CYL);\n" % \
 				(h, card.numWhat(7), card.numWhat(8)))
-		#----------------------------------------------------zxw20240827-----For TET, added by zxw	
+		#----------------------------------------------------20240827-----For TET, added by zxw	
 		elif   card.tag == "TET":
 			V0 = card.bodyP1()
 			V1 = card.bodyP2()
@@ -175,7 +175,11 @@ def exportBodies(fout, inp):
 			lv = v.norm()
 			lw = w.norm()
 			write_matrix(fout, u,v,w,P)
-			fout.write("\t\tcube([%g,%g,%g], center=false);\n"%(lu,lv,lw))
+			fout.write("\t\tcube([%g,%g,%g], center=false);\n" %(lu,lv,lw))
+		#----------------------------------------------------20241208-----For PYX, PYY, PYZ, added by zxw ????????????????????????	
+		elif   card.tag in ("PYX", "PYY", "PYZ"):
+			fout.write("\ttranslate(%s)\n" % (card.bodyP()))
+			fout.write("\t\tPyramid(%s,$fn=PYX/PYY/PYZ);\n" %(card.bodyHL_H()))
 		#elif card.tag == "ELL":
 		#	WriteEllipsoid
 
