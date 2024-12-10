@@ -1,4 +1,4 @@
-* Add "Fonts" and "geoviewer.so" to flair-2.3
+* Add the files `Fonts` and `geoviewer.so` to the path `flair-2.3`;
 * Running, using: 
 ```
 python flair.py
