@@ -1,7 +1,12 @@
-* add "Fonts" and "geoviewer.so" to flair-2.3, then we can use: 
+* Add "Fonts" and "geoviewer.so" to flair-2.3
+* Running, using: 
 ```
 python flair.py
 ```
+
+
+
+
 
 
 ### PUSH a new branch to a exiting `git`:
