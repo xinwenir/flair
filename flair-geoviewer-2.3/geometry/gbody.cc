@@ -2772,7 +2772,7 @@ void GPYXBody::setWhat(double* what, char* err)
 	//PY_L_X, PY_L_Y, PY_L_Z, PY_H, PY_R
 	fixWhat(what, nWhat(), SMALL);
 	mesh.allocateVertices(8);
-	P.set(what[0], what[ 1], what[ 2]);
+	P.set(what[0], what[1], what[2]);
 
 	PY_L_Y = what[3];
 	PY_L_Z = what[4];
@@ -2794,42 +2794,6 @@ void GPYXBody::setWhat(double* what, char* err)
 		
 	for (int i = 0; i < 8; i++)
 		mesh.vertex(i) = V[i];
-
-	// if(0.0 == PY_R){
-	// 	Point V[8];
-	// 	V[0].set(P.x, P.y + PY_L_Y, P.z - PY_L_Z);
-	// 	V[1].set(P.x, P.y + PY_L_Y, P.z + PY_L_Z);
-	// 	V[2].set(P.x, P.y - PY_L_Y, P.z + PY_L_Z);
-	// 	V[3].set(P.x, P.y - PY_L_Y, P.z - PY_L_Z);
-	// 	V[4].set(P.x + PY_H, P.y, P.z);
-	// 	V[5].set(P.x + PY_H, P.y, P.z);
-	// 	V[6].set(P.x + PY_H, P.y, P.z);
-	// 	V[7].set(P.x + PY_H, P.y, P.z);
-	// 	for (int i = 0; i < 8; i++)
-	// 	{
-	// 		mesh.vertex(i) = V[i];
-	// 	}
-	// }
-	// else if(1.0 >= PY_R && PY_R > 0.0){
-	// 	Point V[8];
-	// 	double mi_PY_L_Y, mi_PY_L_Z;
-	// 	mi_PY_L_Y = PY_L_Y * PY_R;
-	// 	mi_PY_L_Z = PY_L_Z * PY_R;
-	// 	V[0].set(P.x, P.y + PY_L_Y, P.z - PY_L_Z);
-	// 	V[1].set(P.x, P.y + PY_L_Y, P.z + PY_L_Z);
-	// 	V[2].set(P.x, P.y - PY_L_Y, P.z + PY_L_Z);
-	// 	V[3].set(P.x, P.y - PY_L_Y, P.z - PY_L_Z);
-	// 	V[4].set(P.x + PY_H, P.y + mi_PY_L_Y, P.z - mi_PY_L_Z);
-	// 	V[5].set(P.x + PY_H, P.y + mi_PY_L_Y, P.z + mi_PY_L_Z);
-	// 	V[6].set(P.x + PY_H, P.y - mi_PY_L_Y, P.z + mi_PY_L_Z);
-	// 	V[7].set(P.x + PY_H, P.y - mi_PY_L_Y, P.z - mi_PY_L_Z);
-		
-	// 	for (int i = 0; i < 8; i++)
-	// 		mesh.vertex(i) = V[i];
-	// }
-	// else{
-	// 	cout << "Error: PY_R =" << PY_R << " is a Invalid value"  << endl;
-	// }
 
 	checkOrthogonal(err); 
 } // setWhat
@@ -2853,27 +2817,7 @@ int GPYXBody::getWhat(double* what) const
 	what[5] = V[4].x - V[0].x;
 
 	what[6] = double((V[5].y - V[7].y) / (V[1].y - V[3].y));
-	// if(V[5] + V[6] == V[7]){
-	// 	what[0] = V[0].x;
-	// 	what[1] = V[4].y;
-	// 	what[2] = V[4].z;
-	// 	what[3] = V[0].y - V[4].y;
-	// 	what[4] = V[1].z - V[4].z;
-	// 	what[5] = V[4].x - V[0].x;
-	// 	what[6] = 0.0;
-	// }
-	// else{
-	// 	what[0] = V[0].x;
-	// 	what[1] = V[4].y;
-	// 	what[2] = V[4].z;
 
-	// 	what[3] = (V[1].y - V[3].y) / 2.0;
-	// 	what[4] = (V[1].z - V[3].z) / 2.0;
-
-	// 	what[5] = V[4].x - V[0].x;
-
-	// 	what[6] = double((V[5].y - V[7].y) / (V[1].y - V[3].y));
-	// }
 	return 7;
 } // getWhat
 
@@ -2926,7 +2870,7 @@ void GPYXBody::createQuads()
 
 	if (V[4] == V[5] && V[4] == V[6] && V[4] == V[7]){
 		// create quads
-		Vector N1 = V[4] - V[0];
+		Vector N1 = (V[1] - V[0]) ^ (V[3] - V[0]);
 		Vector N2 = (V[0] - V[4]) ^ (V[3] - V[4]);
 		Vector N3 = (V[3] - V[4]) ^ (V[2] - V[4]);
 		Vector N4 = (V[2] - V[4]) ^ (V[1] - V[4]);
@@ -2938,11 +2882,11 @@ void GPYXBody::createQuads()
 		N5.normalize();
 		// 5 planes will be
 		//        Cx    Cy    Cz      C
-		addQuad(N1.x, N1.y, N1.z, -N1 * V[0]);
-		addQuad(N2.x, N2.y, N2.z, -N2 * V[4]);
-		addQuad(N3.x, N3.y, N3.z, -N3 * V[4]);
-		addQuad(N4.x, N4.y, N4.z, -N4 * V[4]);
-		addQuad(N5.x, N5.y, N5.z, -N5 * V[4]);
+		addQuad(-N1.x, -N1.y, -N1.z, N1 * V[0]);
+		addQuad(-N2.x, -N2.y, -N2.z, N2 * V[4]);
+		addQuad(-N3.x, -N3.y, -N3.z, N3 * V[4]);
+		addQuad(-N4.x, -N4.y, -N4.z, N4 * V[4]);
+		addQuad(-N5.x, -N5.y, -N5.z, N5 * V[4]);
 	} 
 	else{
 		// create quads
@@ -2961,12 +2905,12 @@ void GPYXBody::createQuads()
 		N6.normalize();
 		// 6 planes will be
 		//        Cx    Cy    Cz      C
-		addQuad(N1.x, N1.y, N1.z, -N1 * V[0]);
-		addQuad(N2.x, N2.y, N2.z, -N2 * V[0]);
-		addQuad(N3.x, N3.y, N3.z, -N3 * V[1]);
-		addQuad(N4.x, N4.y, N4.z, -N4 * V[2]);
-		addQuad(N5.x, N5.y, N5.z, -N5 * V[3]);
-		addQuad(N6.x, N6.y, N5.z, -N6 * V[4]);
+		addQuad(-N1.x, -N1.y, -N1.z, N1 * V[0]);
+		addQuad(-N2.x, -N2.y, -N2.z, N2 * V[0]);
+		addQuad(-N3.x, -N3.y, -N3.z, N3 * V[1]);
+		addQuad(-N4.x, -N4.y, -N4.z, N4 * V[2]);
+		addQuad(-N5.x, -N5.y, -N5.z, N5 * V[3]);
+		addQuad(-N6.x, -N6.y, -N5.z, N6 * V[4]);
 	}
 } // createQuads
 
@@ -3065,13 +3009,13 @@ void GPYYBody::setWhat(double* what, char* err)
 	double mi_PY_L_X, mi_PY_L_Z;
 	mi_PY_L_X = PY_L_X * PY_R;
 	mi_PY_L_Z = PY_L_Z * PY_R;
-	V[0].set(P.x + PY_L_X, P.y, P.z - PY_L_Z);
+	V[0].set(P.x - PY_L_X, P.y, P.z + PY_L_Z);
 	V[1].set(P.x + PY_L_X, P.y, P.z + PY_L_Z);
-	V[2].set(P.x - PY_L_X, P.y, P.z + PY_L_Z);
+	V[2].set(P.x + PY_L_X, P.y, P.z - PY_L_Z);
 	V[3].set(P.x - PY_L_X, P.y, P.z - PY_L_Z);
-	V[4].set(P.x + mi_PY_L_X, P.y + PY_H, P.z - mi_PY_L_Z);
+	V[4].set(P.x - mi_PY_L_X, P.y + PY_H, P.z + mi_PY_L_Z);
 	V[5].set(P.x + mi_PY_L_X, P.y + PY_H, P.z + mi_PY_L_Z);
-	V[6].set(P.x - mi_PY_L_X, P.y + PY_H, P.z + mi_PY_L_Z);
+	V[6].set(P.x + mi_PY_L_X, P.y + PY_H, P.z - mi_PY_L_Z);
 	V[7].set(P.x - mi_PY_L_X, P.y + PY_H, P.z - mi_PY_L_Z);
 		
 	for (int i = 0; i < 8; i++)
@@ -3151,7 +3095,7 @@ void GPYYBody::createQuads()
 
 	if (V[4] == V[5] && V[4] == V[6] && V[4] == V[7]){
 		// create quads
-		Vector N1 = V[4] - V[0];
+		Vector N1 = (V[1] - V[0]) ^ (V[3] - V[0]);
 		Vector N2 = (V[0] - V[4]) ^ (V[3] - V[4]);
 		Vector N3 = (V[3] - V[4]) ^ (V[2] - V[4]);
 		Vector N4 = (V[2] - V[4]) ^ (V[1] - V[4]);
@@ -3163,11 +3107,11 @@ void GPYYBody::createQuads()
 		N5.normalize();
 		// 5 planes will be
 		//        Cx    Cy    Cz      C
-		addQuad(N1.x, N1.y, N1.z, -N1 * V[0]);
-		addQuad(N2.x, N2.y, N2.z, -N2 * V[4]);
-		addQuad(N3.x, N3.y, N3.z, -N3 * V[4]);
-		addQuad(N4.x, N4.y, N4.z, -N4 * V[4]);
-		addQuad(N5.x, N5.y, N5.z, -N5 * V[4]);
+		addQuad(-N1.x, -N1.y, -N1.z, N1 * V[0]);
+		addQuad(-N2.x, -N2.y, -N2.z, N2 * V[4]);
+		addQuad(-N3.x, -N3.y, -N3.z, N3 * V[4]);
+		addQuad(-N4.x, -N4.y, -N4.z, N4 * V[4]);
+		addQuad(-N5.x, -N5.y, -N5.z, N5 * V[4]);
 	} 
 	else{
 		// create quads
@@ -3186,12 +3130,12 @@ void GPYYBody::createQuads()
 		N6.normalize();
 		// 6 planes will be
 		//        Cx    Cy    Cz      C
-		addQuad(N1.x, N1.y, N1.z, -N1 * V[0]);
-		addQuad(N2.x, N2.y, N2.z, -N2 * V[0]);
-		addQuad(N3.x, N3.y, N3.z, -N3 * V[1]);
-		addQuad(N4.x, N4.y, N4.z, -N4 * V[2]);
-		addQuad(N5.x, N5.y, N5.z, -N5 * V[3]);
-		addQuad(N6.x, N6.y, N5.z, -N6 * V[4]);
+		addQuad(-N1.x, -N1.y, -N1.z, N1 * V[0]);
+		addQuad(-N2.x, -N2.y, -N2.z, N2 * V[0]);
+		addQuad(-N3.x, -N3.y, -N3.z, N3 * V[1]);
+		addQuad(-N4.x, -N4.y, -N4.z, N4 * V[2]);
+		addQuad(-N5.x, -N5.y, -N5.z, N5 * V[3]);
+		addQuad(-N6.x, -N6.y, -N5.z, N6 * V[4]);
 	}
 } // createQuads
 
@@ -3372,7 +3316,7 @@ void GPYZBody::createQuads()
 
 	if (V[4] == V[5] && V[4] == V[6] && V[4] == V[7]){
 		// create quads
-		Vector N1 = V[4] - V[0];
+		Vector N1 = (V[1] - V[0]) ^ (V[3] - V[0]);
 		Vector N2 = (V[0] - V[4]) ^ (V[3] - V[4]);
 		Vector N3 = (V[3] - V[4]) ^ (V[2] - V[4]);
 		Vector N4 = (V[2] - V[4]) ^ (V[1] - V[4]);
@@ -3384,11 +3328,11 @@ void GPYZBody::createQuads()
 		N5.normalize();
 		// 5 planes will be
 		//        Cx    Cy    Cz      C
-		addQuad(N1.x, N1.y, N1.z, -N1 * V[0]);
-		addQuad(N2.x, N2.y, N2.z, -N2 * V[4]);
-		addQuad(N3.x, N3.y, N3.z, -N3 * V[4]);
-		addQuad(N4.x, N4.y, N4.z, -N4 * V[4]);
-		addQuad(N5.x, N5.y, N5.z, -N5 * V[4]);
+		addQuad(-N1.x, -N1.y, -N1.z, N1 * V[0]);
+		addQuad(-N2.x, -N2.y, -N2.z, N2 * V[4]);
+		addQuad(-N3.x, -N3.y, -N3.z, N3 * V[4]);
+		addQuad(-N4.x, -N4.y, -N4.z, N4 * V[4]);
+		addQuad(-N5.x, -N5.y, -N5.z, N5 * V[4]);
 	} 
 	else{
 		// create quads
@@ -3407,12 +3351,12 @@ void GPYZBody::createQuads()
 		N6.normalize();
 		// 6 planes will be
 		//        Cx    Cy    Cz      C
-		addQuad(N1.x, N1.y, N1.z, -N1 * V[0]);
-		addQuad(N2.x, N2.y, N2.z, -N2 * V[0]);
-		addQuad(N3.x, N3.y, N3.z, -N3 * V[1]);
-		addQuad(N4.x, N4.y, N4.z, -N4 * V[2]);
-		addQuad(N5.x, N5.y, N5.z, -N5 * V[3]);
-		addQuad(N6.x, N6.y, N5.z, -N6 * V[4]);
+		addQuad(-N1.x, -N1.y, -N1.z, N1 * V[0]);
+		addQuad(-N2.x, -N2.y, -N2.z, N2 * V[0]);
+		addQuad(-N3.x, -N3.y, -N3.z, N3 * V[1]);
+		addQuad(-N4.x, -N4.y, -N4.z, N4 * V[2]);
+		addQuad(-N5.x, -N5.y, -N5.z, N5 * V[3]);
+		addQuad(-N6.x, -N6.y, -N5.z, N6 * V[4]);
 	}
 } // createQuads
 
