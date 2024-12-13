@@ -22,3 +22,9 @@ git add . # (or: git add [filename])
 git commit -m "Initial commit"
 git push -u origin flair-dev-PY
 ```
+```
+git clone https://codebase.helmholtz.cloud/flair/flair-2.3.git -b dev-Pyramid
+git add . # (or: git add [filename])
+git commit -m "Initial commit"
+git push -u origin dev-Pyramid
+```
